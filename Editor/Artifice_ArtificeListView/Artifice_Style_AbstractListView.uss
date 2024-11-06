@@ -57,22 +57,26 @@
 
 .size-field{
     flex-direction: row;
+    margin-right: 15px;
     align-items: center;
-    width: 125px;
+    
+    justify-content: flex-end;
 }
 .size-title-label{
+    margin-right: 10px;
 }
 .size-value-field{
     padding: 1px;
     
-    flex-shrink: 1;
+    flex-grow: 0;
+    flex-shrink: 0;
     
     border-width: 1px;
     border-color: black;
     border-radius: 2px;
     
-    min-width: 40px;
-    margin-right: 5px;
+    max-width: 75px;
+    min-width: 50px;
 }
 .size-text{
     -unity-text-align: middle-right;

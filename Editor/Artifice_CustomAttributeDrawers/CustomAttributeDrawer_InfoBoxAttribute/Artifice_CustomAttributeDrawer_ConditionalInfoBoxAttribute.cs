@@ -44,7 +44,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         /* Executes logic on changing visibility */
         private void UpdateRootVisibility(SerializedProperty property)
         {
-            var trackedValue = property.GetSerializedPropertyValue();
+            var trackedValue = property.GetTarget<object>();
             
             if(_attribute.Values.Any(value => Artifice_Utilities.AreEqual(trackedValue, value)))
                 _infoBoxElem.RemoveFromClassList("hide");

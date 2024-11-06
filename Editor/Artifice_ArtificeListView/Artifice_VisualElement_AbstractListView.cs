@@ -133,7 +133,7 @@ namespace ArtificeToolkit.Editor
                     {
                         foreach (var childProperty in childrenProperties)
                         {
-                            if (childProperty.name == "size")
+                            if (childProperty.propertyType == SerializedPropertyType.ArraySize)
                                 continue;
 
                             var childElem = BuildListElementUI(childProperty, index);

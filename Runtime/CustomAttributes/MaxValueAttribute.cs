@@ -1,7 +1,7 @@
 namespace ArtificeToolkit.Attributes
 {
     /// <summary> Bounds the property's max value to a given value </summary>
-    public class MaxValueAttribute : CustomAttribute
+    public class MaxValueAttribute : ValidatorAttribute
     {
         public float Value;
         

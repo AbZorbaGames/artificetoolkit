@@ -1,5 +1,10 @@
 # Change Log:
 
+## 1.1.8
+ - Enchacement: Refactored ButtonAttribute to work with methods instead of proxy properties. 
+ - Enchacement: Added sliging group visual element. Used in ButtonAttribute for cleaner inspector view
+ - Enchacement: Some improvement on artifice list view performance 
+
 ## 1.1.7
  - Enchacement: Previously ArtificeDrawer would completely ignore custom property drawers in the project. Now, it queries and uses them if they exist!
  - Bug Fix: Previously in version 2022.X, when openning the validator window a bunch of warnings would show up. This is now fixed.

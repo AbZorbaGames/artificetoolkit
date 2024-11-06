@@ -65,7 +65,7 @@ namespace ArtificeToolkit.Editor
 
                 var scene = SceneManager.GetSceneByName(sceneName);
                 if(shouldSearchScene && scene.isLoaded)
-                    foreach (var monoBehaviour in Object.FindObjectsOfType<MonoBehaviour>(true))
+                    foreach (var monoBehaviour in Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                         list.Add(new SerializedObject(monoBehaviour).GetIterator());
             }
             

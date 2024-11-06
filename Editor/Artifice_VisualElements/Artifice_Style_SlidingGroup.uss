@@ -1,0 +1,29 @@
+.group-container{
+    position: relative;
+    border-width: 0;
+
+    height: 30px;
+}
+
+.default-content-container
+{
+    border-width: 2px;
+    border-radius: 3px;
+    border-color: #0c0c0c;
+
+    /* Make bottom and right borders thicker for shadow effect */
+    border-bottom-width: 5px;
+    border-right-width: 4px;
+
+    padding: 10px;
+    top: -100px;
+
+    background-color: #2D2D2D;
+}
+
+.handle{
+    height: 100%;
+    
+    position: absolute;
+    right: 0px;
+}

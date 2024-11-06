@@ -7,6 +7,16 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     public class Artifice_VisualElement_FoldoutGroup : Artifice_VisualElement_BoxGroup
     {
         #region FIELDS
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                _isExpanded = value;
+                UpdateDropdown();
+            }
+        }
         
         private readonly VisualElement _dropdownSymbol;
         private bool _isExpanded = true;

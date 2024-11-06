@@ -4,7 +4,9 @@ using System.Linq;
 using System.Reflection;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonAttribute;
 using CustomAttributes;
+using Editor.Artifice_VisualElements;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -102,6 +104,9 @@ namespace ArtificeToolkit.Editor
                 artificeInspector.Add(CreatePropertyGUI(property.Copy()));
             }
 
+            // Create optional method buttons Foldout Group for serializedObject
+            artificeInspector.Add(CreateMethodsGUI(serializedObject));
+            
             // Apply any modified property
             serializedObject.ApplyModifiedProperties(); 
 
@@ -184,9 +189,13 @@ namespace ArtificeToolkit.Editor
                         foldout.AddToClassList("nested-field-property");
                         foldout.BindProperty(property); // Bind to make foldout state (open-closed) be persistent
 
+                        // Create property for each child
                         foreach (var child in property.GetVisibleChildren())
                             foldout.Add(CreatePropertyGUI(child, forceArtificeStyle));
-
+                        
+                        // Create methods group
+                        foldout.Add(CreateMethodsGUI(property));
+                        
                         container.Add(CreateCustomAttributesGUI(property, foldout));
                     }
                 }
@@ -302,6 +311,64 @@ namespace ArtificeToolkit.Editor
                 property.serializedObject.ApplyModifiedProperties();
         }
 
+        /// <summary> Returns a <see cref="VisualElement"/> with buttons which invoke the methods marked with the <see cref="ButtonAttribute"/>. </summary>
+        /// <remarks> Unfortunately, there is not unified structure for SerializedObject and SerializedProperty. A template is used here to avoid deduplicate method overloads. </remarks>
+        private VisualElement CreateMethodsGUI<T>(T serializedData) where T : class
+        {
+            // Obtain the target type depending on the serializedData type.
+            var targetType = serializedData switch
+            {
+                SerializedObject serializedObject => serializedObject.targetObject.GetType(),
+                SerializedProperty serializedProperty => serializedProperty.GetTarget<object>().GetType(),
+                _ => throw new ArgumentException("Invalid serialized data type.")
+            };
+
+            // Get name to show in sliding group title based on serialized data type.
+            var slidingGroupTitle = serializedData switch
+            {
+                SerializedObject serializedObject => serializedObject.targetObject.GetType().Name,
+                SerializedProperty serializedProperty => serializedProperty.displayName,
+                _ => throw new ArgumentException("Invalid serialized data type.")
+            };
+            
+            // Create main container to return, containing both a list of buttons and a sliding group.
+            var container = new VisualElement();
+            container.AddToClassList("property-container");
+
+            // Some methods may be in a sliding group. Optional.
+            var slidingGroup = new Artifice_VisualElement_SlidingGroup();
+            slidingGroup.SetTitle($"{slidingGroupTitle}: Actions");
+            slidingGroup.AddToClassList("method-group-container");
+            
+            var methods = targetType.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (var method in methods)
+            {
+                // Get button attribute
+                var buttonAttribute = method.GetCustomAttribute<ButtonAttribute>();
+                if (buttonAttribute == null)
+                    continue;
+
+                // Create dedicated drawer for it
+                var buttonCustomDrawer = new Artifice_CustomAttributeDrawer_ButtonAttribute();
+                buttonCustomDrawer.Attribute = buttonAttribute;
+
+                // Create the method GUI using serializedData
+                var button = buttonCustomDrawer.CreateMethodGUI(serializedData, method);
+                button.AddToClassList("method-button");
+
+                if (buttonAttribute.ShouldAddOnSlidingPanel)
+                    slidingGroup.Add(button);
+                else
+                    container.Add(button);
+            }
+
+            // If sliding group is not empty, add it to the container last.
+            if (slidingGroup.childCount > 0)
+                container.Add(slidingGroup);
+
+            return container.childCount > 0 ? container : null;
+        }
+        
         /// <summary> Returns an interactable visual indicator to determine whether ArtificeDrawer is enabled or not </summary>
         private VisualElement CreateArtificeIndicatorGUI(SerializedObject serializedObject)
         {
@@ -345,11 +412,27 @@ namespace ArtificeToolkit.Editor
         {
             if (_isUsingCustomAttributesCache.ContainsKey(property))
                 return _isUsingCustomAttributesCache[property];
-
+            
+            // Check if property directly has a custom attribute
             var customAttributes = property.GetCustomAttributes();
-            _isUsingCustomAttributesCache[property] = customAttributes != null && customAttributes.Length > 0;
-
-            return _isUsingCustomAttributesCache[property];
+            if (customAttributes != null && customAttributes.Length > 0)
+            {
+                _isUsingCustomAttributesCache[property] = true;
+                return true;
+            }
+            
+            var obj = property.GetTarget<object>();
+            if (obj != null)
+            {
+                foreach(var method in obj.GetType().GetMethods())
+                    if (method.GetCustomAttributes().Any(attribute => attribute is CustomAttribute))
+                    {
+                        _isUsingCustomAttributesCache[property] = true;
+                        return true;
+                    }
+            }
+          
+            return false;
         }
 
         /// <summary> Returns true if any nested child is using any <see cref="CustomAttribute"/> </summary>
@@ -381,18 +464,20 @@ namespace ArtificeToolkit.Editor
                 return arrayElementType != null && DoChildrenOfTypeUseCustomAttributes(arrayElementType);
             }
             
-            // Otherwise, actually check ALL children
-            var it = property.Copy();
-            while (it.NextVisible(true) && it.depth > property.depth)
+            // Otherwise, check ALL children
+            foreach (var visibleChild in property.GetVisibleChildren())
             {
-                var customAttributes = it.GetCustomAttributes();
-                if (customAttributes != null && customAttributes.Length > 0)
+                // If property is array skip the size property when determining artifice usage.
+                if(property.propertyType == SerializedPropertyType.ArraySize)
+                    continue;
+                
+                if (ShouldUseArtificeEditorForProperty(visibleChild))
                 {
                     _doChildrenUseCustomAttributesCache[property] = true;
                     return true;
                 }
             }
-
+            
             _doChildrenUseCustomAttributesCache[property] = false;
             return false;
         }

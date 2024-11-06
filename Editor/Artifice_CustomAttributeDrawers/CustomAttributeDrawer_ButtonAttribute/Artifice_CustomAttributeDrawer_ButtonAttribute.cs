@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using ArtificeToolkit.Attributes;
-using ArtificeToolkit.Editor.VisualElements;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonAttribute
@@ -13,64 +12,73 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     [Artifice_CustomAttributeDrawer(typeof(ButtonAttribute))]
     public class Artifice_CustomAttributeDrawer_ButtonAttribute : Artifice_CustomAttributeDrawer
     {
-        public override bool IsReplacingPropertyField { get; } = true;
-
-        public override VisualElement OnPropertyGUI(SerializedProperty property)
+        /// <summary> Returns button for method button GUI from a serialized object or property. </summary>
+        public VisualElement CreateMethodGUI<T>(T serializedData, MethodInfo methodInfo) where T : class
         {
-            var attribute = (ButtonAttribute)Attribute;
-
-            // Get reference to target object.
-            // If property does not have a SerializedProperty parent, its parent is the serializedObject
-            var propertyParent = property.FindParentProperty();
-            var parentTarget = propertyParent != null ? propertyParent.GetTarget<object>() : property.serializedObject.targetObject;
-            var methodInfo = parentTarget.GetType().GetMethod(attribute.MethodName);
-
-            // Error check the method
-            if (methodInfo == null)
+            var button = new Button(() =>
             {
-                Debug.LogError($"Unable to find method {attribute.MethodName} in {property.serializedObject.targetObject.name}");
-                return new VisualElement();
-            }
-            
-            // Create main container
-            var container = new VisualElement();
-            container.AddToClassList("button-container");
-            
-            // Create button to invoke and return!
-            var button = new Artifice_VisualElement_LabeledButton(AddSpacesBeforeCapitals(attribute.MethodName), () =>
-            {
-                property.serializedObject.Update();
+                // Retrieve the underlying SerializedObject regardless of whether serializedData is SerializedObject or SerializedProperty
+                var serializedObject = serializedData switch
+                {
+                    SerializedObject obj => obj,
+                    SerializedProperty property => property.serializedObject,
+                    _ => throw new ArgumentException("Invalid serialized data type.")
+                };
                 
-                // Create parameters array
-                var parametersList = GetParameterList(property);
-                // Error check number of parameters
+                // Retrieve the underlying target object regardless of whether serializedData is SerializedObject or SerializedProperty
+                var targetObject = serializedData switch
+                {
+                    SerializedObject obj => obj.targetObject,
+                    SerializedProperty property => property.GetTarget<object>(),
+                    _ => throw new ArgumentException("Invalid serialized data type.")
+                };
+
+                // Begin update and call method
+                serializedObject.Update();
+
+                // Generate parameters list
+                var parametersList = GetParameterList(serializedData);
+
+                // Validate parameter count
                 if (methodInfo.GetParameters().Length != parametersList.Count)
                     throw new ArgumentException($"[Artifice/Button] Parameters count do not match with method {methodInfo.Name}");
-                
-                // Call method with params
-                methodInfo.Invoke(parentTarget, parametersList.ToArray());
-                
-                property.serializedObject.ApplyModifiedProperties();
+
+                // Invoke the method
+                methodInfo.Invoke(targetObject, parametersList.ToArray());
+
+                // Apply changes
+                serializedObject.ApplyModifiedProperties();
             });
-            button.style.paddingBottom = 10;
-            button.style.paddingTop = 10;
-            container.Add(button);
+    
+            button.text = AddSpacesBeforeCapitals(methodInfo.Name);
+            button.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
+            button.AddToClassList("button");
 
-            return container;
+            return button;
         }
-
-        private List<object> GetParameterList(SerializedProperty property)
+        
+        /// <summary> Retrieves a list of parameters for the method invocation based on the attribute parameter names. </summary>
+        private List<object> GetParameterList<T>(T serializedData) where T : class
         {
             var attribute = (ButtonAttribute)Attribute;
             var parametersList = new List<object>();
-            
-            // Iterate and find parameters
+
+            // Iterate through the parameter names specified in the attribute
             foreach (var parameterName in attribute.ParameterNames)
             {
-                var parameterProperty = property.FindPropertyInSameScope(parameterName);
+                var parameterProperty = serializedData switch
+                {
+                    // Find the appropriate property based on the type of serializedData
+                    SerializedObject serializedObject => serializedObject.FindProperty(parameterName),
+                    SerializedProperty property => property.FindPropertyRelative(parameterName),
+                    _ => throw new ArgumentException("Invalid serialized data type.")
+                };
+
+                // Check if the property exists
                 if (parameterProperty == null)
                     throw new ArgumentException($"[Artifice/Button] Cannot find parameter name {parameterName}");
-                
+
+                // Add the target value of the property to the parameter list
                 parametersList.Add(parameterProperty.GetTarget<object>());
             }
 

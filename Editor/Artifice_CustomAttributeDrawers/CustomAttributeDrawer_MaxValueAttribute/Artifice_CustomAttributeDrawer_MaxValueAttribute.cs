@@ -1,41 +1,38 @@
-using System;
+using System.Linq;
 using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
+using ArtificeToolkit.Editor.Resources;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_MaxValueAttribute
 {
     [Artifice_CustomAttributeDrawer(typeof(MaxValueAttribute))]
-    public class Artifice_CustomAttributeDrawer_MaxValueAttribute : Artifice_CustomAttributeDrawer
+    public class Artifice_CustomAttributeDrawer_MaxValueAttribute : Artifice_CustomAttributeDrawer_Validator_BASE
     {
-        public override VisualElement OnPrePropertyGUI(SerializedProperty property)
+        public override string LogMessage { get; } = "Property value is below minimum accepted value.";
+        public override Sprite LogSprite { get; } = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
+        public override LogType LogType { get; } = LogType.Error;
+        
+        protected override bool IsApplicableToProperty(SerializedProperty property)
         {
-            var tracker = new VisualElement();
-            tracker.TrackPropertyValue(property, OnValueChanged);
-            return tracker;
+            return property.propertyType is SerializedPropertyType.Integer or SerializedPropertyType.Float;
         }
 
-        private void OnValueChanged(SerializedProperty property)
+        public override bool IsValid(SerializedProperty property)
         {
-            var attribute = (MaxValueAttribute)Attribute;
-
-            property.serializedObject.Update();
+            var attribute = (MaxValueAttribute)property.GetCustomAttributes().FirstOrDefault(attribute => attribute is MaxValueAttribute);
+            Debug.Assert(attribute != null, "Attribute cannot be null here.");
             
             switch (property.propertyType)
             {
                 case SerializedPropertyType.Integer:
-                    property.intValue = Mathf.Min(property.intValue, (int)attribute.Value);
-                    break;
+                    return property.intValue <= attribute.Value;
                 case SerializedPropertyType.Float:
-                    property.floatValue = Mathf.Min(property.floatValue, attribute.Value);
-                    break;
+                    return property.floatValue <= attribute.Value;
                 default:
-                    throw new ArgumentException($"MaxValueAttribute not supported for type {property.propertyType}");
+                    return false;
             }
-
-            property.serializedObject.ApplyModifiedProperties();
         }
     }
 }

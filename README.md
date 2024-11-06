@@ -25,6 +25,9 @@ The Artifice Toolkit offers three powerful tools:
 
 3. [Artifice Drawer](#artifice-drawer): The ArtificeDrawer is what renders everything in the ArtificeToolkit. Invoke the drawer in your Editor Scripts with a SerializedObject or SerializedProperty and you will receive the rendered result of it. This essentially makes the ArtificeDrawer a first-class citizen inspector.
 
+## Unity Version Support
+The ArtificeToolkit has been primarily tested and optimized for Unity 2022, ensuring stable and consistent performance. It is also compatible with Unity 2023, where it has been thoroughly tested to maintain functionality. While the toolkit works with Unity 2021, users may encounter occasional warnings; these will be addressed in upcoming updates to improve compatibility with older versions.
+
 ## How to install into your Unity project?
 You can add the ArtificeToolkit as any other Unity Package. Since this is an alpha testing phase, it can only be added as a local package through Windows -> Package Manager. Then press the "plus" icon and choose "Add Package from disk...". The select the package.json file and the ArtificeToolkit will be linked to your project.
 
@@ -118,20 +121,22 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [Title](#title)
 - [EnumToggle](#enumtoggle)
 - [EnableIf](#enableif)
-- [PreviewScriptable](#previewscriptable)
+- [Button](#button)
 - [PreviewSprite](#previewsprite)
+- [PreviewScriptable](#previewscriptable)
 - [ReadOnly](#readonly)
 
 ## Miscellaneous
 - [Space](#space)
 - [Range](#range)
 - [HideLabel](#hidelabel)
-- [HideInArtifice] (#hideinartifice)
+- [HideInArtifice](#hideinartifice)
 - [InfoBox](#infobox)
 - [ConditionalInfoBox](#conditionalinfobox)
 - [ListElementName](#listelementname)
 - [MeasureUnit](#measureunit)
-- [ForceArtifice] (#forceartifice)
+- [ForceArtifice](#forceartifice)
+
 
 <!-- ALL ATTRIBUTES DETAILED -->
 ## All Attributes
@@ -325,6 +330,37 @@ private float onDeathSoundFxVolume;
 
 ---
 
+### Button
+Button allows you to quickly turn any method into a button in the inspector to invoke at your hearts content. Buttons can be placed inline using an optional parameter. Otherwise they will be grouped in a sliding container to keep your inspector clean and simple.
+
+It is worth noting that buttons will always appear last in the rendering order. This is something due to change in the far future.
+
+```c#
+[SerializeField] 
+private string parameterTest = "test";
+
+[Button]
+private void TestMethod()
+{
+    Debug.Log("Invoked from editor button!");
+}
+
+[Button(false)]
+private void TestMethodInline()
+{
+    Debug.Log("Invoked from editor button!");
+}
+
+[Button("parameterTest")]
+private void TestMethodWithParameters(string parameter)
+{
+    Debug.Log($"Invoked from editor button! Dynamic Parameter: {parameter}");
+}
+```
+
+![button-example](./Documentation/artifice_button.gif)
+
+
 ### PreviewSprite
 PreviewSprite works only on the Sprite and Texture2D serialized properties. It renders an enlarged image of the selected value.
 
@@ -496,7 +532,7 @@ using System;
 using UnityEngine;
 
 [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-public class TitleAttribute : PropertyAttribute
+public class TitleAttribute : CustomAttribute
 {
     public string Title { get; }
 
@@ -559,3 +595,12 @@ public class ExampleComponent : MonoBehaviour
 }
 
 ```
+
+## Known Issues
+- In Unity 2021.x.x the following warning may appear due to value tracking not working generic types of serialized properties.
+```
+Serialized property type Generic does not support value tracking; callback is not set for characters
+UnityEditor.RetainedMode:UpdateSchedulers ()
+```
+
+- The ArtificeToolkit was created with Dark Theme is mind and is currently the only supported color palette.

@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using ArtificeToolkit.Attributes;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 // ReSharper disable InvertIf
 
@@ -16,14 +17,19 @@ namespace ArtificeToolkit.Editor
     {
         private static readonly Regex ArrayIndexCapturePattern = new Regex(@"\[(\d*)\]");
 
-        /// <summary> This method calls GetTarget but casts the result using generics for better usability </summary>
+        /// <summary> This method calls <see cref="GetTarget"/> but casts the result using generics for better usability </summary>
         public static T GetTarget<T>(this SerializedProperty property)
         {
             return (T)GetTarget(property);
         }
         
+        /// <summary> This method uses reflection to return the Type of the property. </summary>
         public static Type GetTargetType(this SerializedProperty property)
         {
+            // Try get direct value for optimization.
+            if (GetTargetTypeDirect(property, out var value))
+                return value;
+            
             var propertyNames = property.propertyPath.Split('.');
             
             object target = property.serializedObject.targetObject;
@@ -55,12 +61,14 @@ namespace ArtificeToolkit.Editor
             return targetType;
         }
 
-        /// <summary>
-        /// This method uses reflection to return the objectReference of the serialized property parameter.
-        /// In contrast with property.objectReference, it can return even nested values within an array or list.
-        /// </summary>
+        /// <summary> This method uses reflection to return the object reference of the property. </summary>
         private static object GetTarget(this SerializedProperty property)
         {
+            // First try to use direct type access if possible for performance.
+            if (GetTargetDirect(property, out var value))
+                return value;
+            
+            // For generic types, do complex stuff.
             var propertyNames = property.propertyPath.Split('.');
             object target = property.serializedObject.targetObject;
             var isNextPropertyArrayIndex = false;
@@ -86,7 +94,191 @@ namespace ArtificeToolkit.Editor
 
             return target;
         }
+
+        /// <summary> This method returns the object value of the property using direct means. It does not support generic types and enums. </summary>
+        private static bool GetTargetDirect(this SerializedProperty property, out object value)
+        {
+            // Fast path for common types
+            switch (property.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    value = property.intValue;
+                    return true;
+                case SerializedPropertyType.Boolean:
+                    value = property.boolValue;
+                    return true;
+                case SerializedPropertyType.Float:
+                    value = property.floatValue;
+                    return true;
+                case SerializedPropertyType.String:
+                    value = property.stringValue;
+                    return true;
+                case SerializedPropertyType.ObjectReference:
+                    value = property.objectReferenceValue;
+                    return true;
+                case SerializedPropertyType.Enum:
+                    // Skip this so GetTarget will find the actual enum, and not the integer value of it. 
+                    // value = property.enumValueFlag;
+                    value = null;
+                    return false;
+                case SerializedPropertyType.Color:
+                    value = property.colorValue;
+                    return true;
+                case SerializedPropertyType.Vector2:
+                    value = property.vector2Value;
+                    return true;
+                case SerializedPropertyType.Vector3:
+                    value = property.vector3Value;
+                    return true;
+                case SerializedPropertyType.Vector4:
+                    value = property.vector4Value;
+                    return true;
+                case SerializedPropertyType.Rect:
+                    value = property.rectValue;
+                    return true;
+                case SerializedPropertyType.LayerMask:
+                    value = property.intValue;  // LayerMask is stored as an integer
+                    return true;
+                case SerializedPropertyType.Character:
+                    value = (char)property.intValue; // Character stored as an integer
+                    return true;
+                case SerializedPropertyType.AnimationCurve:
+                    value = property.animationCurveValue;
+                    return true;
+                case SerializedPropertyType.Bounds:
+                    value = property.boundsValue;
+                    return true;
+                case SerializedPropertyType.Quaternion:
+                    value = property.quaternionValue;
+                    return true;
+                case SerializedPropertyType.ExposedReference:
+                    value = property.exposedReferenceValue;
+                    return true;
+                case SerializedPropertyType.FixedBufferSize:
+                    value = property.intValue; // Generally represents size
+                    return true;
+                case SerializedPropertyType.Vector2Int:
+                    value = property.vector2IntValue;
+                    return true;
+                case SerializedPropertyType.Vector3Int:
+                    value = property.vector3IntValue;
+                    return true;
+                case SerializedPropertyType.RectInt:
+                    value = property.rectIntValue;
+                    return true;
+                case SerializedPropertyType.BoundsInt:
+                    value = property.boundsIntValue;
+                    return true;
+                case SerializedPropertyType.ManagedReference:
+                    // ManagedReference is a serialized reference to a managed (non-Unity) object.
+                    value = property.managedReferenceValue;
+                    return true;
+                case SerializedPropertyType.Hash128:
+                    value = property.hash128Value;
+                    return true;
+
+                case SerializedPropertyType.ArraySize:
+                    // ArraySize holds the size of an array, accessible as an integer
+                    value = property.intValue;
+                    return true;
+
+                // Default and unsupported types
+                case SerializedPropertyType.Generic:
+                default:
+                    value = null;
+                    return false;
+            }
+        }
         
+        /// <summary> This method returns the Type of the property using direct means. It does not support generic types, object references and enums. </summary>
+        private static bool GetTargetTypeDirect(this SerializedProperty property, out Type value)
+        {
+            // Fast path for common types
+            switch (property.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    value = typeof(int);
+                    return true;
+                case SerializedPropertyType.Boolean:
+                    value = typeof(bool);
+                    return true;
+                case SerializedPropertyType.Float:
+                    value = typeof(float);
+                    return true;
+                case SerializedPropertyType.String:
+                    value = typeof(string);
+                    return true;
+                case SerializedPropertyType.Enum:
+                    // Skip this so GetTarget will find the actual enum, and not the integer value of it.
+                    value = null;
+                    return false;
+                case SerializedPropertyType.Color:
+                    value = typeof(Color);
+                    return true;
+                case SerializedPropertyType.Vector2:
+                    value = typeof(Vector2);
+                    return true;
+                case SerializedPropertyType.Vector3:
+                    value = typeof(Vector3);
+                    return true;
+                case SerializedPropertyType.Vector4:
+                    value = typeof(Vector4);
+                    return true;
+                case SerializedPropertyType.Rect:
+                    value = typeof(Rect);
+                    return true;
+                case SerializedPropertyType.LayerMask:
+                    value = typeof(int); // LayerMask is stored as an integer
+                    return true;
+                case SerializedPropertyType.Character:
+                    value = typeof(char); // Character stored as an integer
+                    return true;
+                case SerializedPropertyType.AnimationCurve:
+                    value = typeof(AnimationCurve);
+                    return true;
+                case SerializedPropertyType.Bounds:
+                    value = typeof(Bounds);
+                    return true;
+                case SerializedPropertyType.Quaternion:
+                    value = typeof(Quaternion);
+                    return true;
+                case SerializedPropertyType.ExposedReference:
+                    value = typeof(Object); // ExposedReference usually holds a UnityEngine.Object reference
+                    return true;
+                case SerializedPropertyType.FixedBufferSize:
+                    value = typeof(int); // Represents size as an integer
+                    return true;
+                case SerializedPropertyType.Vector2Int:
+                    value = typeof(Vector2Int);
+                    return true;
+                case SerializedPropertyType.Vector3Int:
+                    value = typeof(Vector3Int);
+                    return true;
+                case SerializedPropertyType.RectInt:
+                    value = typeof(RectInt);
+                    return true;
+                case SerializedPropertyType.BoundsInt:
+                    value = typeof(BoundsInt);
+                    return true;
+                case SerializedPropertyType.ManagedReference:
+                    value = property.managedReferenceValue?.GetType();
+                    return value != null;
+                case SerializedPropertyType.Hash128:
+                    value = typeof(Hash128);
+                    return true;
+                case SerializedPropertyType.ArraySize:
+                    value = typeof(int); // ArraySize is an integer
+                    return true;
+                    
+                // Default and unsupported types
+                case SerializedPropertyType.ObjectReference:
+                case SerializedPropertyType.Generic:
+                default:
+                    value = null;
+                    return false;
+            }
+        }
+
         /// <summary> Utility method for GetTarget </summary>
         private static object GetField(object target, string name, Type targetType = null)
         {
@@ -126,27 +318,6 @@ namespace ArtificeToolkit.Editor
             return int.Parse(match.Groups[1].Value);
         }
         
-        /* Helper method to get the value of a SerializedProperty */
-        public static object GetSerializedPropertyValue(this SerializedProperty property)
-        {
-            switch (property.propertyType)
-            {
-                case SerializedPropertyType.Boolean:
-                    return property.boolValue;
-                case SerializedPropertyType.Float:
-                    return property.floatValue;
-                case SerializedPropertyType.Integer:
-                    return property.intValue;
-                case SerializedPropertyType.String:
-                    return property.stringValue;
-                case SerializedPropertyType.ObjectReference:
-                    return property.objectReferenceValue;
-                case SerializedPropertyType.Enum:
-                    return property.enumValueFlag;
-                default:
-                    throw new ArgumentException();
-            }
-        }
         
         /// <summary> Returns an array of any <see cref="CustomAttribute"/> found in the property. Otherwise returns null. </summary>
         public static Attribute[] GetAttributes(this SerializedProperty property)
@@ -173,9 +344,10 @@ namespace ArtificeToolkit.Editor
                 return attributes;
             }
 
-            return null;
+            return new CustomAttribute[] { };
         }
 
+        
         /// <summary>Gets visible children of a <see cref="SerializedProperty"/> at 1 level depth.</summary>
         public static List<SerializedProperty> GetVisibleChildren(this SerializedProperty property)
         {
@@ -241,6 +413,7 @@ namespace ArtificeToolkit.Editor
             return fieldInfo;
         }
         
+        
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindPropertyInSameScope(this SerializedProperty property, string propertyName)
        {
@@ -260,6 +433,7 @@ namespace ArtificeToolkit.Editor
             return property.serializedObject.FindProperty(newPath);
         }
 
+        
         /// <summary> Returns array children type from array property. </summary>
         public static Type GetArrayChildrenType(this SerializedProperty property)
         {
@@ -313,6 +487,7 @@ namespace ArtificeToolkit.Editor
             return int.Parse(property.propertyPath.Substring(startIndex, length));
         }
         
+        
         /// <summary> Returns the string value of the underlying serialized property. </summary>
         public static string GetValueString(this SerializedProperty property)
         {
@@ -345,6 +520,7 @@ namespace ArtificeToolkit.Editor
             }
         }
      
+        
         /// <summary> Copies the value of direct value of a serialized property if their SerializedPropertyType match.</summary>
         public static void Copy(this SerializedProperty property, SerializedProperty targetProperty)
         {
