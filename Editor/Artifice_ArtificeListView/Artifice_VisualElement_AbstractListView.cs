@@ -94,8 +94,10 @@ namespace ArtificeToolkit.Editor
         
         private void BuildListUI()
         {
-            Debug.Assert(Property.isArray, "ArtificeListView only works with Array properties.");
+            if (Property.Verify() == false)
+                return;
             
+            Debug.Assert(Property.isArray, "ArtificeListView only works with Array properties.");
             _uiBuilder.Create<VisualElement>(
                 "list",
                 elem =>

@@ -317,7 +317,21 @@ namespace ArtificeToolkit.Editor
 
             return int.Parse(match.Groups[1].Value);
         }
-        
+
+        /// <summary> Returns true if property is valid and not disposed off. Solution is dirty but could not access this information otherwise. </summary>
+        public static bool Verify(this SerializedProperty property)
+        {
+            // Test that the serialized property has not been disposed off.
+            try
+            {
+                var propertyPath = property.propertyPath;
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
         
         /// <summary> Returns an array of any <see cref="CustomAttribute"/> found in the property. Otherwise returns null. </summary>
         public static Attribute[] GetAttributes(this SerializedProperty property)

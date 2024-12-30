@@ -177,6 +177,7 @@ namespace ArtificeToolkit.Editor
                     if (hasCustomPropertyDrawer)
                     {
                         var customPropertyField = Artifice_CustomDrawerUtility.CreatePropertyGUI(property);
+                        customPropertyField = CreateCustomAttributesGUI(property, customPropertyField);
                         container.Add(customPropertyField);
                     }
                     else
