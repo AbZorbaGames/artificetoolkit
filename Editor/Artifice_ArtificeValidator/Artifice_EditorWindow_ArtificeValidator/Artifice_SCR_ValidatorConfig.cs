@@ -1,6 +1,6 @@
 using System;
 using ArtificeToolkit.Attributes;
-using ArtificeToolkit.Editor.Artifice_SerializedDictionary;
+using ArtificeToolkit.Runtime.SerializedDictionary;
 using UnityEngine;
 
 // ReSharper disable InconsistentNaming

@@ -103,3 +103,8 @@ MonoBehaviour:
     - name: Sliding Group
       script: {fileID: 11500000, guid: bdb6b3ae0bb13eb499e5524a872bd24e, type: 3}
       stylesheet: {fileID: 7433441132597879392, guid: 9fdfec03103348d498f24cb8d622ffde, type: 3}
+  - categoryName: Custom Property Drawers
+    styleData:
+    - name: Serialized Dictionary
+      script: {fileID: 11500000, guid: d053bec53c68d2249b89603cb7d99fb7, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 51883da140386e042b63637a0c93182b, type: 3}

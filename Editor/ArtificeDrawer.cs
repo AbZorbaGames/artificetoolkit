@@ -136,7 +136,7 @@ namespace ArtificeToolkit.Editor
         }
 
         /// <summary> Receives a SerializedProperty as a parameter and returns its Artifice GUI </summary>
-        public VisualElement CreatePropertyGUI(SerializedProperty property, bool forceArtificeStyle = false)
+        public VisualElement CreatePropertyGUI(SerializedProperty property, bool forceArtificeStyle = false, bool useFoldoutForVisibleChildren = true)
         {
             var container = new VisualElement();
             container.AddToClassList("property-container");
@@ -181,22 +181,30 @@ namespace ArtificeToolkit.Editor
                     }
                     else
                     {
-                        var foldout = new Foldout
+                        VisualElement childrenContainer;
+
+                        // Optionally use foldout for visible children, or have them just placed in order.
+                        if (useFoldoutForVisibleChildren)
                         {
-                            value = property.isExpanded,
-                            text = property.displayName
-                        };
-                        foldout.AddToClassList("nested-field-property");
-                        foldout.BindProperty(property); // Bind to make foldout state (open-closed) be persistent
+                            childrenContainer = new Foldout
+                            {
+                                value = property.isExpanded,
+                                text = property.displayName
+                            };
+                            childrenContainer.AddToClassList("nested-field-property");
+                            ((Foldout)childrenContainer).BindProperty(property); // Bind to make foldout state (open-closed) be persistent
+                        }
+                        else
+                            childrenContainer = new VisualElement();
 
                         // Create property for each child
                         foreach (var child in property.GetVisibleChildren())
-                            foldout.Add(CreatePropertyGUI(child, forceArtificeStyle));
+                            childrenContainer.Add(CreatePropertyGUI(child, forceArtificeStyle));
                         
                         // Create methods group
-                        foldout.Add(CreateMethodsGUI(property));
+                        childrenContainer.Add(CreateMethodsGUI(property));
                         
-                        container.Add(CreateCustomAttributesGUI(property, foldout));
+                        container.Add(CreateCustomAttributesGUI(property, childrenContainer));
                     }
                 }
                 else

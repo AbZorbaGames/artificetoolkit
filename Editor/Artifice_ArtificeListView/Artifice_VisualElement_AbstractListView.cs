@@ -48,6 +48,8 @@ namespace ArtificeToolkit.Editor
         }
         
         #region FIELDS
+
+        private Label _listViewLabel;
         
         protected SerializedProperty Property;
         protected List<CustomAttribute> ChildrenInjectedCustomAttributes = new();
@@ -152,6 +154,7 @@ namespace ArtificeToolkit.Editor
                     }
                     
                     Property.serializedObject.ApplyModifiedProperties();
+                    OnBuildUICompleted();
                 }
             );
             
@@ -190,10 +193,10 @@ namespace ArtificeToolkit.Editor
                 arrowSymbolLabel.AddToClassList("rotate-90");
             
             // Title of list
-            var listTitleLabel = new Label(Property.displayName);
-            listTitleLabel.AddToClassList("list-title-label");
-            listHeader.Add(listTitleLabel);
-            listTitleLabel.tooltip = "Artifice List:\nTreat this as exactly as you would treat Unity's default list. If you find missing functionality that you would like to add, contact the ArtificeDrawer developers.";
+            _listViewLabel = new Label(Property.displayName);
+            _listViewLabel.AddToClassList("list-title-label");
+            listHeader.Add(_listViewLabel);
+            _listViewLabel.tooltip = "Artifice List:\nTreat this as exactly as you would treat Unity's default list. If you find missing functionality that you would like to add, contact the ArtificeDrawer developers.";
             
             // Size field
             var sizeProperty = Property.FindPropertyRelative("Array.size");
@@ -239,13 +242,7 @@ namespace ArtificeToolkit.Editor
             });
             
             // Add button for new elements
-            var addButton = new Artifice_VisualElement_LabeledButton("+", () =>
-            {
-                Property.arraySize++;
-                Property.serializedObject.ApplyModifiedProperties();
-                Property.serializedObject.Update();
-                BuildListUI();
-            });
+            var addButton = new Artifice_VisualElement_LabeledButton("+", OnAddItem);
             addButton.AddToClassList("add-button");
             listHeader.Add(addButton);
             
@@ -338,12 +335,7 @@ namespace ArtificeToolkit.Editor
             var deleteButtonContainer = new VisualElement();
             deleteButtonContainer.AddToClassList("delete-button-container");
             
-            var deleteButton = new Artifice_VisualElement_LabeledButton("-", () =>
-            {
-                Property.DeleteArrayElementAtIndex(property.GetIndexInArray());
-                Property.serializedObject.ApplyModifiedProperties();
-                BuildListUI();
-            });
+            var deleteButton = new Artifice_VisualElement_LabeledButton("-", () => OnRemoveItem(property.GetIndexInArray()));
             deleteButton.AddToClassList("delete-button");
             deleteButtonContainer.Add(deleteButton);
             
@@ -355,11 +347,34 @@ namespace ArtificeToolkit.Editor
             return elementContainer;
         }
         
+        protected virtual void OnBuildUICompleted()
+        {
+            
+        }
         protected virtual VisualElement BuildPrePropertyUI(SerializedProperty property)
         {
             return null;
         }
         protected abstract VisualElement BuildPropertyFieldUI(SerializedProperty property, int index);
+        
+        #endregion
+        
+        #region On Add / Remove
+
+        protected virtual void OnAddItem()
+        {
+            Property.arraySize++;
+            Property.serializedObject.ApplyModifiedProperties();
+            Property.serializedObject.Update();
+            BuildListUI();
+        }
+
+        protected virtual void OnRemoveItem(int index)
+        {
+            Property.DeleteArrayElementAtIndex(index);
+            Property.serializedObject.ApplyModifiedProperties();
+            BuildListUI();
+        }
         
         #endregion
         
@@ -633,6 +648,11 @@ namespace ArtificeToolkit.Editor
         #endregion
         
         #region Utility
+
+        public void SetTitle(string title)
+        {
+            _listViewLabel.text = title;
+        }
         
         public void SetChildrenInjectedCustomAttributes(List<CustomAttribute> childrenInjectedCustomAttributes)
         {

@@ -1,5 +1,5 @@
 using System;
-using ArtificeToolkit.Editor.Artifice_SerializedDictionary;
+using ArtificeToolkit.Runtime.SerializedDictionary;
 using UnityEditor;
 using UnityEngine;
 
