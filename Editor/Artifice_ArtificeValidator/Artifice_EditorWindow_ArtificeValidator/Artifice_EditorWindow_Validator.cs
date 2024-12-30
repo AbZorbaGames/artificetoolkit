@@ -300,9 +300,9 @@ namespace ArtificeToolkit.Editor
         public const string ConfigPathKey = "ArtificeValidator/SettingsPath";
         private const string ConfigFolderPath = "Assets/Editor/ArtificeToolkit";
         
-        #endregion
-
         public Artifice_SCR_ValidatorConfig _config;
+        
+        #endregion
         
         [MenuItem(MenuItemPath)]
         public static void OpenWindow()
@@ -507,6 +507,7 @@ namespace ArtificeToolkit.Editor
 
             // Splits tracked containers and error logs
             var splitPane = new TwoPaneSplitView(0, 300, TwoPaneSplitViewOrientation.Horizontal);
+            splitPane.viewDataKey = "Artifice_EditorWindow_Validator";
             splitPane.AddToClassList("align-horizontal");
             rootVisualElement.Add(splitPane);
 
@@ -516,7 +517,7 @@ namespace ArtificeToolkit.Editor
             // trackedContainers.Add(BuildTrackedScenesUI()); // Removed for now. It seemed obnoxious and useless. 
             trackedContainers.Add(BuildTrackedAssetFoldersUI());
             trackedContainers.Add(BuildTrackedValidatorTypesUI());
-            // Add to splitpane
+            // Add to split-pane
             splitPane.Add(trackedContainers);
             
             // Build Error logs and add

@@ -2,11 +2,12 @@
 ## 1.1.11
  - Enhancement: Added SerializedDictionary to runtime which works with all serializable types. Works with a specialized custom property drawer inherting from AbstractListView.
  - Enhancement: Updated documentation to include extra features section.
- - Fix: Add null checks and minor serialized property verification extension to avoid some errors.
+ - Fix: Added null checks and minor serialized property verification extension to avoid some errors.
+ - Fix: Added persistency to Artifice_EditorWindow_Validator two pane split view. 
 
 
 ## 1.1.10
- - Fix: Bad nmespace for Artifice_VisualElement_SlidingGroup caused conflicts with UnityEditor.Editor namespace.
+ - Fix: Bad namespace for Artifice_VisualElement_SlidingGroup caused conflicts with UnityEditor.Editor namespace.
 
 ## 1.1.9
  - Fix: Abstract List View would not apply attributes to children.

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedDictionary
+namespace ArtificeToolkit.Editor
 {
     public class ArtificeEditor_VisualElement_DictionaryListView : Artifice_VisualElement_AbstractListView
     {

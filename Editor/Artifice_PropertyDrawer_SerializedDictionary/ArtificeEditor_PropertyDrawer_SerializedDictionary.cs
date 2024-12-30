@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 // ReSharper disable CheckNamespace
 
-namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedDictionary
+namespace ArtificeToolkit.Editor
 {
     [CustomPropertyDrawer(typeof(SerializedDictionaryWrapper), true)]
     public class ArtificeEditor_PropertyDrawer_SerializedDictionary : PropertyDrawer
