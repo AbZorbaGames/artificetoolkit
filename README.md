@@ -101,7 +101,6 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [MeasureUnit](#measureunit)
 - [ForceArtifice](#forceartifice)
 
-
 <!-- WHY ORDER MATTERS -->
 ## Why Order Matters!
 When applying custom attributes to a property, it’s important to understand the order in which they are applied during the rendering process. Internally, custom attributes are applied at the following key rendering points:
@@ -143,7 +142,6 @@ private int x;
 private int y;
 ```
 In this version, EnableIf is applied first, ensuring that property y behaves as expected—only, and the the BoxGroup is resolved, wrapping the wrapper of the EnableIf.
-
 
 <!-- ALL ATTRIBUTES DETAILED -->
 ## All Attributes
@@ -484,6 +482,30 @@ As [MinValue](#minvalue) but for a maximum value.
 The ArtificeDrawer is responsible for rendering the inspector using VisualElements, applying custom properties when necessary. For optimization, if no custom attributes are detected, it skips the Artifice rendering and falls back to a default IMGUIContainer.
 
 However, there are cases where we might want to enforce the use of Artifice, even for nested properties that don't have custom attributes. In these scenarios, this attribute ensures that Artifice is always used, overriding the default behavior.
+
+
+<!-- EXTRA FEATURES -->
+## Extra Features
+The ArtificeToolkit comes with a lot of extra stuff that will be briefly mentioned here. In the future, more documentation will be added in this section.
+
+1. <b>SerializedDictionary</b>: ArtificeToolkit holds its own serializable dictionary implementation. It can be used and controlled in the inspector with any serializable type.
+
+<div style="display: flex; justify-content: center;">
+  <img src="./Documentation/artifice_serializedDictionary.gif" alt="GIF Example" style="width: 500px; height: 500px" />
+</div>
+
+2. <b>IArtifice_Persistence</b>: In case you need to add persistency to your editor scripts, you can use this interface and implement its methods to support any persisted information. 
+
+3. <b>Artifice_SCR_CommonResourcesHolder</b>: ArtificeToolkit uses icons which are publicly exposed even for other editor tools to utilize.
+
+4. <b>UIBuilder</b>: Dynamically rebuild visual elements using the UIBuilder to have dynamic DOM updates.
+
+5. A plethora of specifalized Artifice_SerializedPropertyExtensions.
+
+6. A plethora of Visual Elements like:
+    - Artifice_VisualElement_ToggleButton
+    - Artifice_VisualElement_FoldoutGroup
+    - Artifice_VisualElement_InfoBox
 
 
 <!-- ARTIFICE VALIDATOR -->

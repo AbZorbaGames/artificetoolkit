@@ -1,6 +1,7 @@
 # Change Log:
 ## 1.1.11
- - Enchacement: Added SerializedDictionary to runtime which works with all serializable types. Works with a specialized custom property drawer inherting from AbstractListView.
+ - Enhancement: Added SerializedDictionary to runtime which works with all serializable types. Works with a specialized custom property drawer inherting from AbstractListView.
+ - Enhancement: Updated documentation to include extra features section.
  - Fix: Add null checks and minor serialized property verification extension to avoid some errors.
 
 
@@ -10,30 +11,30 @@
 ## 1.1.9
  - Fix: Abstract List View would not apply attributes to children.
  - Fix: ChildGameObjectOnly would cause visual bug after list redraw.
- - Enchacement: Removed from Validator the drawer of scenes. It did not contribute to anything.
- - Enchacement: Updated Artifice_VisualElement_ToggleButton to support BindProperty.
- - Enchacement: Reversed Button parameter usage to be more usable, and fixed bug were it would not be able to close sliding panel afterwards.
+ - Enhancement: Removed from Validator the drawer of scenes. It did not contribute to anything.
+ - Enhancement: Updated Artifice_VisualElement_ToggleButton to support BindProperty.
+ - Enhancement: Reversed Button parameter usage to be more usable, and fixed bug were it would not be able to close sliding panel afterwards.
  - Fix: Documentation menu item will now redirect user at the github page, showing the README.md
  - Change: Max/Min attributes have been converted to validations.
  - Change: ArtificeEditorWindow now has virtual method for CreateGUI, allowing you to extend it. It also immedietelly filters out unwanted unity serialized field.
 
 
 ## 1.1.8
- - Enchacement: Refactored ButtonAttribute to work with methods instead of proxy properties. 
- - Enchacement: Added sliging group visual element. Used in ButtonAttribute for cleaner inspector view
- - Enchacement: Some improvement on artifice list view performance 
+ - Enhancement: Refactored ButtonAttribute to work with methods instead of proxy properties. 
+ - Enhancement: Added sliging group visual element. Used in ButtonAttribute for cleaner inspector view
+ - Enhancement: Some improvement on artifice list view performance 
 
 ## 1.1.7
- - Enchacement: Previously ArtificeDrawer would completely ignore custom property drawers in the project. Now, it queries and uses them if they exist!
+ - Enhancement: Previously ArtificeDrawer would completely ignore custom property drawers in the project. Now, it queries and uses them if they exist!
  - Bug Fix: Previously in version 2022.X, when openning the validator window a bunch of warnings would show up. This is now fixed.
- - Enchacement: OnPropertyBound override for custom property drawers now works with 100% consistency.
- - Enchacement: Now ChildGameObjectOnly deletes the default unity object selector.
+ - Enhancement: OnPropertyBound override for custom property drawers now works with 100% consistency.
+ - Enhancement: Now ChildGameObjectOnly deletes the default unity object selector.
  - New Attributes: HideInArtifice, ReadOnly 
  - Documentation: Added documentation section on why order matterns + how to create your own custom attribute drawers.
 
 ## 1.1.5
  - Enhancement: Added ListElementNameAttribute which allows you to set a custom naming extension to your list elements based on sub-property string values.
- - Enchacement: Added context menu options (apply/revert to prefab, copy and paste) to Artifice's list view. Now, it also indicates with the blue indicator if lists have been detected on the list.
+ - Enhancement: Added context menu options (apply/revert to prefab, copy and paste) to Artifice's list view. Now, it also indicates with the blue indicator if lists have been detected on the list.
 
 ## 1.1.4
  - Refactor: Changed MenuItem name from ArtificeDrawer to ArtificeToolkit
