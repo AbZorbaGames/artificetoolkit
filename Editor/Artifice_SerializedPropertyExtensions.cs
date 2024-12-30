@@ -282,6 +282,9 @@ namespace ArtificeToolkit.Editor
         /// <summary> Utility method for GetTarget </summary>
         private static object GetField(object target, string name, Type targetType = null)
         {
+            if (target == null)
+                return null;
+            
             if (targetType == null)
                 targetType = target.GetType();
 
@@ -327,7 +330,7 @@ namespace ArtificeToolkit.Editor
                 var propertyPath = property.propertyPath;
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
@@ -397,7 +400,7 @@ namespace ArtificeToolkit.Editor
 
             for (int i = 0; i < fields.Length - 1; ++i)
             {
-                string propName = fields[i];
+                var propName = fields[i];
                 if (propName == "Array")
                 {
                     isNextPropertyArrayIndex = true;
