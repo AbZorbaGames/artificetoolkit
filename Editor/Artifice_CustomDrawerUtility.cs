@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using System.Reflection;
 using System;
 using UnityEditor.UIElements;
+using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
@@ -68,12 +69,15 @@ namespace ArtificeToolkit.Editor
 
             // Check if handler has the method for creating the property GUI in the new UI Toolkit (VisualElement system)
             var handlerType = handler.GetType();
-            var createPropertyGUIMethod = handlerType.GetMethod("CreatePropertyGUI", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-            // If the handler has the method, invoke it and return the VisualElement
-            if (createPropertyGUIMethod != null)
-                return createPropertyGUIMethod.Invoke(handler, new object[] { property }) as VisualElement;
-
+            
+            // Get property drawer method and create property GUI if not null.
+            var getPropertyDrawerMethod = handlerType.GetMethod("get_propertyDrawer", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (getPropertyDrawerMethod != null)
+            {
+                var propertyDrawer = (PropertyDrawer)getPropertyDrawerMethod.Invoke(handler, new object[]{});
+                return propertyDrawer.CreatePropertyGUI(property);
+            }
+            
             // Fallback to a default property field if no CreatePropertyGUI method is found
             return new PropertyField(property);
         }
