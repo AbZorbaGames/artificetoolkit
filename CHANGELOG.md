@@ -1,4 +1,8 @@
 # Change Log:
+## 1.1.11
+ - Enchacement: Added SerializedDictionary to runtime which works with all serializable types. Works with a specialized custom property drawer inherting from AbstractListView.
+ - Fix: Add null checks and minor serialized property verification extension to avoid some errors.
+
 
 ## 1.1.10
  - Fix: Bad nmespace for Artifice_VisualElement_SlidingGroup caused conflicts with UnityEditor.Editor namespace.
