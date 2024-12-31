@@ -7,14 +7,13 @@
 }
 
 .property-container .unity-property-field__label{
-    flex-grow: 1;
-    max-width: 33%;
-    margin-right: 2px;
+    max-width: 81%;
 }
 
 .property-container .unity-property-field__input{
-    min-width: 67%;
-    margin-right: 2px;
+    width: 100%;
+    flex-grow: 1;
+    flex-shrink: 0;
 }
 
 /* This line fixes a bug with toggle checkmarks not matching layout. */

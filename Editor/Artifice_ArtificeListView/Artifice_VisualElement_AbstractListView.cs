@@ -683,7 +683,7 @@ namespace ArtificeToolkit.Editor
                     label.text += listElementNameValue != string.Empty ? $" ({listElementNameValue})" : string.Empty;
                 }
                 
-                // Check whether first child property is a string and override label text acoordingly
+                // Check whether first child property is a string and override label text accordingly
                 if (property.hasVisibleChildren)
                 {
                     var firstChild = property.Copy();
