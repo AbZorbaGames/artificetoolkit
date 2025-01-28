@@ -1,20 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Artifice_Editor;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-using Image = UnityEngine.UIElements.Image;
 using Object = UnityEngine.Object;
-using Toggle = UnityEngine.UIElements.Toggle;
 
 // ReSharper disable InconsistentNaming
 
@@ -27,140 +22,6 @@ namespace ArtificeToolkit.Editor
         private const string MenuItemPath = "Artifice Toolkit/Validator %&v";
 
         #endregion
-        
-        /// <summary> Logs structure for validators </summary>
-        public struct ValidatorLog
-        {
-            public readonly string message;
-            public readonly LogType logType;
-            public readonly Sprite sprite;
-            public readonly Object originObject;
-            public readonly string originLocationName;
-            public readonly Type originValidatorType;
-
-            public readonly bool hasAutoFix;
-            public readonly Action autoFixAction;
-            
-            public ValidatorLog(
-                Sprite sprite,
-                string message,
-                LogType logType,
-                Type originValidatorType,
-                // Optional Parameters (Metadata)
-                Object originObject = null,
-                string originLocationName = "",
-                bool hasAutoFix = false,
-                Action autoFixAction = null
-            )
-            {
-                this.sprite = sprite;
-                this.message = message;
-                this.logType = logType;
-                this.originObject = originObject;
-                this.originLocationName = originLocationName;
-                this.originValidatorType = originValidatorType;
-
-                this.hasAutoFix = hasAutoFix;
-                this.autoFixAction = hasAutoFix ? autoFixAction : null;
-            }
-        }
-
-        /// <summary> Helper struct to keep counter of logs per category </summary>
-        private struct ValidatorLogCounters
-        {
-            public uint comments;
-            public uint warnings;
-            public uint errors;
-
-            public readonly Dictionary<string, uint> scenesMap;
-            public readonly Dictionary<string, uint> assetPathsMap;
-            public readonly Dictionary<string, uint> validatorTypesMap;
-
-            public ValidatorLogCounters(bool ignore = false)
-            {
-                comments = 0;
-                warnings = 0;
-                errors = 0;
-                scenesMap = new Dictionary<string, uint>();
-                assetPathsMap = new Dictionary<string, uint>();
-                validatorTypesMap = new Dictionary<string, uint>();
-            }
-
-            public void IncreaseCount(ValidatorLog log)
-            {
-                switch (log.logType)
-                {
-                    case LogType.Log:
-                        ++comments;
-                        break;
-                    case LogType.Warning:
-                        ++warnings;
-                        break;
-                    case LogType.Error:
-                        ++errors;
-                        break;
-                    default:
-                        break;
-                }
-
-                // Add 0 if key does not exist
-                if (scenesMap.ContainsKey(log.originLocationName))
-                    scenesMap[log.originLocationName] += 1;
-                else
-                {
-                    var copy = assetPathsMap.Keys.ToList(); 
-                    foreach(var key in copy)
-                        if (log.originLocationName.Contains(key))
-                            assetPathsMap[key] += 1;
-                }
-
-                if (validatorTypesMap.ContainsKey(log.originValidatorType.Name))
-                    validatorTypesMap[log.originValidatorType.Name] += 1;
-            }
-            public void DecreaseCount(ValidatorLog log)
-            {
-                switch (log.logType)
-                {
-                    case LogType.Log:
-                        --comments;
-                        break;
-                    case LogType.Warning:
-                        --warnings;
-                        break;
-                    case LogType.Error:
-                        --errors;
-                        break;
-                    default:
-                        break;
-                }
-                // Add 0 if key does not exist
-                if (scenesMap.ContainsKey(log.originLocationName))
-                    scenesMap[log.originLocationName] -= 1;
-                else
-                {
-                    var copy = assetPathsMap.Keys.ToList(); 
-                    foreach(var key in copy)
-                        if (log.originLocationName.Contains(key))
-                            assetPathsMap[key] -= 1;
-                }
-                
-                if (validatorTypesMap.ContainsKey(log.originValidatorType.Name))
-                    validatorTypesMap[log.originValidatorType.Name] -= 1;
-            }
-            
-            public void Reset()
-            {
-                comments = 0;
-                warnings = 0;
-                errors = 0;
-                foreach (var key in scenesMap.Keys.ToList())
-                    scenesMap[key] = 0;
-                foreach (var key in assetPathsMap.Keys.ToList())
-                    assetPathsMap[key] = 0;
-                foreach (var key in validatorTypesMap.Keys.ToList())
-                    validatorTypesMap[key] = 0;
-            }
-        } 
         
         #region Nested VisualElements
         
@@ -223,7 +84,7 @@ namespace ArtificeToolkit.Editor
             }
         }
 
-        /// <summary> Extends <see cref="ListItem"/> by representing more information for <see cref="ValidatorLog"/> </summary>
+        /// <summary> Extends <see cref="ListItem"/> by representing more information for <see cref="Artifice_Validator.ValidatorLog"/> </summary>
         private class ValidatorLogListItem : ListItem
         {
             private readonly Label _objectNameLabel;
@@ -253,7 +114,7 @@ namespace ArtificeToolkit.Editor
                 });
             }
 
-            public void Set(ValidatorLog log)
+            public void Set(Artifice_Validator.ValidatorLog log)
             {
                 base.Set(log.sprite, log.message);
                 _objectNameLabel.text = log.originObject == null ? "" : log.originObject.name;
@@ -275,30 +136,16 @@ namespace ArtificeToolkit.Editor
         #region FIELDS
  
         // Logs
-        private readonly List<ValidatorLog> _logs = new();
-        private readonly List<ValidatorLog> _filteredLogs = new();
+        private readonly List<Artifice_Validator.ValidatorLog> _filteredLogs = new();
         
         // Filter mechanism
-        private List<Func<ValidatorLog, bool>> _filters;
-        
-        // Logs counter
-        private ValidatorLogCounters _logCounters;
-        
-        // Validator Module List
-        private List<Artifice_ValidatorModule> _validatorModules;
+        private List<Func<Artifice_Validator.ValidatorLog, bool>> _filters;
         
         // Dynamic VisualElement References
         private ListView _logsListView;
-        private UnityEvent OnLogsRefreshEvent;
-        private UnityEvent OnLogCounterRefreshedEvent;
         
-        // Performance Bounds
-        private bool _isRefreshing = false;
-
         // Used for editor prefs
         public const string PrefabStageKey = "PrefabStage";
-        public const string ConfigPathKey = "ArtificeValidator/SettingsPath";
-        private const string ConfigFolderPath = "Assets/Editor/ArtificeToolkit";
         
         public Artifice_SCR_ValidatorConfig _config;
         
@@ -325,150 +172,33 @@ namespace ArtificeToolkit.Editor
         /* Mono */
         private void Initialize()
         {
-            // Load Artifice Validator State
-            if(EditorPrefs.HasKey(ConfigPathKey))
-                _config = AssetDatabase.LoadAssetAtPath<Artifice_SCR_ValidatorConfig>(EditorPrefs.GetString(ConfigPathKey));
-            
-            // if config is still null, try to find any config file.
-            if (_config == null)
-            {
-                // Use as path the path of the editor window
-                if (!System.IO.Directory.Exists(ConfigFolderPath))
-                    System.IO.Directory.CreateDirectory(ConfigFolderPath);
-                
-                _config = (Artifice_SCR_ValidatorConfig)CreateInstance(typeof(Artifice_SCR_ValidatorConfig));
-                AssetDatabase.CreateAsset(_config, ConfigFolderPath + "/Default Validator Config.asset");
-                EditorPrefs.SetString(ConfigPathKey, ConfigFolderPath + "/Default Validator Config.asset");
-            }
-            
-            _isRefreshing = false;
-            _logCounters = new ValidatorLogCounters(false);
-            OnLogsRefreshEvent = new UnityEvent();
-            OnLogCounterRefreshedEvent = new UnityEvent();
-
-            // Initialize/Get Scenes
-            for (var i = 0; i < SceneManager.sceneCount; i++)
-            {
-                var scene = SceneManager.GetSceneAt(i);
-                _logCounters.scenesMap[scene.name] = 0;
-                _config.scenesMap.TryAdd(scene.name, true);
-            }
-            // In case a new scene was added, mark as dirty 
-            EditorUtility.SetDirty(_config);
-            
-            // Initialize Asset paths
-            foreach (var assetPath in _config.assetPathsMap.Keys)
-                _logCounters.assetPathsMap[assetPath] = 0;
-            
-            // Initialize keys for log states (load this from state later on)
-            if(_config.logTypesMap.ContainsKey(LogType.Log) == false)
-                _config.logTypesMap[LogType.Log] = true;
-            if(_config.logTypesMap.ContainsKey(LogType.Warning) == false)
-                _config.logTypesMap[LogType.Warning] = true;
-            if(_config.logTypesMap.ContainsKey(LogType.Error) == false)
-                _config.logTypesMap[LogType.Error] = true;
-            
-            // Get Validator Module Types
-            _validatorModules = new List<Artifice_ValidatorModule>();
-            foreach (var type in TypeCache.GetTypesDerivedFrom<Artifice_ValidatorModule>())
-            {
-                if(type.IsAbstract)
-                    continue;
-                
-                if (_config.validatorTypesMap.ContainsKey(type.Name) == false)
-                    _config.validatorTypesMap[type.Name] = true;
-                
-                _validatorModules.Add((Artifice_ValidatorModule)Activator.CreateInstance(type));
-                _logCounters.validatorTypesMap[type.Name] = 0;
-            }
+            _config = Artifice_Validator.Instance.Get_ValidatorConfig();
             
             // Initialize Filters
-            _filters = new List<Func<ValidatorLog, bool>>();
+            _filters = new List<Func<Artifice_Validator.ValidatorLog, bool>>();
             _filters.Add(log => OnSelectedScenesFilter(log) || OnSelectedAssetPathFilter(log));
             _filters.Add(OnSelectedValidatorTypesFilter);
             _filters.Add(OnLogTypeTogglesFilter);
+            
+            Artifice_Validator.Instance.OnLogsRefreshEvent.AddListener(OnLogsRefresh);
         }
         
-        /* Mono */
-        private void Update()
+        /// <summary> Visually refreshes log counters and filtered logs. </summary>
+        private void OnLogsRefresh()
         {
-            if (_config == null)
-                return;
-
-            if (_config.autorun && _isRefreshing == false)
-            {
-                _isRefreshing = true;
-                EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(), this);
-            }
-        }
-        
-        /* Mono */
-        private void OnDisable()
-        {
-            OnLogsRefreshEvent?.RemoveAllListeners();
-            OnLogCounterRefreshedEvent?.RemoveAllListeners();
-        }
-
-        /// <summary> Calls <see cref="RefreshLogsCoroutine"/> but blocks main thread to run faster. </summary>
-        private void RefreshLogs()
-        {
-            EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(true), this);
-        }
-        
-        /// <summary> Iterates every nested property of gameobject to detect <see cref="Abz_ValidatorAttribute"/> and logs their validity. </summary>
-        private IEnumerator RefreshLogsCoroutine(bool isBlocking = false)
-        {
-            _isRefreshing = true;
-            
-            var batchSize = (int)_config.batchingPriority;
-            if (isBlocking)
-                batchSize = (int)Artifice_SCR_ValidatorConfig.BatchingPriority.Absolute;
-            
-            if (_logs == null)
-                throw new ArgumentException($"[{GetType()}] FilteredLogs not initialized properly.");
-
-            // Run validate for each module and add to list
-            _logs.Clear();
-            for(var i = 0; i < _validatorModules.Count; i++)
-            {
-                var module = _validatorModules[i];
-                
-                // Unless blocking search. skip on demand only modules
-                if(module.OnDemandOnlyModule && isBlocking == false)
-                    continue;
-                
-                // If blocking, progress bar
-                if(isBlocking)
-                    EditorUtility.DisplayProgressBar("Artifice Validator Scan", $"Running {module.GetType().Name}", (float)(i + 1) / (float)(_validatorModules.Count + 1));
-                    
-                // Validate and add logs
-                yield return module.ValidateCoroutine(batchSize);
-
-                var logs = module.Logs;
-                _logs.AddRange(logs);
-            }
-            
-            // Refresh counters
-            RefreshLogCounters();
-            
             // Refresh Filtered logs
             RefreshFilteredLogs();
-            
-            // Emit refresh
-            OnLogsRefreshEvent.Invoke();
-            
-            _isRefreshing = false;
-            
-            // If method was called as blocking, do not change isRefreshing since its auto-refresh's job.
-            if(isBlocking)
-                EditorUtility.ClearProgressBar();
         }
         
         /// <summary> Clears and fills filtered logs based on all logs. </summary>
         private void RefreshFilteredLogs()
         {
+            // Get logs from instance
+            var logs = Artifice_Validator.Instance.Get_Logs();
+            
+            // Refresh filtered logs.
             _filteredLogs.Clear();
-            foreach (var log in _logs)
+            foreach (var log in logs)
             {
                 // If a prefab stage is open, use prefab stage filter.
                 if (PrefabStageUtility.GetCurrentPrefabStage() != null)
@@ -481,16 +211,6 @@ namespace ArtificeToolkit.Editor
                     _filteredLogs.Add(log);
             }
             _logsListView?.RefreshItems();
-        }
-
-        /// <summary> Calling this method recalculates the log count for each counter map </summary>
-        private void RefreshLogCounters()
-        {
-            _logCounters.Reset();
-            foreach (var log in _logs)
-                _logCounters.IncreaseCount(log);
-            
-            OnLogCounterRefreshedEvent.Invoke();
         }
         
         #region Build UI
@@ -530,7 +250,10 @@ namespace ArtificeToolkit.Editor
             container.AddToClassList("header-container");
 
             // Manual scan button
-            var runScan = new Artifice_VisualElement_LabeledButton("Run Scan", RefreshLogs);
+            var runScan = new Artifice_VisualElement_LabeledButton("Run Scan", () =>
+            {
+                Artifice_Validator.Instance.RefreshLogs();
+            });
             container.Add(runScan);
             
             // Autorun toggle
@@ -564,6 +287,7 @@ namespace ArtificeToolkit.Editor
             };
             logFilterToggles.Add(infoToggle);
             
+            
             // Warning Log
             var warningToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.WarningIcon, _config.logTypesMap[LogType.Warning]);
             warningToggle.OnButtonPressed += value => {
@@ -581,11 +305,12 @@ namespace ArtificeToolkit.Editor
             logFilterToggles.Add(errorToggle);
             
             // Subscribe on refresh to increase counters
-            OnLogCounterRefreshedEvent.AddListener(() =>
+            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
             {
-                infoToggle.Text = _logCounters.comments.ToString();
-                warningToggle.Text = _logCounters.warnings.ToString();
-                errorToggle.Text = _logCounters.errors.ToString();
+                var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+                infoToggle.Text = logCounters.comments.ToString();
+                warningToggle.Text = logCounters.warnings.ToString();
+                errorToggle.Text = logCounters.errors.ToString();
             });
             
             return container;
@@ -622,10 +347,11 @@ namespace ArtificeToolkit.Editor
                     });
 
                     // Subscribe to increase count
-                    OnLogCounterRefreshedEvent.AddListener(() =>
+                    Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
                     {
-                        if (_logCounters.scenesMap.ContainsKey(scenes[i]))
-                            itemElem.CountLabel.text = _logCounters.scenesMap[scenes[i]].ToString();
+                        var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+                        if (logCounters.scenesMap.ContainsKey(scenes[i]))
+                            itemElem.CountLabel.text = logCounters.scenesMap[scenes[i]].ToString();
                         else
                             itemElem.CountLabel.text = "0";
                     });
@@ -684,8 +410,8 @@ namespace ArtificeToolkit.Editor
                 }
             );
             container.Add(listView);
-            
-            OnLogCounterRefreshedEvent.AddListener(() =>
+
+            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
             {
                 var children = listView.Query(className: "unity-list-view__item").ToList();
                 for (var i = 0; i < children.Count; i++)
@@ -695,7 +421,7 @@ namespace ArtificeToolkit.Editor
                     if (string.IsNullOrEmpty(assetPath))
                         continue;
                     
-                    child.CountLabel.text = _logCounters.assetPathsMap[assetPath].ToString();
+                    child.CountLabel.text = Artifice_Validator.Instance.Get_LogCounters().assetPathsMap[assetPath].ToString();
                 }
             });
             
@@ -733,7 +459,7 @@ namespace ArtificeToolkit.Editor
             container.Add(BuildTrackedListTitleUI("Validator Types"));
             
             // Add list view
-            var validatorModules = _validatorModules;
+            var validatorModules = Artifice_Validator.Instance.Get_ValidatorModules();
             
             var listView = new ListView(
                 validatorModules,
@@ -763,10 +489,11 @@ namespace ArtificeToolkit.Editor
                     });
                     
                     // Subscribe to increase count
-                    OnLogCounterRefreshedEvent.AddListener(() =>
+                    Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
                     {
-                        if (_logCounters.validatorTypesMap.ContainsKey(validatorTypeName))
-                            itemElem.CountLabel.text = _logCounters.validatorTypesMap[validatorTypeName].ToString();
+                        var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+                        if (logCounters.validatorTypesMap.ContainsKey(validatorTypeName))
+                            itemElem.CountLabel.text = logCounters.validatorTypesMap[validatorTypeName].ToString();
                         else
                             itemElem.CountLabel.text = "0";
                     });
@@ -809,23 +536,23 @@ namespace ArtificeToolkit.Editor
         
         #region Filter Methods
 
-        private bool OnSelectedScenesFilter(ValidatorLog log)
+        private bool OnSelectedScenesFilter(Artifice_Validator.ValidatorLog log)
         {
             return _config.scenesMap.TryGetValue(log.originLocationName, out var value) && value
                 || log.originLocationName == "";
         }
 
-        private bool OnSelectedValidatorTypesFilter(ValidatorLog log)
+        private bool OnSelectedValidatorTypesFilter(Artifice_Validator.ValidatorLog log)
         {
             return _config.validatorTypesMap[log.originValidatorType.Name];
         }
 
-        private bool OnLogTypeTogglesFilter(ValidatorLog log)
+        private bool OnLogTypeTogglesFilter(Artifice_Validator.ValidatorLog log)
         {
             return _config.logTypesMap[log.logType];
         }
 
-        private bool OnSelectedAssetPathFilter(ValidatorLog log)
+        private bool OnSelectedAssetPathFilter(Artifice_Validator.ValidatorLog log)
         {
             foreach (var (folderPath, shouldShow) in _config.assetPathsMap)
                 if (log.originLocationName.Contains(folderPath) && shouldShow)
@@ -837,7 +564,7 @@ namespace ArtificeToolkit.Editor
             return false;
         }
             
-        private bool OnPrefabStageFilter(ValidatorLog log)
+        private bool OnPrefabStageFilter(Artifice_Validator.ValidatorLog log)
         {
             return log.originLocationName == PrefabStageKey &&
                 OnSelectedValidatorTypesFilter(log) &&
@@ -862,8 +589,9 @@ namespace ArtificeToolkit.Editor
             if (string.IsNullOrEmpty(relativePath))
                 return;
             
-            EditorPrefs.SetString(ConfigPathKey, relativePath);
+            EditorPrefs.SetString(Artifice_Validator.ConfigPathKey, relativePath);
          
+            // TODO: [zack] this does not apply the settings now.
             Close();
             OpenWindow();
         }
@@ -874,7 +602,8 @@ namespace ArtificeToolkit.Editor
         
         private void AssetPaths_AddItem(ListView listView, string assetPath)
         {
-            _logCounters.assetPathsMap[assetPath] = 0;
+            var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+            logCounters.assetPathsMap[assetPath] = 0;
             
             _config.assetPathsMap.TryAdd(assetPath, true);
             EditorUtility.SetDirty(_config);
@@ -884,7 +613,8 @@ namespace ArtificeToolkit.Editor
         }
         private void AssetPaths_RemoveItem(ListView listView, string assetPath)
         {
-            _logCounters.assetPathsMap[assetPath] = 0;
+            var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+            logCounters.assetPathsMap[assetPath] = 0;
             
             _config.assetPathsMap.Remove(assetPath);
             EditorUtility.SetDirty(_config);

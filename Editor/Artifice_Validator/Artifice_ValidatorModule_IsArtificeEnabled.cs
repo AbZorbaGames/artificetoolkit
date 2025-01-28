@@ -1,10 +1,11 @@
 using System.Collections;
+using Artifice_Editor;
 using ArtificeToolkit.Editor.Resources;
 using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
-    using ValidatorLog = Artifice_EditorWindow_Validator.ValidatorLog;
+    using ValidatorLog = Artifice_Validator.ValidatorLog;
 
     public class Artifice_ValidatorModule_IsArtificeEnabled : Artifice_ValidatorModule
     {

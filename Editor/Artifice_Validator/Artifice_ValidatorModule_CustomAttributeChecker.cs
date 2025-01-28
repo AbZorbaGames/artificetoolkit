@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Artifice_Editor;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
 using UnityEditor;
@@ -10,7 +11,7 @@ using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
-    using ValidatorLog = Artifice_EditorWindow_Validator.ValidatorLog;
+    using ValidatorLog = Artifice_Validator.ValidatorLog;
 
     public class Artifice_ValidatorModule_CustomAttributeChecker : Artifice_ValidatorModule
     {

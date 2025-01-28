@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Artifice_Editor;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -8,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 namespace ArtificeToolkit.Editor
 {
-    using ValidatorLog = Artifice_EditorWindow_Validator.ValidatorLog;
+    using ValidatorLog = Artifice_Validator.ValidatorLog;
     
     public abstract class Artifice_ValidatorModule
     {
@@ -48,7 +49,7 @@ namespace ArtificeToolkit.Editor
         protected Artifice_SCR_ValidatorConfig GetConfig()
         {
             // Do this on every call, since its possible for the selected config to be changed
-            const string configKeyPath = Artifice_EditorWindow_Validator.ConfigPathKey;
+            const string configKeyPath = Artifice_Validator.ConfigPathKey;
             return AssetDatabase.LoadAssetAtPath<Artifice_SCR_ValidatorConfig>(EditorPrefs.GetString(configKeyPath));
         } 
         

@@ -22,17 +22,17 @@ namespace ArtificeToolkit.Editor
         }
         
         [field: SerializeField] 
-        public bool autorun;
+        public bool autorun = true;
         [field: SerializeField, EnumToggle] 
         public BatchingPriority batchingPriority = BatchingPriority.Medium; 
         
-        [field: SerializeField, InfoBox("Feel free to delete, but never add elements to the following list", InfoBoxAttribute.InfoMessageType.Warning)] 
+        [field: SerializeField] 
         public SerializedDictionary<string, bool> scenesMap = new();
-        [field: SerializeField, InfoBox("Feel free to delete, but never add elements to the following list", InfoBoxAttribute.InfoMessageType.Warning)] 
+        [field: SerializeField] 
         public SerializedDictionary<string, bool> validatorTypesMap = new();
-        [field: SerializeField, InfoBox("Feel free to delete, but never add elements to the following list", InfoBoxAttribute.InfoMessageType.Warning)] 
+        [field: SerializeField] 
         public SerializedDictionary<LogType, bool> logTypesMap = new();
-        [field: SerializeField, InfoBox("Feel free to delete, but never add elements to the following list", InfoBoxAttribute.InfoMessageType.Warning)] 
+        [field: SerializeField] 
         public SerializedDictionary<string, bool> assetPathsMap = new();
     }
 }
