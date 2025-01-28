@@ -29,6 +29,7 @@ namespace Artifice.Editor
         private static readonly Dictionary<LogType, VisualElement> _logIntensityElemMap = new();
 
         private const int MaxIntensityCounter = 8;
+        private const string StylesheetNameForUnity6 = "Toolbar Validator for Unity 6";
         
         #endregion
 
@@ -87,8 +88,13 @@ namespace Artifice.Editor
         private static void BuildUI()
         {
             _rootVisualElement.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
-            _rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_Toolbar_Validator)));
             
+#if UNITY_6000_0_OR_NEWER
+            _rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyleByName(StylesheetNameForUnity6));
+#else
+            _rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_Toolbar_Validator)));
+#endif
+
             var container = new VisualElement();
             container.AddToClassList("main-container");
             _rootVisualElement.Add(container);

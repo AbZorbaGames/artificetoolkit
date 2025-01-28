@@ -171,6 +171,12 @@ namespace ArtificeToolkit.Editor
         }
         
         /* Uses singleton privately, to allow access with static method */
+        public static StyleSheet GetStyleByName(string name)
+        {
+            return Instance._soStylesHolder.GetStyleByName(name);
+        }
+        
+        /* Uses singleton privately, to allow access with static method */
         public static StyleSheet GetGlobalStyle()
         {
             return Instance._soStylesHolder.GetGlobalStyle();

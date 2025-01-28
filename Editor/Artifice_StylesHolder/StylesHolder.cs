@@ -21,9 +21,8 @@ namespace ArtificeToolkit.Editor
     public class StyleDataCategory
     {
         public string categoryName;
-        
-        [Title("Data")]
-        public List<StyleData> styleData;
+
+        [Title("Data")] public List<StyleData> styleData;
     }
 
     /// <summary>Holds <see cref="StyleData"/>, accessed through <see cref="Artifice_Utilities"/>.</summary>
@@ -37,25 +36,38 @@ namespace ArtificeToolkit.Editor
 
         #endregion
 
-        /* Public GetStyle */
+        /// <summary> Searches all categories for <see cref="StyleSheet"/> entry of the given Script Type. </summary>
         public StyleSheet GetStyle(Type type)
         {
-            foreach(var category in categories)
-                foreach (var data in category.styleData)
-                    if (data.script != null && data.script.GetClass() == type)
-                        return data.stylesheet;
+            foreach (var category in categories)
+            foreach (var data in category.styleData)
+                if (data.script != null && data.script.GetClass() == type)
+                    return data.stylesheet;
 
             Debug.Assert(false, $"[StyleHolderSO] Not style found for class of type ({type})");
             return null;
         }
 
-        /* GlobalStyle getter */
+        /// <summary> Searches all categories for <see cref="StyleSheet"/> entry of the given name.
+        /// If you use this overload, make sure names are unique, or the first found will be returned.</summary>
+        public StyleSheet GetStyleByName(string name)
+        {
+            foreach (var category in categories)
+            foreach (var data in category.styleData)
+                if (data.name == name)
+                    return data.stylesheet;
+
+            Debug.Assert(false, $"[StyleHolderSO] Not style found for class of type ({name})");
+            return null;
+        }
+
+        /// <summary> Returns the global style set for this styles holder. </summary>
         public StyleSheet GetGlobalStyle()
         {
             return globalStyle;
         }
 
-        /* GlobalStyle setter */
+        /// <summary> Sets the global style preset of this styles holder. </summary>
         public void SetGlobalStyle(StyleSheet style)
         {
             globalStyle = style;
