@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Reflection;
 using Artifice_Editor;
@@ -24,7 +25,10 @@ namespace Artifice.Editor
         private static IMGUIContainer _imGUIContainer;
 
         // Log Counter Labels
-        private static readonly Dictionary<LogType, Label> _logLabels = new();
+        private static readonly Dictionary<LogType, Label> _logLabelsMap = new();
+        private static readonly Dictionary<LogType, VisualElement> _logIntensityElemMap = new();
+
+        private const int MaxIntensityCounter = 8;
         
         #endregion
 
@@ -50,9 +54,34 @@ namespace Artifice.Editor
             var rootFieldInfo = _currentToolbar.GetType().GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
             var rootVisualElement = rootFieldInfo!.GetValue(_currentToolbar) as VisualElement;
             _rootVisualElement = rootVisualElement.Q<VisualElement>(ToolbarLeft);
-            
+         
+            // Build UI
             BuildUI();
+            
+            // Subscribe on log counter refresh event
+            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(delegate
+            {
+                var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+                UpdateLogButton(LogType.Log, logCounters.comments, new Color(0.95f, 0.95f, 0.92f, 1f));
+                UpdateLogButton(LogType.Warning, logCounters.warnings, new Color(0.98f, 0.85f, 0.25f, 1f));
+                UpdateLogButton(LogType.Error, logCounters.errors, new Color(0.85f, 0.2f, 0.2f, 1f));
+            });
         }
+
+        /// <summary> Updates based on LogType the corresponding elements with given values. </summary>
+        private static void UpdateLogButton(LogType type, uint count, Color color)
+        {
+            // Log Type
+            var logLabel = _logLabelsMap[type];
+            logLabel.text = count.ToString();
+                
+            // Update Log Intensity
+            var logIntensity = _logIntensityElemMap[type];
+            var normalizedAlpha = Mathf.Clamp01(count / (float)MaxIntensityCounter); // Normalize to [0,1]
+            logIntensity.style.backgroundColor = new StyleColor(new Color(color.r, color.g, color.b, normalizedAlpha));
+        }
+        
+        #region BUILD UI
         
         /* Build UI */
         private static void BuildUI()
@@ -65,9 +94,9 @@ namespace Artifice.Editor
             _rootVisualElement.Add(container);
             
             // Create log/warning/error icons and update count based on validator.
-            container.Add(CreateLogButton(LogType.Log, Artifice_SCR_CommonResourcesHolder.instance.CommentIcon));
-            container.Add(CreateLogButton(LogType.Warning, Artifice_SCR_CommonResourcesHolder.instance.WarningIcon));
-            container.Add(CreateLogButton(LogType.Error, Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon));
+            container.Add(BuildUI_LogButton(LogType.Log, Artifice_SCR_CommonResourcesHolder.instance.CommentIcon));
+            container.Add(BuildUI_LogButton(LogType.Warning, Artifice_SCR_CommonResourcesHolder.instance.WarningIcon));
+            container.Add(BuildUI_LogButton(LogType.Error, Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon));
             
             container.RegisterCallback<MouseDownEvent>(evt =>
             {
@@ -79,26 +108,10 @@ namespace Artifice.Editor
                 else
                    EditorWindow.GetWindow<Artifice_EditorWindow_Validator>();
             });
-            
-            
-            // Subscribe on log counter refresh event
-            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(delegate
-            {
-                var logCounters = Artifice_Validator.Instance.Get_LogCounters();
-                
-                if (_logLabels.TryGetValue(LogType.Log, out var commentsLabel))
-                    commentsLabel.text = logCounters.comments.ToString();
-                
-                if (_logLabels.TryGetValue(LogType.Warning, out var warningsLabel))
-                    warningsLabel.text = logCounters.warnings.ToString();
-                
-                if (_logLabels.TryGetValue(LogType.Error, out var errorsLabel))
-                    errorsLabel.text = logCounters.errors.ToString();
-            });
         }
 
         /* Build UI */
-        private static VisualElement CreateLogButton(LogType type, Sprite sprite)
+        private static VisualElement BuildUI_LogButton(LogType type, Sprite sprite)
         {
             var container = new VisualElement();
             container.AddToClassList("log-button");
@@ -111,9 +124,18 @@ namespace Artifice.Editor
             container.Add(label);
             
             // Add label to log label dict.
-            _logLabels.TryAdd(type, label);
+            _logLabelsMap.TryAdd(type, label);
+            
+            // Add bottom line intensity elem
+            var intensityElem = new VisualElement();
+            intensityElem.AddToClassList("intensity-bar");
+            container.Add(intensityElem);
+
+            _logIntensityElemMap.TryAdd(type, intensityElem);
             
             return container;
         }
+        
+        #endregion
     }
 }

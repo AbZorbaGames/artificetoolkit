@@ -27,3 +27,11 @@
     width: 14px;
     margin-right: 2px;
 }
+
+.intensity-bar{
+    transition: 0.5s;
+    position: absolute;
+    bottom: -3px;
+    width: 90%;
+    height: 3px;
+}
