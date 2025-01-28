@@ -1,4 +1,8 @@
 # Change Log:
+## 1.1.13
+- Enhancement: Refactored Artifice Valdiator to be independent from the EditorWindow and runs persistently in the background while in autorun.
+- Enhancement: Injected toolbar indicators for Artifice Validator on the top-left corner of Unity. On click, it toggles on/off the editor window of the validator for more details.
+
 ## 1.1.12
  - Fix: Added support on ChildGameObjectOnly attributes to also work on list elements.   
 
