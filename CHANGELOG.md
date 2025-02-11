@@ -1,4 +1,9 @@
 # Change Log:
+## 1.1.14
+- Enhancement: Added interface and abstract types serialization solution based on [SerializeReference] and [ForceArtifice].
+- Enhancement: Added OnValueChanged
+- Fix: Corrected position of delete-element on artifice lists.
+
 ## 1.1.13
 - Enhancement: Refactored Artifice Valdiator to be independent from the EditorWindow and runs persistently in the background while in autorun.
 - Enhancement: Injected toolbar indicators for Artifice Validator on the top-left corner of Unity. On click, it toggles on/off the editor window of the validator for more details.

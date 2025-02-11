@@ -100,6 +100,7 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [ListElementName](#listelementname)
 - [MeasureUnit](#measureunit)
 - [ForceArtifice](#forceartifice)
+- [OnValueChanged](#onvaluechanged)
 
 <!-- WHY ORDER MATTERS -->
 ## Why Order Matters!
@@ -299,7 +300,7 @@ EnumToggle converts the conventional for of enum rendering to a multi-button pre
 
 ```c#
 public enum Directions
-{
+{ 
     Up, Down, Left, Right
 }
 
@@ -483,6 +484,18 @@ The ArtificeDrawer is responsible for rendering the inspector using VisualElemen
 
 However, there are cases where we might want to enforce the use of Artifice, even for nested properties that don't have custom attributes. In these scenarios, this attribute ensures that Artifice is always used, overriding the default behavior.
 
+### OnValueChanged
+OnValueChanged will invoke a specified method as soon as the property's value is changed.
+
+```c#
+[SerializeField, OnValueChanged(nameof(TestMethod))] 
+private int x;
+
+public void TestMethod()
+{
+  Debug.Log("test");
+}
+```
 
 <!-- EXTRA FEATURES -->
 ## Extra Features
@@ -494,15 +507,38 @@ The ArtificeToolkit comes with a lot of extra stuff that will be briefly mention
   <img src="./Documentation/artifice_serializedDictionary.gif" alt="GIF Example" style="width: 500px; height: 500px" />
 </div>
 
-2. <b>IArtifice_Persistence</b>: In case you need to add persistency to your editor scripts, you can use this interface and implement its methods to support any persisted information. 
+2. <b>Serialized Interfaces and Abstract Classes</b>: In Artifice, you can use [SerializeReference] and [ForceArtifice] in order to have serialized interface or abstract types in your inspector. Artifice will allow you to select which implementor or inherited type you want, and it will instance the managed reference automatically.
 
-3. <b>Artifice_SCR_CommonResourcesHolder</b>: ArtificeToolkit uses icons which are publicly exposed even for other editor tools to utilize.
+<div style="flex-direction: row">
 
-4. <b>UIBuilder</b>: Dynamically rebuild visual elements using the UIBuilder to have dynamic DOM updates.
+```c#
+[Serializable]
+public abstract class TraitBase
+{
+   public bool enabled;
+   
+   public virtual void Update() {}
+}
 
-5. A plethora of specifalized Artifice_SerializedPropertyExtensions.
+///
+/// Inherited classes from TraitBase (Hunger, Health, Energy)
+///
+```
 
-6. A plethora of Visual Elements like:
+<div style="display: flex; justify-content: center;">
+  <img src="./Documentation/artifice_serializedreference.gif" alt="GIF Example" style="width: 500px; height: 800px" />
+</div>
+
+
+3. <b>IArtifice_Persistence</b>: In case you need to add persistency to your editor scripts, you can use this interface and implement its methods to support any persisted information. 
+
+4. 4.<b>Artifice_SCR_CommonResourcesHolder</b>: ArtificeToolkit uses icons which are publicly exposed even for other editor tools to utilize.
+
+5. <b>UIBuilder</b>: Dynamically rebuild visual elements using the UIBuilder to have dynamic DOM updates.
+
+6. A plethora of specifalized Artifice_SerializedPropertyExtensions.
+ 
+7. A plethora of Visual Elements like:
     - Artifice_VisualElement_ToggleButton
     - Artifice_VisualElement_FoldoutGroup
     - Artifice_VisualElement_InfoBox

@@ -346,7 +346,7 @@ namespace ArtificeToolkit.Editor
                 return new PropertyField(property);
             
             // Get all derived types and create string map for easy accessing.
-            var types = TypeCache.GetTypesDerivedFrom(baseType);
+            var types = TypeCache.GetTypesDerivedFrom(baseType).OrderBy(type => type.Name).ToList();
             var typeMap = new Dictionary<string, Type>();
             foreach (var type in types)
             {
