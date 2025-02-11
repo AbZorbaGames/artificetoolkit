@@ -149,7 +149,7 @@ namespace ArtificeToolkit.Editor
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes != null && customAttributes.Any(attribute => attribute is ForceArtificeAttribute))
                 forceArtificeStyle = true;
-            
+
             if (ShouldUseArtificeEditorForProperty(property) || forceArtificeStyle)
             {
                 // Arrays need to use custom Artifice List Views (and not a string value!)
@@ -165,13 +165,14 @@ namespace ArtificeToolkit.Editor
                     var listView = isTableList ? (Artifice_VisualElement_AbstractListView)new Artifice_VisualElement_TableListView() : new Artifice_VisualElement_ListView();
                     listView.SetSerializedPropertyFilter(_serializedPropertyFilter);
                     listView.SetChildrenInjectedCustomAttributes(childrenCustomAttributes);
+                    listView.ShouldForceArtifice = forceArtificeStyle;
                     listView.value = property;
                     container.Add(CreateCustomAttributesGUI(property, listView, arrayCustomAttributes));
                     
                     _disposableStack.Push(listView); // Add to disposable list
                 }
                 // If property is a serialized reference of an interface, allow to select which type of interface inheritors to spawn
-                else if (property.IsSerializedReference())
+                else if (property.IsManagedReference())
                 {
                     container.Add(CreateSerializeReferenceFieldGUI(property));
                 }
@@ -222,98 +223,6 @@ namespace ArtificeToolkit.Editor
             }
             else
                 container.Add(CreateIMGUIField(property));
-
-            return container;
-        }
-
-        private VisualElement CreateSerializeReferenceFieldGUI(SerializedProperty property)
-        {
-            var typeName = property.managedReferenceFieldTypename;
-            var baseType = Artifice_SerializedPropertyExtensions.GetTypeFromFieldTypename(typeName);
-
-            // If its a case we do not cover fall back to normal case.
-            if (baseType.IsInterface == false && baseType.IsAbstract == false)
-                return new PropertyField(property);
-            
-            // Get all derived types and create string map for easy accessing.
-            var types = TypeCache.GetTypesDerivedFrom(baseType);
-            var typeMap = new Dictionary<string, Type>();
-            foreach (var type in types)
-            {
-                // MonoBehaviour types cannot be instantiated in runtime like c# objects.
-                if(type == typeof(MonoBehaviour) || type.IsSubclassOf(typeof(MonoBehaviour)))
-                    continue;
-                
-                typeMap.Add(type.Name, type);
-            }
-            
-            // Create base container for property.
-            var container = new VisualElement();
-            container.AddToClassList("property-container");
-
-            // Selector container
-            var selectorContainer = new VisualElement();
-            selectorContainer.AddToClassList("serialize-reference-selector");
-            container.Add(selectorContainer);
-            
-            // Create label of property
-            var label = new Label(property.displayName);
-            selectorContainer.Add(label);
-
-            // Create dropdown for selections.
-            var dropdown = new DropdownField();
-            dropdown.choices.Add("Null");
-            foreach (var pair in typeMap)
-                dropdown.choices.Add(pair.Key);
-            selectorContainer.Add(dropdown);
-            
-            // Create container for drawing selected inherited property. This will be cleared and drawn again upon change.
-            var referenceContainer = new Foldout();
-            referenceContainer.BindProperty(property);
-            referenceContainer.AddToClassList("reference-container");
-            referenceContainer.text = "Reference Value";
-            container.Add(referenceContainer);
-            
-            // Then create property GUI of the selected type if it exists.
-            if (property.managedReferenceValue != null)
-            {
-                var managedReference = property.managedReferenceValue;
-                dropdown.value = managedReference.GetType().Name;
-
-                foreach(var childProperty in property.GetVisibleChildren())
-                    referenceContainer.Add(CreatePropertyGUI(childProperty));
-            }
-            else
-            {
-                referenceContainer.AddToClassList("hide");   
-                dropdown.value = "Null";
-            }
-            
-            // Add value changed callback to assign managed reference value.
-            dropdown.RegisterValueChangedCallback(evt =>
-            {
-                // Clear reference container.
-                referenceContainer.Clear();
-                referenceContainer.RemoveFromClassList("reference-container");
-                
-                // Get value from type map, create instance and draw from artifice.
-                if (typeMap.TryGetValue(evt.newValue, out var type))
-                {
-                    referenceContainer.RemoveFromClassList("hide");
-                    referenceContainer.AddToClassList("reference-container");
-                    property.managedReferenceValue = Activator.CreateInstance(type);
-                    property.serializedObject.ApplyModifiedProperties();
-                    
-                    foreach(var childProperty in property.GetVisibleChildren())
-                        referenceContainer.Add(CreatePropertyGUI(childProperty));
-                }
-                else
-                {
-                    referenceContainer.AddToClassList("hide");
-                    property.managedReferenceValue = null;
-                    property.serializedObject.ApplyModifiedProperties();
-                }
-            });
 
             return container;
         }
@@ -387,6 +296,7 @@ namespace ArtificeToolkit.Editor
             // Fallback to default IMGUI properties
             var guiContainer = new IMGUIContainer();
             guiContainer.onGUIHandler = () => CreateIMGUIFieldHandler(property);
+            
             return guiContainer;
         }
 
@@ -396,7 +306,7 @@ namespace ArtificeToolkit.Editor
             property.serializedObject.Update();
             
             EditorGUI.BeginChangeCheck();
-                
+            
             // Create dummy rect of zero height, to get width of current available rect
             var rect = EditorGUILayout.GetControlRect(true, 0f);
             var viewWidth = rect.width;
@@ -407,16 +317,140 @@ namespace ArtificeToolkit.Editor
             // Minimum label width is 123. Else, set 33% of the available width as label.
             EditorGUIUtility.labelWidth = Mathf.Max((viewWidth) * 0.33f, 123);
 
-            // Draw property field
-            EditorGUILayout.PropertyField(property);
-                
+            // IMGUI handler is called every editor frame. This is innately incompatible with UI toolkit which works in a persistent manner.
+            // To avoid timing errors, this try catch is needed unfortunately. In the future, further investigation should be done to avoid this.
+            try
+            {
+                EditorGUILayout.PropertyField(property);
+            }
+            catch (Exception)
+            {
+                // Noop
+            }
+            
             // Restore label width for custom IMGUI implementations like lists
             EditorGUIUtility.labelWidth = previousLabelWidth;   
                 
             if (EditorGUI.EndChangeCheck())
                 property.serializedObject.ApplyModifiedProperties();
         }
+        
+        /// <summary> Uses property's managed reference type to provide options of what to instantiate and then draws it on the inspector. </summary>
+        private VisualElement CreateSerializeReferenceFieldGUI(SerializedProperty property)
+        {
+            var typeName = property.managedReferenceFieldTypename;
+            var baseType = Artifice_SerializedPropertyExtensions.GetTypeFromFieldTypename(typeName);
 
+            // If its a case we do not cover fall back to normal case.
+            if (baseType.IsInterface == false && baseType.IsAbstract == false)
+                return new PropertyField(property);
+            
+            // Get all derived types and create string map for easy accessing.
+            var types = TypeCache.GetTypesDerivedFrom(baseType);
+            var typeMap = new Dictionary<string, Type>();
+            foreach (var type in types)
+            {
+                // MonoBehaviour types cannot be instantiated in runtime like c# objects.
+                if(type == typeof(MonoBehaviour) || type.IsSubclassOf(typeof(MonoBehaviour)))
+                    continue;
+                
+                typeMap.Add(type.Name, type);
+            }
+            
+            // Create base container for property.
+            var container = new VisualElement();
+            container.AddToClassList("property-container");
+
+            // Selector container
+            var selectorContainer = new VisualElement();
+            selectorContainer.AddToClassList("serialize-reference-selector");
+            container.Add(selectorContainer);
+            
+            // Create label of property
+            var label = new Label(property.displayName);
+            selectorContainer.Add(label);
+
+            // Create dropdown for selections.
+            var dropdown = new DropdownField();
+            dropdown.choices.Add("Null");
+            foreach (var pair in typeMap)
+                dropdown.choices.Add(pair.Key);
+            selectorContainer.Add(dropdown);
+            
+            // Create container for drawing selected inherited property. This will be cleared and drawn again upon change.
+            var referenceContainer = new Foldout();
+            referenceContainer.AddToClassList("reference-container");
+            referenceContainer.BindProperty(property);
+            referenceContainer.text = "Reference Value";
+            container.Add(referenceContainer);
+            
+            // Initialize UI based on current value.
+            RebuildReferenceContainerGUI();
+            if (property.managedReferenceValue != null)
+            {
+                var managedReference = property.managedReferenceValue;
+                dropdown.value = managedReference.GetType().Name;
+            }
+            else   
+                dropdown.value = "Null";
+            
+            // Reference container will constantly track property for value changes (Supports undo and object reset this way) to redraw it self.
+            referenceContainer.TrackPropertyValue(property, trackedProperty =>
+            {
+                RebuildReferenceContainerGUI();
+            });
+            
+            // Dropdown should also track the property in order to update its label on external updates.
+            dropdown.TrackPropertyValue(property, trackedProperty => {
+                trackedProperty.serializedObject.Update();
+                
+                if (trackedProperty.managedReferenceValue != null)
+                    dropdown.value = trackedProperty.managedReferenceValue.GetType().Name;
+                else
+                    dropdown.value = "Null";
+            });
+            
+            // On dropdown value changed, update managed reference object of property. This will trigger reference redraw.
+            dropdown.RegisterValueChangedCallback(evt =>
+            {
+                Undo.RecordObject(property.serializedObject.targetObject, "Managed Reference Change");
+                
+                // Get value from type map, create instance and draw from artifice.
+                if (typeMap.TryGetValue(evt.newValue, out var type))
+                    property.managedReferenceValue = Activator.CreateInstance(type);
+                else
+                    property.managedReferenceValue = null;
+                
+                property.serializedObject.ApplyModifiedProperties();
+            });
+
+            void RebuildReferenceContainerGUI()
+            {
+                property.serializedObject.Update();
+             
+                if (property == null)
+                    return;
+                
+                // Clear reference container.
+                referenceContainer.Clear();
+                referenceContainer.RemoveFromClassList("reference-container");
+                
+                // Get value from type map, create instance and draw from artifice.
+                if (property.managedReferenceValue != null)
+                {
+                    referenceContainer.RemoveFromClassList("hide");
+                    referenceContainer.AddToClassList("reference-container");
+                    
+                    foreach(var childProperty in property.GetVisibleChildren())
+                        referenceContainer.Add(CreatePropertyGUI(childProperty));
+                }
+                else
+                    referenceContainer.AddToClassList("hide");
+            }
+
+            return container;
+        }
+        
         /// <summary> Returns a <see cref="VisualElement"/> with buttons which invoke the methods marked with the <see cref="ButtonAttribute"/>. </summary>
         /// <remarks> Unfortunately, there is not unified structure for SerializedObject and SerializedProperty. A template is used here to avoid deduplicate method overloads. </remarks>
         private VisualElement CreateMethodsGUI<T>(T serializedData) where T : class

@@ -18,10 +18,10 @@ namespace ArtificeToolkit.Editor
         protected override VisualElement BuildPropertyFieldUI(SerializedProperty property, int index)
         {
             // Should force artifice?
-            var shouldForceArtifice = Property.GetCustomAttributes().Any(attribute => attribute is ListElementNameAttribute);
+            var propertyNeedsArtifice = Property.GetCustomAttributes().Any(attribute => attribute is ListElementNameAttribute);
             
             // Create property's GUI with ArtificeDrawer
-            var propertyField = ArtificeDrawer.CreatePropertyGUI(property, shouldForceArtifice);
+            var propertyField = ArtificeDrawer.CreatePropertyGUI(property, ShouldForceArtifice || propertyNeedsArtifice);
             propertyField = ArtificeDrawer.CreateCustomAttributesGUI(property, propertyField, ChildrenInjectedCustomAttributes);
             propertyField.AddToClassList("property-field");
 

@@ -509,14 +509,10 @@ namespace ArtificeToolkit.Editor
             return int.Parse(property.propertyPath.Substring(startIndex, length));
         }
 
-        /// <summary> Returns true if property uses a <see cref="SerializeReference"/> attribute. </summary>
-        public static bool IsSerializedReference(this SerializedProperty property)
+        /// <summary> Returns true if property is a managed reference property type. </summary>
+        public static bool IsManagedReference(this SerializedProperty property)
         {
-            var attributes = property.GetAttributes();
-            if (attributes == null)
-                return false;
-            
-            return attributes.Any(attribute => attribute is SerializeReference);
+            return property.propertyType == SerializedPropertyType.ManagedReference;
         }
         
         /// <summary> Get type from type name though assembly definitions. </summary>

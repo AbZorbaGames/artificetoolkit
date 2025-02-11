@@ -49,6 +49,8 @@ namespace ArtificeToolkit.Editor
         
         #region FIELDS
 
+        public bool ShouldForceArtifice { get; set; }
+
         private Label _listViewLabel;
         
         protected SerializedProperty Property;
