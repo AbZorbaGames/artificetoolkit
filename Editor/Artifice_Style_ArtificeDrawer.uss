@@ -7,13 +7,9 @@
 }
 
 .property-container .unity-property-field__label{
-    max-width: 81%;
 }
 
 .property-container .unity-property-field__input{
-    width: 100%;
-    flex-grow: 1;
-    flex-shrink: 0;
 }
 
 /* This line fixes a bug with toggle checkmarks not matching layout. */
@@ -70,4 +66,33 @@
 .label-container .text{
     flex-shrink: 1;
     white-space: normal;
+}
+
+.serialize-reference-selector{
+    flex-direction: row;
+    align-items: center;
+}
+
+.serialize-reference-selector > Label{
+    width: 33%;
+    min-width: 121px;
+}
+
+.serialize-reference-selector > DropdownField{
+    flex-grow: 1;
+    height: 100%;
+} 
+
+.reference-container{
+    transition: 0.5s;
+    
+    border-left-width: 1px;
+    border-bottom-width: 2px;
+    border-color: black;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    
+    padding: 5px;
+    padding-bottom: 10px;
+    margin-bottom: 2px;
 }

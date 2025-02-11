@@ -170,6 +170,11 @@ namespace ArtificeToolkit.Editor
                     
                     _disposableStack.Push(listView); // Add to disposable list
                 }
+                // If property is a serialized reference of an interface, allow to select which type of interface inheritors to spawn
+                else if (property.IsSerializedReference())
+                {
+                    container.Add(CreateSerializeReferenceFieldGUI(property));
+                }
                 // If property has visible children, wrap it in a foldout to mimic unity's default behaviour or use any potential implemented custom property drawer.
                 else if (property.hasVisibleChildren)
                 {
@@ -220,7 +225,99 @@ namespace ArtificeToolkit.Editor
 
             return container;
         }
-        
+
+        private VisualElement CreateSerializeReferenceFieldGUI(SerializedProperty property)
+        {
+            var typeName = property.managedReferenceFieldTypename;
+            var baseType = Artifice_SerializedPropertyExtensions.GetTypeFromFieldTypename(typeName);
+
+            // If its a case we do not cover fall back to normal case.
+            if (baseType.IsInterface == false && baseType.IsAbstract == false)
+                return new PropertyField(property);
+            
+            // Get all derived types and create string map for easy accessing.
+            var types = TypeCache.GetTypesDerivedFrom(baseType);
+            var typeMap = new Dictionary<string, Type>();
+            foreach (var type in types)
+            {
+                // MonoBehaviour types cannot be instantiated in runtime like c# objects.
+                if(type == typeof(MonoBehaviour) || type.IsSubclassOf(typeof(MonoBehaviour)))
+                    continue;
+                
+                typeMap.Add(type.Name, type);
+            }
+            
+            // Create base container for property.
+            var container = new VisualElement();
+            container.AddToClassList("property-container");
+
+            // Selector container
+            var selectorContainer = new VisualElement();
+            selectorContainer.AddToClassList("serialize-reference-selector");
+            container.Add(selectorContainer);
+            
+            // Create label of property
+            var label = new Label(property.displayName);
+            selectorContainer.Add(label);
+
+            // Create dropdown for selections.
+            var dropdown = new DropdownField();
+            dropdown.choices.Add("Null");
+            foreach (var pair in typeMap)
+                dropdown.choices.Add(pair.Key);
+            selectorContainer.Add(dropdown);
+            
+            // Create container for drawing selected inherited property. This will be cleared and drawn again upon change.
+            var referenceContainer = new Foldout();
+            referenceContainer.BindProperty(property);
+            referenceContainer.AddToClassList("reference-container");
+            referenceContainer.text = "Reference Value";
+            container.Add(referenceContainer);
+            
+            // Then create property GUI of the selected type if it exists.
+            if (property.managedReferenceValue != null)
+            {
+                var managedReference = property.managedReferenceValue;
+                dropdown.value = managedReference.GetType().Name;
+
+                foreach(var childProperty in property.GetVisibleChildren())
+                    referenceContainer.Add(CreatePropertyGUI(childProperty));
+            }
+            else
+            {
+                referenceContainer.AddToClassList("hide");   
+                dropdown.value = "Null";
+            }
+            
+            // Add value changed callback to assign managed reference value.
+            dropdown.RegisterValueChangedCallback(evt =>
+            {
+                // Clear reference container.
+                referenceContainer.Clear();
+                referenceContainer.RemoveFromClassList("reference-container");
+                
+                // Get value from type map, create instance and draw from artifice.
+                if (typeMap.TryGetValue(evt.newValue, out var type))
+                {
+                    referenceContainer.RemoveFromClassList("hide");
+                    referenceContainer.AddToClassList("reference-container");
+                    property.managedReferenceValue = Activator.CreateInstance(type);
+                    property.serializedObject.ApplyModifiedProperties();
+                    
+                    foreach(var childProperty in property.GetVisibleChildren())
+                        referenceContainer.Add(CreatePropertyGUI(childProperty));
+                }
+                else
+                {
+                    referenceContainer.AddToClassList("hide");
+                    property.managedReferenceValue = null;
+                    property.serializedObject.ApplyModifiedProperties();
+                }
+            });
+
+            return container;
+        }
+
         /// <summary> Uses <see cref="CustomAttribute"/> and <see cref="Artifice_CustomAttributeDrawer"/> to change how the parameterized <see cref="VisualElement"/> will look like using the property's custom attributes. </summary>
         public VisualElement CreateCustomAttributesGUI(SerializedProperty property, VisualElement propertyField)
         {

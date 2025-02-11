@@ -508,7 +508,26 @@ namespace ArtificeToolkit.Editor
             int length = property.propertyPath.LastIndexOf(']') - startIndex;
             return int.Parse(property.propertyPath.Substring(startIndex, length));
         }
+
+        /// <summary> Returns true if property uses a <see cref="SerializeReference"/> attribute. </summary>
+        public static bool IsSerializedReference(this SerializedProperty property)
+        {
+            var attributes = property.GetAttributes();
+            if (attributes == null)
+                return false;
+            
+            return attributes.Any(attribute => attribute is SerializeReference);
+        }
         
+        /// <summary> Get type from type name though assembly definitions. </summary>
+        public static Type GetTypeFromFieldTypename (string typeName) {
+            if (string.IsNullOrEmpty(typeName))
+                return null;
+
+            var splitIndex = typeName.IndexOf(' ');
+            var assembly = Assembly.Load(typeName.Substring(0,splitIndex));
+            return assembly.GetType(typeName.Substring(splitIndex + 1));
+        }
         
         /// <summary> Returns the string value of the underlying serialized property. </summary>
         public static string GetValueString(this SerializedProperty property)
