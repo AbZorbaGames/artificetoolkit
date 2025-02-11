@@ -59,7 +59,7 @@ namespace ArtificeToolkit.Editor
                 typeof(FoldoutGroupAttribute),
                 typeof(TabGroupAttribute),
                 typeof(EnableIfAttribute),
-                typeof(InvokeOnValueChangeAttribute), 
+                typeof(OnValueChanged), 
                 typeof(SpaceAttribute), 
                 typeof(TitleAttribute), 
                 typeof(HideLabelAttribute),
