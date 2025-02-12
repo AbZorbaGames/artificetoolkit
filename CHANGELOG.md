@@ -1,5 +1,5 @@
 # Change Log:
-## 1.1.14
+## 1.2.0
 - Enhancement: Added interface and abstract types serialization solution based on [SerializeReference] and [ForceArtifice].
 - Enhancement: Added OnValueChanged
 - Fix: Corrected position of delete-element on artifice lists.
