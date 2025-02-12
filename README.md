@@ -508,6 +508,7 @@ The ArtificeToolkit comes with a lot of extra stuff that will be briefly mention
 </div>
 
 2. <b>Serialized Interfaces and Abstract Classes</b>: In Artifice, you can use [SerializeReference] and [ForceArtifice] in order to have serialized interface or abstract types in your inspector. Artifice will allow you to select which implementor or inherited type you want, and it will instance the managed reference automatically.
+<br><br>**NOTE:** This feature is only supported in Unity 2022 and later. This is caused by the lack of property value tracking for generic types which was added later.  
 
 <div style="flex-direction: row">
 
