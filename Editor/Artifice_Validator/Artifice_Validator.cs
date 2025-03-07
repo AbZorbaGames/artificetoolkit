@@ -2,6 +2,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using ArtificeToolkit.Attributes;
     using ArtificeToolkit.Editor;
     using Unity.EditorCoroutines.Editor;
     using UnityEditor;
@@ -154,7 +155,7 @@
             
             #region SINGLETON
             
-            private static Artifice_Validator instance = null;
+            private static Artifice_Validator _instance = null;
 
             private Artifice_Validator()
             {
@@ -164,11 +165,10 @@
             {
                 get
                 {
-                    if (instance == null)
-                    {
-                        instance = new Artifice_Validator();
-                    }
-                    return instance;
+                    if (_instance == null)
+                        _instance = new Artifice_Validator();
+
+                    return _instance;
                 }
             }
             
@@ -291,7 +291,7 @@
                 EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(true), this);
             }
             
-            /// <summary> Iterates every nested property of gameobject to detect <see cref="Abz_ValidatorAttribute"/> and logs their validity. </summary>
+            /// <summary> Iterates every nested property of gameobject to detect <see cref="ValidatorAttribute"/> and logs their validity. </summary>
             private IEnumerator RefreshLogsCoroutine(bool isBlocking = false)
             {
                 _isRefreshing = true;

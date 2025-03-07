@@ -82,9 +82,12 @@ namespace ArtificeToolkit.Editor
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
             if (prefabStage != null)
             {
-                foreach (var rootGameObject in prefabStage.prefabContentsRoot.GetComponentsInChildren<MonoBehaviour>(true))
+                foreach (var component in prefabStage.prefabContentsRoot.GetComponentsInChildren<Component>(true))
                 {
-                    var serializedObject = new SerializedObject(rootGameObject);
+                    if(component == null)
+                        continue;
+                    
+                    var serializedObject = new SerializedObject(component);
                     var iterator = serializedObject.GetIterator();
                     list.Add(iterator);
                 }
