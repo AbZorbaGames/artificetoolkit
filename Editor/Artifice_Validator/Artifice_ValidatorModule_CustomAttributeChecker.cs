@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ArtificeToolkit.Attributes;
@@ -10,9 +9,7 @@ using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
-    using ValidatorLog = Artifice_Validator.ValidatorLog;
-
-    public class Artifice_ValidatorModule_CustomAttributeChecker : Artifice_ValidatorModule
+    public class Artifice_ValidatorModule_CustomAttributeChecker : Artifice_ValidatorModule_SerializedPropertyBatching
     {
         #region FIELDS
 
@@ -32,63 +29,15 @@ namespace ArtificeToolkit.Editor
                 if (pair.Key.IsSubclassOf(typeof(ValidatorAttribute)))
                     _validatorDrawerMap[pair.Key] = (Artifice_CustomAttributeDrawer_Validator_BASE)Activator.CreateInstance(pair.Value);
         }
-
-        /// <summary> Override which fills the Logs list with the custom attribute validations for all tracked types </summary>
-        public override IEnumerator ValidateCoroutine(int batchSize)
+        
+        // Override for each batched property
+        protected override void ValidateSerializedProperty(SerializedProperty property)
         {
-            // Refresh logs
-            Logs.Clear();
-
-            // Reusable list for log generation to avoid constant "new List<ValidatorLog>()"
-            var reusableLogsList = new List<ValidatorLog>();
-
-            // Create a set to cache already visited serialized properties
-            var visitedProperties = new HashSet<SerializedProperty>();
-
-            // Create an iteration stack to run through all serialized properties (even nested ones)
-            var queue = new Queue<SerializedProperty>();
-            foreach (var serializedProperty in FindPropertiesInTrackedScenes())
-                queue.Enqueue(serializedProperty);
-            foreach (var serializedProperty in FindPropertiesInPrefabStage())
-                queue.Enqueue(serializedProperty);
-            foreach (var serializedProperty in FindPropertiesInTrackedAssets())
-                queue.Enqueue(serializedProperty);
-
-            var currentBatchCount = 0;
-            while (queue.Count > 0)
-            {
-                // Pop next property and skip if already visited 
-                var property = queue.Dequeue();
-
-                // If for any reason the target object is destroyed after batch sleep, just skip.
-                if (property.serializedObject.targetObject == null)
-                    continue;
-
-                // Skip if already visited
-                if (visitedProperties.Contains(property))
-                    continue;
-                visitedProperties.Add(property);
-
-                // Append its children
-                foreach (var childProperty in property.GetVisibleChildren())
-                    queue.Enqueue(childProperty);
-
-                // Clear reusable list of logs and get current property's logs
-                reusableLogsList.Clear();
-                GenerateValidatorLogs(property, in reusableLogsList);
-                Logs.AddRange(reusableLogsList);
-
-                // Split process to coroutine batches
-                if (++currentBatchCount > batchSize)
-                {
-                    currentBatchCount = 0;
-                    yield return null;
-                }
-            }
+            GenerateValidatorLogs(property);
         }
-
+        
         /// <summary> Fills in-parameter list with logs found in property </summary>
-        private void GenerateValidatorLogs(SerializedProperty property, in List<ValidatorLog> logs)
+        private void GenerateValidatorLogs(SerializedProperty property)
         {
             if (property.IsArray())
             {
@@ -107,19 +56,19 @@ namespace ArtificeToolkit.Editor
 
                 foreach (var child in property.GetVisibleChildren())
                     if(child.name != "size")    
-                        GenerateValidatorLogs(child, childrenCustomAttributes, logs);
+                        GenerateValidatorLogs(child, childrenCustomAttributes);
             }
             else
             {
                 // Check property if its valid for stuff
                 var customAttributes = property.GetCustomAttributes();
                 if (customAttributes != null)
-                    GenerateValidatorLogs(property, customAttributes.ToList(), logs);
+                    GenerateValidatorLogs(property, customAttributes.ToList());
             }
         }
 
         /// <summary> Fills in-parameter list with logs found in property for specific parameterized attributes</summary>
-        private void GenerateValidatorLogs(SerializedProperty property, List<CustomAttribute> customAttributes, in List<ValidatorLog> logs)
+        private void GenerateValidatorLogs(SerializedProperty property, List<CustomAttribute> customAttributes)
         {
             var validatorAttributes = customAttributes.Where(attribute => attribute is ValidatorAttribute).ToList();
             foreach (var validatorAttribute in validatorAttributes)
@@ -142,7 +91,7 @@ namespace ArtificeToolkit.Editor
                     originLocationName = target.gameObject.scene.name;
 
                 // Create log
-                var log = new ValidatorLog(
+                var log = new Artifice_Validator.ValidatorLog(
                     drawer.LogSprite,
                     drawer.LogMessage,
                     drawer.LogType,
@@ -153,7 +102,7 @@ namespace ArtificeToolkit.Editor
 
                 // If not valid, add it to list
                 if (drawer.IsValid(property) == false)
-                    logs.Add(log);
+                    Logs.Add(log);
             }
         }
     }

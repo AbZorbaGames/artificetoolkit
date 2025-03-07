@@ -9,7 +9,6 @@ using UnityEditor.UIElements;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Object = UnityEngine.Object;
 
 // ReSharper disable InconsistentNaming
 
@@ -185,7 +184,7 @@ namespace ArtificeToolkit.Editor
             
             // Initialize Filters
             _filters = new List<Func<Artifice_Validator.ValidatorLog, bool>>();
-            _filters.Add(log => OnSelectedScenesFilter(log) || OnSelectedAssetPathFilter(log));
+            // _filters.Add(log => OnSelectedScenesFilter(log) || OnSelectedAssetPathFilter(log));
             _filters.Add(OnSelectedValidatorTypesFilter);
             _filters.Add(OnLogTypeTogglesFilter);
             
@@ -209,14 +208,7 @@ namespace ArtificeToolkit.Editor
             _filteredLogs.Clear();
             foreach (var log in logs)
             {
-                // If a prefab stage is open, use prefab stage filter.
-                if (PrefabStageUtility.GetCurrentPrefabStage() != null)
-                {
-                    if(OnPrefabStageFilter(log))
-                        _filteredLogs.Add(log);
-                }
-                // Else, use all normal filters.
-                else if(_filters.All(filter => filter.Invoke(log)))
+                if(_filters.All(filter => filter.Invoke(log)))
                     _filteredLogs.Add(log);
             }
             _logsListView?.RefreshItems();
@@ -244,7 +236,7 @@ namespace ArtificeToolkit.Editor
             var trackedContainers = new ScrollView();
             trackedContainers.AddToClassList("tracked-containers-container");
             // trackedContainers.Add(BuildTrackedScenesUI()); // Removed for now. It seemed obnoxious and useless. 
-            trackedContainers.Add(BuildTrackedAssetFoldersUI());
+            // trackedContainers.Add(BuildTrackedAssetFoldersUI()); // Removed for now. It seems kind of useless with many validations being conflicting from asset space to scene space.
             trackedContainers.Add(BuildTrackedValidatorTypesUI());
             // Add to split-pane
             splitPane.Add(trackedContainers);
@@ -372,7 +364,7 @@ namespace ArtificeToolkit.Editor
             return container;
         }
         
-        private VisualElement BuildTrackedAssetFoldersUI()
+        private VisualElement BuildTrackedAssetFoldersUI() // Has been removed from the UI for now, but keep it for now in case we want to simply refactor the visuals in the future.
         {
             var container = new VisualElement();
             container.AddToClassList("tracked-list-container");
@@ -479,7 +471,7 @@ namespace ArtificeToolkit.Editor
                     var validatorTypeName = validatorModules[i].GetType().Name;
 
                     // Change display mode based on display on filters.
-                    if (validatorModules[i].DisplayOnFilters)
+                    if (validatorModules[i].DisplayOnFiltersList)
                         elem.style.display = DisplayStyle.Flex;
                     else
                         elem.style.display = DisplayStyle.None;
@@ -571,13 +563,6 @@ namespace ArtificeToolkit.Editor
                 return true;
 
             return false;
-        }
-            
-        private bool OnPrefabStageFilter(Artifice_Validator.ValidatorLog log)
-        {
-            return log.OriginLocationName == PrefabStageKey &&
-                OnSelectedValidatorTypesFilter(log) &&
-                OnLogTypeTogglesFilter(log);
         }
         
         #endregion

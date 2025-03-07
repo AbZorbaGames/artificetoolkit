@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using ArtificeToolkit.Editor.Resources;
 using UnityEngine;
 
@@ -9,11 +10,11 @@ namespace ArtificeToolkit.Editor
     public class Artifice_ValidatorModule_IsArtificeEnabled : Artifice_ValidatorModule
     {
         public override string DisplayName { get; protected set; } = "Artifice Enabled";
-        public override bool DisplayOnFilters { get; protected set; } = false;
+        public override bool DisplayOnFiltersList { get; protected set; } = false;
 
         private readonly ValidatorLog _cachedLog;
-
         
+        /// <summary> Create a cashed validator log to not replicate its construction every time. </summary>
         public Artifice_ValidatorModule_IsArtificeEnabled()
         {
             _cachedLog = new ValidatorLog(
@@ -26,13 +27,12 @@ namespace ArtificeToolkit.Editor
             );
         }
 
-        public override IEnumerator ValidateCoroutine(int batchSize)
+        public override IEnumerator ValidateCoroutine(List<GameObject> rootGameObjects)
         {
-            Logs.Clear();
-            
             if (Artifice_Utilities.ArtificeDrawerEnabled == false)
                 Logs.Add(_cachedLog);
 
+            HasFinishedValidateCoroutine = true;
             yield break;
         }
     }
