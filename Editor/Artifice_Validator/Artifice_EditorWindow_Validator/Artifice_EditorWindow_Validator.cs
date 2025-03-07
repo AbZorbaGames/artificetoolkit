@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Artifice_Editor;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -90,14 +90,14 @@ namespace ArtificeToolkit.Editor
             private readonly Label _objectNameLabel;
             private readonly Artifice_VisualElement_LabeledButton _autoFixButton;
 
-            private Object _originObject;
+            private Component _originComponent;
 
             public ValidatorLogListItem() : base()
             {
                 styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
                 
                 // Create object label
-                _objectNameLabel = new Label("GameObject");
+                _objectNameLabel = new Label("Undefined");
                 _objectNameLabel.AddToClassList("object-name-label");
                 Add(_objectNameLabel);
                 
@@ -109,22 +109,31 @@ namespace ArtificeToolkit.Editor
                 RegisterCallback<ClickEvent>(evt =>
                 {
                     var listItem = (ValidatorLogListItem)evt.currentTarget;
-                    if(evt.clickCount == 2 && listItem._originObject != null)
-                       Selection.SetActiveObjectWithContext(listItem._originObject, listItem._originObject);
+                    if (evt.clickCount == 2 && listItem._originComponent != null)
+                    {
+                       Selection.SetActiveObjectWithContext(listItem._originComponent, listItem._originComponent);
+                       
+                       // Collapse all other components instead of our focused component.
+                       var components = _originComponent.gameObject.GetComponents<Component>();
+                       foreach (var component in components)
+                           InternalEditorUtility.SetIsInspectorExpanded(component, component == _originComponent);
+
+                       ActiveEditorTracker.sharedTracker.ForceRebuild();
+                    }
                 });
             }
 
             public void Set(Artifice_Validator.ValidatorLog log)
             {
-                base.Set(log.sprite, log.message);
-                _objectNameLabel.text = log.originObject == null ? "" : log.originObject.name;
-                _originObject = log.originObject;
+                base.Set(log.Sprite, log.Message);
+                _objectNameLabel.text = log.OriginComponent == null ? "" : log.OriginComponent.name;
+                _originComponent = log.OriginComponent;
 
-                if (log.hasAutoFix)
+                if (log.HasAutoFix)
                 {
                     // Show button and set callback
                     _autoFixButton.style.display = DisplayStyle.Flex;
-                    _autoFixButton.SetAction(log.autoFixAction);
+                    _autoFixButton.SetAction(log.AutoFixAction);
                 }
                 else
                     _autoFixButton.style.display = DisplayStyle.None;
@@ -538,27 +547,27 @@ namespace ArtificeToolkit.Editor
 
         private bool OnSelectedScenesFilter(Artifice_Validator.ValidatorLog log)
         {
-            return _config.scenesMap.TryGetValue(log.originLocationName, out var value) && value
-                || log.originLocationName == "";
+            return _config.scenesMap.TryGetValue(log.OriginLocationName, out var value) && value
+                || log.OriginLocationName == "";
         }
 
         private bool OnSelectedValidatorTypesFilter(Artifice_Validator.ValidatorLog log)
         {
-            return _config.validatorTypesMap[log.originValidatorType.Name];
+            return _config.validatorTypesMap[log.OriginValidatorType.Name];
         }
 
         private bool OnLogTypeTogglesFilter(Artifice_Validator.ValidatorLog log)
         {
-            return _config.logTypesMap[log.logType];
+            return _config.logTypesMap[log.LogType];
         }
 
         private bool OnSelectedAssetPathFilter(Artifice_Validator.ValidatorLog log)
         {
             foreach (var (folderPath, shouldShow) in _config.assetPathsMap)
-                if (log.originLocationName.Contains(folderPath) && shouldShow)
+                if (log.OriginLocationName.Contains(folderPath) && shouldShow)
                     return true;
 
-            if (log.originLocationName == "")
+            if (log.OriginLocationName == "")
                 return true;
 
             return false;
@@ -566,7 +575,7 @@ namespace ArtificeToolkit.Editor
             
         private bool OnPrefabStageFilter(Artifice_Validator.ValidatorLog log)
         {
-            return log.originLocationName == PrefabStageKey &&
+            return log.OriginLocationName == PrefabStageKey &&
                 OnSelectedValidatorTypesFilter(log) &&
                 OnLogTypeTogglesFilter(log);
         }

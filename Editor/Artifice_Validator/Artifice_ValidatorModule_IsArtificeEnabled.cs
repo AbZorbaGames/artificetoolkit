@@ -1,5 +1,4 @@
 using System.Collections;
-using Artifice_Editor;
 using ArtificeToolkit.Editor.Resources;
 using UnityEngine;
 

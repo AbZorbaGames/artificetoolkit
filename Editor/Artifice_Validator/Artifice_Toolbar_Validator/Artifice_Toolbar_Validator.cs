@@ -1,8 +1,6 @@
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Reflection;
-using Artifice_Editor;
 using ArtificeToolkit.Editor;
 using ArtificeToolkit.Editor.Resources;
 using UnityEditor;

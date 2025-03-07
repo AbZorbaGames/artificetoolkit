@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Artifice_Editor;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -25,7 +24,7 @@ namespace ArtificeToolkit.Editor
         public virtual bool OnDemandOnlyModule { get; protected set; } = false;
         
         /// <summary>Each module will empty and fill this list with its validations when <see cref="ValidateCoroutine"/> is called</summary>
-        public readonly List<ValidatorLog> Logs = new List<ValidatorLog>();
+        public readonly List<ValidatorLog> Logs = new();
 
         private int _currentBatchCount = 0; 
         

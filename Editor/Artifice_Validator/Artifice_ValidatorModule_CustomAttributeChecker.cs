@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Artifice_Editor;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
 using UnityEditor;
@@ -148,7 +147,7 @@ namespace ArtificeToolkit.Editor
                     drawer.LogMessage,
                     drawer.LogType,
                     typeof(Artifice_ValidatorModule_CustomAttributeChecker),
-                    property.serializedObject.targetObject,
+                    (Component)property.serializedObject.targetObject,
                     originLocationName
                 );
 
