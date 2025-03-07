@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Odbc;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,6 +18,9 @@ namespace ArtificeToolkit.Editor
             var queue = new Queue<SerializedProperty>();
             foreach (var gameObject in rootGameObjects)
             {
+                if (gameObject == null)
+                    continue;
+                
                 foreach (var component in gameObject.GetComponentsInChildren<Component>())
                 {
                     if(component == null)

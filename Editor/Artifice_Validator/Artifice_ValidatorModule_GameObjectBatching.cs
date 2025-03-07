@@ -14,10 +14,13 @@ namespace ArtificeToolkit.Editor
             while (queue.Count > 0)
             {
                 var gameObject = queue.Dequeue();
+                if (gameObject == null)
+                    continue;
+                
                 if(alreadyVisited.Contains(gameObject))
                     continue;
                 alreadyVisited.Add(gameObject);
-
+                
                 ValidateGameObject(gameObject);
                 
                 // Add all children of gameObject to queue.
