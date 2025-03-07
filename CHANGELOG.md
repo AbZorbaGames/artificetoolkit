@@ -1,6 +1,11 @@
 # Change Log:
+## 1.3.0
+- Enhancement: Heavily refactored `Artifice_Validator` in order to centralize batching and gathering of target objects to validate. To make the parsing logic simpler, `Artifice_ValidatorModule_GameObjectBatching` and `Artifice_ValidatorModule_SerializedPropertyBatching` requiring a single method to be overriden to apply validations.
+- Enhancement: Added Null Script checker validation module, to immedietely know when a script reference is lost.
+- Change: Removed from validator the assets folders. They were draining performance and the attributes are not designed to support them. A common problem would be having a Required attribute on a prefab property which would have, by design, have to be filled after being placed inside another prefab.
+
 ## 1.2.0
-- Enhancement: Added interface and abstract types serialization solution based on [SerializeReference] and [ForceArtifice].
+- Enhancement: Added interface and abstract types serialization solution based on `SerializeReference` and `ForceArtifice``.
 - Enhancement: Added OnValueChanged
 - Fix: Corrected position of delete-element on artifice lists.
 
