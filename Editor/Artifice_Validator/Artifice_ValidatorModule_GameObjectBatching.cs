@@ -30,8 +30,6 @@ namespace ArtificeToolkit.Editor
                 // Batch step
                 yield return null;
             }
-            
-            HasFinishedValidateCoroutine = true;
         }
 
         protected abstract void ValidateGameObject(GameObject gameObject);

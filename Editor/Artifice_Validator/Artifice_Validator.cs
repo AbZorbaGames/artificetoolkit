@@ -297,7 +297,10 @@ namespace ArtificeToolkit.Editor
         public void RefreshLogs()
         {
             if (_refreshCoroutine != null)
+            {
                 EditorCoroutineUtility.StopCoroutine(_refreshCoroutine);
+                EditorUtility.ClearProgressBar();
+            }
 
             _refreshCoroutine = EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(true), this);
         }
@@ -335,26 +338,25 @@ namespace ArtificeToolkit.Editor
                         (float)(i + 1) / (float)(_validatorModules.Count + 1));
 
                 // Validate and add logs
-                while (module.HasFinishedValidateCoroutine == false)
+                var coroutine = module.ValidateCoroutine(rootGameObjects);
+                while (coroutine.MoveNext())
                 {
-                    yield return module.ValidateCoroutine(rootGameObjects);
-
-                    // If we reached batch limit, pause flow. 
                     if (++currentBatchCount > batchSize)
                     {
                         currentBatchCount = 0;
                         yield return null;
                     }
                 }
-
+                
                 _logs.AddRange(module.Logs);
+                
+                // Refresh log counters.
+                RefreshLogCounters();
+
+                // Emit refresh
+                OnLogsRefreshEvent.Invoke();
             }
 
-            // Refresh log counters.
-            RefreshLogCounters();
-
-            // Emit refresh
-            OnLogsRefreshEvent.Invoke();
 
             _isRefreshing = false;
 

@@ -20,9 +20,6 @@ namespace ArtificeToolkit.Editor
         
         /// <summary>Each module will empty and fill this list with its validations when <see cref="ValidateCoroutine"/> is called</summary>
         public readonly List<Artifice_Validator.ValidatorLog> Logs = new();
-
-        /// <summary>Validator will keep calling validate coroutine until this flag is set to true.</summary>
-        public bool HasFinishedValidateCoroutine { get; protected set; }
         
         #endregion
 
@@ -33,7 +30,6 @@ namespace ArtificeToolkit.Editor
         public void Reset()
         {
             Logs.Clear();
-            HasFinishedValidateCoroutine = false;
         }
         
         #region Utility

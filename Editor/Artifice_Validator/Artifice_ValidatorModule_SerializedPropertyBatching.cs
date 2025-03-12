@@ -55,8 +55,6 @@ namespace ArtificeToolkit.Editor
                 // Declare batch step.
                 yield return null;
             }
-
-            HasFinishedValidateCoroutine = true;
         }
 
         protected abstract void ValidateSerializedProperty(SerializedProperty property);

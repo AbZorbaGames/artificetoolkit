@@ -32,7 +32,6 @@ namespace ArtificeToolkit.Editor
             if (Artifice_Utilities.ArtificeDrawerEnabled == false)
                 Logs.Add(_cachedLog);
 
-            HasFinishedValidateCoroutine = true;
             yield break;
         }
     }
