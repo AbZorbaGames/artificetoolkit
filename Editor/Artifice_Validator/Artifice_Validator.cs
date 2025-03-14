@@ -208,8 +208,6 @@ namespace ArtificeToolkit.Editor
             AssemblyReloadEvents.beforeAssemblyReload += Instance.Dispose;
             EditorApplication.quitting -= Instance.Dispose;
             EditorApplication.quitting += Instance.Dispose;
-            EditorApplication.hierarchyChanged -= Instance.StopRefreshCoroutine;
-            EditorApplication.hierarchyChanged += Instance.StopRefreshCoroutine;
         }
 
         /// <summary> Initializes singleton instances. </summary>
@@ -311,7 +309,7 @@ namespace ArtificeToolkit.Editor
             _isRefreshing = true;
 
             var currentBatchCount = 0;
-            var batchSize = (int)_config.batchingPriority;
+            var batchSize = _config.useCustomBatchingValue ? _config.customBatchingValue : (int)_config.batchingPriority;
             if (fullScan)
                 batchSize = (int)Artifice_SCR_ValidatorConfig.BatchingPriority.Absolute;
 
@@ -408,17 +406,7 @@ namespace ArtificeToolkit.Editor
         }
 
         #region Utility
-
-        private void StopRefreshCoroutine()
-        {
-            if (_refreshCoroutine != null)
-            {
-                EditorCoroutineUtility.StopCoroutine(_refreshCoroutine);
-                _refreshCoroutine = null;
-                _isRefreshing = false;
-            }
-        }
-
+            
         private List<GameObject> GetAllRootGameObjects()
         {
             var rootGameObjects = new List<GameObject>();

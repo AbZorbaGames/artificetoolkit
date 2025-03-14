@@ -2,6 +2,8 @@ using System;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Runtime.SerializedDictionary;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UIElements;
 
 // ReSharper disable InconsistentNaming
 
@@ -14,17 +16,23 @@ namespace ArtificeToolkit.Editor
     {
         public enum BatchingPriority
         {
-            Low = 10,
-            Medium = 25,
-            High = 40,
-            VeryHigh = 100,
+            Low = 50,
+            Medium = 150,
+            High = 250,
+            VeryHigh = 350,
             Absolute = 1_000_000
         }
         
         [field: SerializeField] 
-        public bool autorun = true;
-        [field: SerializeField, EnumToggle] 
+        public bool autorun = false;
+        
+        [field: SerializeField, BoxGroup("Batching"), EnumToggle] 
         public BatchingPriority batchingPriority = BatchingPriority.Medium; 
+        [field: SerializeField, BoxGroup("Batching")] 
+        public bool useCustomBatchingValue;
+        [field: SerializeField, BoxGroup("Batching"), EnableIf(nameof(useCustomBatchingValue), true)]
+        public int customBatchingValue;
+        
         
         [field: SerializeField] 
         public SerializedDictionary<string, bool> scenesMap = new();
