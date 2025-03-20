@@ -96,7 +96,7 @@ namespace ArtificeToolkit.Editor
             }
             
             // Fully render out its visible children properties
-            foreach (var property in serializedObject.GetIterator().GetVisibleChildren())
+            foreach (var property in serializedObject.GetIterator().GetVisibleChildren().SortProperties())
             {
                 if (PropertyIgnoreSet.Contains(property.displayName))
                     continue;
@@ -205,7 +205,7 @@ namespace ArtificeToolkit.Editor
                             childrenContainer = new VisualElement();
 
                         // Create property for each child
-                        foreach (var child in property.GetVisibleChildren())
+                        foreach (var child in property.GetVisibleChildren().SortProperties())
                             childrenContainer.Add(CreatePropertyGUI(child, forceArtificeStyle));
                         
                         // Create methods group

@@ -1,0 +1,5 @@
+﻿ # IDES
+.vs/
+.vscode/
+.idea/
+.vsconfig

@@ -89,6 +89,7 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [PreviewSprite](#previewsprite)
 - [PreviewScriptable](#previewscriptable)
 - [ReadOnly](#readonly)
+- [Sort](#sort)
 
 ## Miscellaneous
 - [Space](#space)
@@ -418,6 +419,45 @@ private Vector3 up = new Vector3(0f, 1f, 0f);
 **NOTE**: To make Vector3 and similar structs be readonly, we need to enforce the usage of artifice in their nested properties. This is why, [ForceArtifice](#forceartifice) is used.
 
 ---
+
+
+### Sort
+
+The Sort attribute is used to order fields in the Unity Inspector. It supports inheritance and nested classes. Properties with a lower Sort number have higher priority and appear first in the list.
+
+```c#
+[Serializable]
+public class Stats
+{
+  [Sort(1)]
+  public int Damage;
+  
+  [Sort(0)]
+  public int Durability;
+}
+ 
+public class Weapon: ScriptableObject
+{
+  [Sort(3)]
+  public Stats Stats;
+}
+
+public class Sword: Weapon
+{
+  [Sort(1)]
+  public string Name;
+  
+  [Sort(2)]
+  public string Description;
+}
+```
+
+![sort-example](./Documentation/artifice_sort.jpg)
+
+**NOTE**: The `Script` name is preserved in the top of the editor.
+
+---
+
 
 <!-- Miscellaneous -->
 ### Space
