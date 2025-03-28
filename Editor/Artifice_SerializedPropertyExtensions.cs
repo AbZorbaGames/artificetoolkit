@@ -410,7 +410,7 @@ namespace ArtificeToolkit.Editor
                 {
                     var attributes = property.GetCustomAttributes();
                     var sortAttribute = attributes?.FirstOrDefault(attr => attr is SortAttribute) as SortAttribute;
-                    sortOrderCache[property] = sortAttribute?.Order ?? int.MaxValue;
+                    sortOrderCache[property] = sortAttribute?.Order ?? 0;
                     needsSorting = true;
                 }
             }

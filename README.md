@@ -423,7 +423,7 @@ private Vector3 up = new Vector3(0f, 1f, 0f);
 
 ### Sort
 
-The Sort attribute is used to order fields in the Unity Inspector. It supports inheritance and nested classes. Properties with a lower Sort number have higher priority and appear first in the list.
+The Sort attribute is used to order fields in the Unity Inspector. It supports inheritance and nested classes. Properties with a lower Sort number have higher priority and appear first in the list. By default, all properties have a sorting value of 0.
 
 ```c#
 [Serializable]
