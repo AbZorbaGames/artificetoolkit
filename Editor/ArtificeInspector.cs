@@ -9,7 +9,7 @@ using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDraw
 namespace ArtificeToolkit.Editor
 {
     /// <summary> Propagates rendering to the <see cref="ArtificeDrawer"/></summary>
-    /// [CustomEditor(typeof(Object), true), CanEditMultipleObjects]
+//[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
     public class ArtificeInspector : UnityEditor.Editor
     {
         #region FIELDS
