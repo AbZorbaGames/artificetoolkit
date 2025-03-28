@@ -397,9 +397,10 @@ namespace ArtificeToolkit.Editor
         /// </summary>
         public static List<SerializedProperty> SortProperties(this List<SerializedProperty> properties)
         {
-            Dictionary<SerializedProperty, int> sortOrderCache = new Dictionary<SerializedProperty, int>() ;
+            var sortOrderCache = new Dictionary<SerializedProperty, int>() ;
+            var needsSorting = false;
 
-            foreach (SerializedProperty property in properties)
+            foreach (var property in properties)
             {
                 if (property.name == "m_Script")
                 {
@@ -407,13 +408,14 @@ namespace ArtificeToolkit.Editor
                 }
                 else
                 {
-                    CustomAttribute[] attributes = property.GetCustomAttributes();
-                    SortAttribute sortAttribute = attributes?.FirstOrDefault(attr => attr is SortAttribute) as SortAttribute;
+                    var attributes = property.GetCustomAttributes();
+                    var sortAttribute = attributes?.FirstOrDefault(attr => attr is SortAttribute) as SortAttribute;
                     sortOrderCache[property] = sortAttribute?.Order ?? int.MaxValue;
+                    needsSorting = true;
                 }
             }
 
-            return properties.OrderBy(p => sortOrderCache[p]).ToList();
+            return needsSorting ? properties.OrderBy(p => sortOrderCache[p]).ToList() : properties;
         }
         
         /// <summary> Returns the field info of a target object based on the path </summary>
