@@ -1,4 +1,10 @@
 # Change Log:
+## 1.3.3
+- Fix: SerializedDictionary did not work with long or some other types due to randmomization not being defined.
+
+## 1.3.2
+- Enhancement: Added [Sort] attribute which allows you to reorder rendering order of properties.
+
 ## 1.3.1
 - Fix: Validator had an unnecessary force stop on hierarchy change to avoid disappearing gameObjects, but this was already covered with a targeted if clause on the same iteration.
 - Enhancement: Added the option on the validator settings, to set a custom batching priority value.
