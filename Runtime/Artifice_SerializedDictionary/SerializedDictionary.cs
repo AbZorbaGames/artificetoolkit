@@ -36,46 +36,65 @@ namespace ArtificeToolkit.Runtime.SerializedDictionary
             private object CreateRandomObject(Type type, object existingInstance = null)
             {
                 var random = new System.Random();
-                
+
                 if (type == typeof(int))
-                    return random.Next(0, 100); // Random integer
+                    return random.Next(int.MinValue, int.MaxValue);
                 if (type == typeof(float))
-                    return (float)random.NextDouble() * 100; // Random float
+                    return (float)(random.NextDouble() * (float.MaxValue - float.MinValue) + float.MinValue);
                 if (type == typeof(double))
-                    return random.NextDouble() * 100; // Random double
+                    return random.NextDouble() * (double.MaxValue - double.MinValue) + double.MinValue;
                 if (type == typeof(bool))
-                    return random.Next(0, 2) == 1; // Random bool
+                    return random.Next(0, 2) == 1;
                 if (type == typeof(string))
-                    return Guid.NewGuid().ToString(); // Random string (unique identifier)
+                    return Guid.NewGuid().ToString();
                 if (type.IsEnum)
-                    return GetRandomEnumValue(type); // Random enum value
+                    return GetRandomEnumValue(type);
                 if (type == typeof(DateTime))
-                    return DateTime.Now.AddDays(random.Next(-365, 365)); // Random date within a year
+                    return DateTime.Now.AddDays(random.Next(-365, 365));
                 if (type == typeof(char))
-                    return (char)random.Next(65, 91); // Random uppercase letter (A-Z)
+                    return (char)random.Next(65, 91);
+                if (type == typeof(byte))
+                    return (byte)random.Next(byte.MinValue, byte.MaxValue);
+                if (type == typeof(sbyte))
+                    return (sbyte)random.Next(sbyte.MinValue, sbyte.MaxValue);
+                if (type == typeof(short))
+                    return (short)random.Next(short.MinValue, short.MaxValue);
+                if (type == typeof(ushort))
+                    return (ushort)random.Next(ushort.MinValue, ushort.MaxValue);
+                if (type == typeof(uint))
+                    return (uint)random.Next(0, int.MaxValue);
+                if (type == typeof(long))
+                    return (long)random.Next(int.MinValue, int.MaxValue);
+                if (type == typeof(ulong))
+                    return (ulong)(random.NextDouble() * ulong.MaxValue);
+                if (type == typeof(decimal))
+                    return (decimal)random.Next(int.MinValue, int.MaxValue);
 
                 // For complex types, use reflection
                 var instance = existingInstance ?? Activator.CreateInstance(type);
-                foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic |
+                                                     BindingFlags.Instance))
                 {
-                    if (field.IsInitOnly) 
-                        continue; // Skip readonly fields
-                    
+                    if (field.IsInitOnly)
+                        continue;
+
                     var randomValue = CreateRandomObject(field.FieldType, field.GetValue(instance));
                     field.SetValue(instance, randomValue);
                 }
 
-                foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic |
+                                                            BindingFlags.Instance))
                 {
-                    if (!property.CanWrite || property.GetIndexParameters().Length > 0) 
-                        continue; // Skip non-writable or indexer properties
-                    
+                    if (!property.CanWrite || property.GetIndexParameters().Length > 0)
+                        continue;
+
                     var randomValue = CreateRandomObject(property.PropertyType, property.GetValue(instance));
                     property.SetValue(instance, randomValue);
                 }
 
                 return instance;
             }
+
 
             private object GetRandomEnumValue(Type enumType)
             {
