@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.4
+- Fix: Copying and pasting an entire artifice list now works even if original copy has been disposed.
+
 ## 1.3.3
 - Fix: SerializedDictionary did not work with long or some other types due to randmomization not being defined.
 
