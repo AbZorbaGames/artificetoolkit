@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Artifice.Editor;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -47,6 +48,8 @@ namespace ArtificeToolkit.Editor
             }
         }
         
+        // private class 
+        
         #region FIELDS
 
         public bool ShouldForceArtifice { get; set; }
@@ -60,7 +63,7 @@ namespace ArtificeToolkit.Editor
         private readonly UIBuilder _uiBuilder = new();
         private readonly List<ChildElement> _children = new();
 
-        private static SerializedProperty _copiedProperty; 
+        private static SerializedPropertyCopier _serializedPropertyCopier;
         private bool _disposed;
         
         /* Fields used for dragging elements for reposition */
@@ -300,9 +303,9 @@ namespace ArtificeToolkit.Editor
                 
                 // Copy / Paste
                 evt.menu.AppendSeparator();
-                evt.menu.AppendAction("Copy", action => CopyProperty(), DropdownMenuAction.AlwaysEnabled);
-                evt.menu.AppendAction("Paste", action => PastePropertyNested(Property, _copiedProperty), 
-                    _copiedProperty != null ? DropdownMenuAction.AlwaysEnabled : DropdownMenuAction.AlwaysDisabled);
+                evt.menu.AppendAction("Copy", action => DeepCopyProperty(Property), DropdownMenuAction.AlwaysEnabled);
+                evt.menu.AppendAction("Paste", action => DeepPasteProperty(Property), 
+                    _serializedPropertyCopier != null ? DropdownMenuAction.AlwaysEnabled : DropdownMenuAction.AlwaysDisabled);
             }));
             
             // Implement drag-and-drop elements into list
@@ -771,53 +774,21 @@ namespace ArtificeToolkit.Editor
             BuildListUI();
         }
         
-        private void CopyProperty()
+        /// <summary> Deep copies the values of a serialized property. </summary>
+        private void DeepCopyProperty(SerializedProperty source)
         {
-            // Store the current property as the "copied" property
-            _copiedProperty = Property.Copy();
+            if (_serializedPropertyCopier == null)
+                _serializedPropertyCopier = new SerializedPropertyCopier();
+            
+            _serializedPropertyCopier.Copy(source);
         }
 
-        private void PastePropertyNested(SerializedProperty destination, SerializedProperty source)
+        private void DeepPasteProperty(SerializedProperty destination)
         {
-            if (source.isArray)
-            {
-                destination.ClearArray();
-                destination.arraySize = source.arraySize;
-                for (var i = 0; i < destination.arraySize; i++)
-                    PastePropertyNested(destination.GetArrayElementAtIndex(i), source.GetArrayElementAtIndex(i));
-            }
-            else if (source.hasChildren)
-            {
-                // Use SerializedProperty iteration to handle children
-                var sourceChild = source.Copy();
-                var destinationChild = destination.Copy();
-
-                var enterChildren = true;
-
-                while (sourceChild.Next(enterChildren))
-                {
-                    // // Ensure we only copy properties within this object, not siblings
-                    // if (!SerializedProperty.EqualContents(sourceChild, source))
-                    //     break;
-
-                    // Move destination child to match source's path
-                    destinationChild = destination.FindPropertyRelative(sourceChild.name);
-
-                    if (destinationChild != null)
-                    {
-                        PastePropertyNested(destinationChild, sourceChild);
-                    }
-
-                    enterChildren = false; // Only enter children for the first time
-                }            
-            }
-            else
-            {
-                destination.Copy(source);
-            }
-
-            destination.serializedObject.ApplyModifiedProperties();
-            destination.serializedObject.Update();
+            if (_serializedPropertyCopier == null)
+                _serializedPropertyCopier = new SerializedPropertyCopier();
+            
+            _serializedPropertyCopier.Paste(destination);
         }
         
         #endregion
