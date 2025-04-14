@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Artifice.Editor
+namespace ArtificeToolkit.Editor
 {
+    /// <summary> Enables deep copy and pasting of serialized properties. </summary>
     public class SerializedPropertyCopier
     {
         private readonly List<PropertyData> _copiedData = new();
