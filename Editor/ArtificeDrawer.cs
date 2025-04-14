@@ -183,6 +183,10 @@ namespace ArtificeToolkit.Editor
                     if (hasCustomPropertyDrawer)
                     {
                         var customPropertyField = Artifice_CustomDrawerUtility.CreatePropertyGUI(property);
+                        
+                        // In case the custom property utility fails, fallback to a default property field (this was seen in issue #29)
+                        customPropertyField = customPropertyField ?? new PropertyField(property);
+                        
                         customPropertyField = CreateCustomAttributesGUI(property, customPropertyField);
                         container.Add(customPropertyField);
                     }

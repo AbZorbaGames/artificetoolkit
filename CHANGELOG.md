@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.5
+- Fix: Hotfixed problem with CustomPropertyDrawer utility returning null in rare cases (like InputAction from Unity's InputSystem package). In this case, we fallback to a default `PropertyField` now.
+
 ## 1.3.4
 - Fix: Copying and pasting an entire artifice list now works even if original copy has been disposed.
 
