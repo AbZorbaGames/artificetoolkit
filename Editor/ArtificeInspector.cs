@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 namespace ArtificeToolkit.Editor
 {
     /// <summary> Propagates rendering to the <see cref="ArtificeDrawer"/></summary>
-  //[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
+//[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
     public class ArtificeInspector : UnityEditor.Editor
     {
         #region FIELDS
@@ -54,6 +54,7 @@ namespace ArtificeToolkit.Editor
         {
             var type = command.context.GetType();
             SetArtificeIgnore(type, true);
+            Selection.objects = null;
         }
 
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", true)]
@@ -68,6 +69,7 @@ namespace ArtificeToolkit.Editor
         {
             var type = command.context.GetType();
             SetArtificeIgnore(type, false);
+            Selection.objects = null;
         }
 
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", true)]
