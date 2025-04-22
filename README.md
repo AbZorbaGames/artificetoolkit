@@ -92,6 +92,7 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [Sort](#sort)
 
 ## Miscellaneous
+- [ArtificeIgnore](#artificeignore)
 - [Space](#space)
 - [Range](#range)
 - [HideLabel](#hidelabel)
@@ -460,6 +461,11 @@ public class Sword: Weapon
 
 
 <!-- Miscellaneous -->
+### Artifice Ignore
+Some classes may not use any custom attribute but are slow on rendering since ArtificeToolkit still needs to check for attributes. In this case, you can apply the `[ArtificeIgnore]` attribute to the MonoBehaviour or ScriptableObject class to have it be rendered with the default IMGUI UI.
+
+**NOTE**: Some classes may come from third-party providers and may not be able to apply the `[ArtificeIgnore]`. In this case, you can add it to the artifice ignore list from the context actions of the inspector. This is a locally stored setting.
+
 ### Space
 The Space attribute can receive up to four parameters reflecting the margin in pixels you want your element to have from top, bottom, left, right directions.
 
