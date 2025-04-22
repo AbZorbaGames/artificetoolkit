@@ -25,11 +25,15 @@ namespace ArtificeToolkit.Editor
         {
             // Check if targetObject has ArtificeIgnore
             var type = serializedObject.targetObject.GetType();
-            var artificeIgnore = type.GetCustomAttribute<ArtificeIgnoreAttribute>();
+            var hasArtificeIgnoreAttribute = type.GetCustomAttribute<ArtificeIgnoreAttribute>() != null;
+            var hasMarkedAsArtificeIgnore = HasArtificeIgnore(type);
 
-            return artificeIgnore != null
+            // Render with Default inspector or Artifice Inspector based on ignore values
+            var inspector = hasArtificeIgnoreAttribute || hasMarkedAsArtificeIgnore
                 ? base.CreateInspectorGUI()
                 : new ArtificeDrawer().CreateInspectorGUI(serializedObject);
+
+            return inspector;
         }
 
         /* Mono */
@@ -42,5 +46,52 @@ namespace ArtificeToolkit.Editor
                 Artifice_CustomAttributeUtility_GroupsHolder.Instance.ClearSerializedObject(serializedObject);
             }
         }
+
+        #region Artifice Ignore List
+
+        [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", false, 2000)]
+        private static void AddToIgnore(MenuCommand command)
+        {
+            var type = command.context.GetType();
+            SetArtificeIgnore(type, true);
+        }
+
+        [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", true)]
+        private static bool ValidateAdd(MenuCommand command)
+        {
+            var type = command.context.GetType();
+            return !HasArtificeIgnore(type);
+        }
+
+        [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", false, 2000)]
+        private static void RemoveFromIgnore(MenuCommand command)
+        {
+            var type = command.context.GetType();
+            SetArtificeIgnore(type, false);
+        }
+
+        [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", true)]
+        private static bool ValidateRemove(MenuCommand command)
+        {
+            var type = command.context.GetType();
+            return HasArtificeIgnore(type);
+        }
+
+        #endregion
+
+        #region Utility
+
+        private static void SetArtificeIgnore(Type type, bool shouldIgnore)
+        {
+            Artifice_SCR_PersistedData.instance.SaveData("ArtificeInspector", $"ArtificeIgnore_{type.Name}", shouldIgnore.ToString());
+        }
+
+        private static bool HasArtificeIgnore(Type type)
+        {
+            var stringValue = Artifice_SCR_PersistedData.instance.LoadData("ArtificeInspector", $"ArtificeIgnore_{type.Name}");
+            return bool.TryParse(stringValue, out var value) && value;
+        }
+        
+        #endregion
     }
 }
