@@ -49,7 +49,7 @@ namespace ArtificeToolkit.Editor
 
         #region Artifice Ignore List
 
-        [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", false, 2000)]
+        [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", false, 105)]
         private static void AddToIgnore(MenuCommand command)
         {
             var type = command.context.GetType();
@@ -64,7 +64,7 @@ namespace ArtificeToolkit.Editor
             return !HasArtificeIgnore(type);
         }
 
-        [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", false, 2000)]
+        [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", false, 105)]
         private static void RemoveFromIgnore(MenuCommand command)
         {
             var type = command.context.GetType();
