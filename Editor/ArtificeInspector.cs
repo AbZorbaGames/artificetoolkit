@@ -1,7 +1,9 @@
 using System;
+using System.Reflection;
+using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
 using UnityEditor;
 using UnityEngine.UIElements;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
 
 // ReSharper disable InvertIf
 // ReSharper disable MemberCanBeMadeStatic.Local
@@ -9,7 +11,7 @@ using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDraw
 namespace ArtificeToolkit.Editor
 {
     /// <summary> Propagates rendering to the <see cref="ArtificeDrawer"/></summary>
-//[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
+[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
     public class ArtificeInspector : UnityEditor.Editor
     {
         #region FIELDS
@@ -21,8 +23,13 @@ namespace ArtificeToolkit.Editor
         /* Mono */
         public override VisualElement CreateInspectorGUI()
         {
-            _drawer = new ArtificeDrawer();
-            return _drawer.CreateInspectorGUI(serializedObject);
+            // Check if targetObject has ArtificeIgnore
+            var type = serializedObject.targetObject.GetType();
+            var artificeIgnore = type.GetCustomAttribute<ArtificeIgnoreAttribute>();
+
+            return artificeIgnore != null
+                ? base.CreateInspectorGUI()
+                : new ArtificeDrawer().CreateInspectorGUI(serializedObject);
         }
 
         /* Mono */
