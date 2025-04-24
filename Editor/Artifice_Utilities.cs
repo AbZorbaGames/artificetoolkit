@@ -1,10 +1,12 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
+using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -146,8 +148,7 @@ namespace ArtificeToolkit.Editor
                 
                 if (hasChangedFile)
                 {
-                    // Empty selection, since it will have to be refocused anyway.
-                    Selection.objects = null;
+                    Selection.activeGameObject = null;
                     
                     // Change toggle and write/refresh.
                     ArtificeDrawerEnabled = toggle;
@@ -255,5 +256,25 @@ namespace ArtificeToolkit.Editor
                 _drawerMap[customDrawerAttribute.Type] = drawerType;
             }
         }
+        
+        #region Reselection Utility
+        
+        private IEnumerator OnNextFrame(Action action)
+        {
+            yield return null;
+            action.Invoke();
+        }
+
+        public static void TriggerNextFrameReselection()
+        {
+            var selection = Selection.objects;
+            Selection.objects = null;
+            EditorCoroutineUtility.StartCoroutine(Instance.OnNextFrame(() =>
+            {
+                Selection.objects = selection;
+            }), Instance);
+        }
+        
+        #endregion
     }
 }

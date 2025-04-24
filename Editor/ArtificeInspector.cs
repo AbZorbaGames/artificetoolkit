@@ -54,7 +54,7 @@ namespace ArtificeToolkit.Editor
         {
             var type = command.context.GetType();
             SetArtificeIgnore(type, true);
-            Selection.objects = null;
+            Artifice_Utilities.TriggerNextFrameReselection();
         }
 
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", true)]
@@ -69,7 +69,7 @@ namespace ArtificeToolkit.Editor
         {
             var type = command.context.GetType();
             SetArtificeIgnore(type, false);
-            Selection.objects = null;
+            Artifice_Utilities.TriggerNextFrameReselection();
         }
 
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", true)]
