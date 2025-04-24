@@ -18,7 +18,7 @@ namespace ArtificeToolkit.Editor
     {   
         #region Constants
         
-        private const string MenuItemPath = "Artifice Toolkit/Validator %&v";
+        private const string MenuItemPath = "Artifice Toolkit/\u2713 Artifice Validator %&v";
 
         #endregion
         
@@ -158,8 +158,8 @@ namespace ArtificeToolkit.Editor
         public Artifice_SCR_ValidatorConfig _config;
         
         #endregion
-        
-        [MenuItem(MenuItemPath)]
+            
+        [MenuItem(MenuItemPath, priority = 22)]
         public static void OpenWindow()
         {
             var wnd = GetWindow<Artifice_EditorWindow_Validator>();

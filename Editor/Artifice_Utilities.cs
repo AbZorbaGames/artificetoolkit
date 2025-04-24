@@ -69,6 +69,7 @@ namespace ArtificeToolkit.Editor
         private const string ArtificeInspectorOn = "Artifice Toolkit/" + "\u2712 Toggle ArtificeInspector/On";
         private const string ArtificeInspectorOff = "Artifice Toolkit/" +"\u2712 Toggle ArtificeInspector/Off";
         private const string ArtificeDocumentation = "Artifice Toolkit/" +"\ud83d\udcd6 Documentation...";
+        private const string ArtificeIgnoreList = "Artifice Toolkit/" + "\u2718 Preview Ignore List";
         private const string ArtificeDocumentationURL = "https://github.com/AbZorbaGames/artificetoolkit";
         
         [MenuItem(ArtificeInspectorOn, true, 0)]
@@ -105,6 +106,12 @@ namespace ArtificeToolkit.Editor
         private static void OpenArtificeDocumentationURL()
         {
             Application.OpenURL(ArtificeDocumentationURL);
+        }
+        
+        [MenuItem(ArtificeIgnoreList)]
+        private static void OpenArtificeIgnoreList()
+        {
+            Artifice_EditorWindow_IgnoreList.ShowWindow();
         }
         
         public static void ToggleArtificeDrawer(bool toggle)

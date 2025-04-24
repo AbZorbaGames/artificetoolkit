@@ -33,6 +33,12 @@ namespace ArtificeToolkit.Editor
             return persistedData[viewPersistenceKey][key];
         }
 
+        public SerializedDictionary<string, string> LoadAll(string viewPersistenceKey)
+        {
+            return persistedData.ContainsKey(viewPersistenceKey) == false ? 
+                null : persistedData[viewPersistenceKey];
+        }
+        
         public void ClearData(string viewPersistenceKey)
         {
             persistedData[viewPersistenceKey].Clear();

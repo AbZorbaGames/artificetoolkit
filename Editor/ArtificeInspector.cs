@@ -85,12 +85,12 @@ namespace ArtificeToolkit.Editor
 
         private static void SetArtificeIgnore(Type type, bool shouldIgnore)
         {
-            Artifice_SCR_PersistedData.instance.SaveData("ArtificeInspector", $"ArtificeIgnore_{type.Name}", shouldIgnore.ToString());
+            Artifice_SCR_PersistedData.instance.SaveData(Artifice_EditorWindow_IgnoreList.ViewPersistenceKey, $"{type.Name}", shouldIgnore.ToString());
         }
 
         private static bool HasArtificeIgnore(Type type)
         {
-            var stringValue = Artifice_SCR_PersistedData.instance.LoadData("ArtificeInspector", $"ArtificeIgnore_{type.Name}");
+            var stringValue = Artifice_SCR_PersistedData.instance.LoadData(Artifice_EditorWindow_IgnoreList.ViewPersistenceKey, $"{type.Name}");
             return bool.TryParse(stringValue, out var value) && value;
         }
         
