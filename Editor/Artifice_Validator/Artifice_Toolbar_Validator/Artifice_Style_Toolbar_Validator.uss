@@ -25,6 +25,8 @@
 
 .log-button Image{
     width: 14px;
+    min-width: 14px;
+    max-width: 14px;
     margin-right: 2px;
 }
 
