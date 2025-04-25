@@ -75,6 +75,9 @@ namespace ArtificeToolkit.Editor
             if (getPropertyDrawerMethod != null)
             {
                 var propertyDrawer = (PropertyDrawer)getPropertyDrawerMethod.Invoke(handler, new object[]{});
+                if (propertyDrawer == null)
+                    return null;
+                
                 return propertyDrawer.CreatePropertyGUI(property);
             }
             

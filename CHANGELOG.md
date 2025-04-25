@@ -1,5 +1,6 @@
 # Change Log:
 ## 1.3.6
+- Enhancement: Great performance boost for artifice drawer.
 - Enhancement: Added `[ArtificeIgnore]` attribute.
 - Enhancement: Added context action to ignore rendering specific scripts with `ArtificeDrawer`.
 
