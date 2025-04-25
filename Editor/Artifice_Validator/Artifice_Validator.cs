@@ -287,6 +287,12 @@ namespace ArtificeToolkit.Editor
             if (_config.autorun && _isRefreshing == false)
             {
                 _isRefreshing = true;
+                
+                //  Stop coroutine just in case
+                if(_refreshCoroutine != null)
+                    EditorCoroutineUtility.StopCoroutine(_refreshCoroutine);
+                
+                // Start coroutine.
                 _refreshCoroutine = EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(), this);
             }
         }
@@ -347,15 +353,13 @@ namespace ArtificeToolkit.Editor
                 }
                 
                 _logs.AddRange(module.Logs);
-                
-                // Refresh log counters.
-                RefreshLogCounters();
-
-                // Emit refresh
-                OnLogsRefreshEvent.Invoke();
             }
-
-
+            
+            // Emit refresh
+            OnLogsRefreshEvent.Invoke();
+            // Refresh log counters.
+            RefreshLogCounters();
+            
             _isRefreshing = false;
 
             // If method was called as blocking, do not change isRefreshing since its auto-refresh's job.

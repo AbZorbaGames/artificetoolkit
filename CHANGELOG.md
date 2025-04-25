@@ -1,8 +1,9 @@
 # Change Log:
-## 1.3.6
+## 1.3.7
 - Enhancement: Great performance boost for artifice drawer.
 - Enhancement: Added `[ArtificeIgnore]` attribute.
 - Enhancement: Added context action to ignore rendering specific scripts with `ArtificeDrawer`.
+- Fix: Fixed problem where validator logs would glitch between appearing and disappearing.
 
 ## 1.3.5
 - Fix: Hotfixed problem with CustomPropertyDrawer utility returning null in rare cases (like InputAction from Unity's InputSystem package). In this case, we fallback to a default `PropertyField` now.
