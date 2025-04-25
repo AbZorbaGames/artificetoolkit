@@ -109,6 +109,10 @@ namespace ArtificeToolkit.Editor
             // Create optional method buttons Foldout Group for serializedObject
             artificeInspector.Add(CreateMethodsGUI(serializedObject));
             
+            // Add artifice indicator if artifice has been used.
+            if (_doesRequireVisualElementsCache.Any(pair => pair.Value))
+                artificeInspector.Add(CreateArtificeIndicatorGUI(serializedObject));
+            
             // Apply any modified property
             serializedObject.ApplyModifiedProperties(); 
 
@@ -130,9 +134,6 @@ namespace ArtificeToolkit.Editor
 
             artificeContainer.styleSheets.Add(Artifice_Utilities.GetGlobalStyle()); // This propagates to all children.
             artificeContainer.styleSheets.Add(Artifice_Utilities.GetStyle(GetType())); // Supports
-
-            if (_doesRequireVisualElementsCache.Any(pair => pair.Value))
-                artificeContainer.Add(CreateArtificeIndicatorGUI(serializedObject));
             
             return artificeContainer;
         }
