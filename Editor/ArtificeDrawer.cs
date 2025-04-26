@@ -32,7 +32,7 @@ namespace ArtificeToolkit.Editor
         private readonly Dictionary<SerializedProperty, bool> _doesRequireVisualElementsCache = new();
         
         // Type cache for performance
-        private static readonly Dictionary<string, Type> _typeCache = new();
+        private static readonly Dictionary<string, Type> TypeCache = new();
 
         /// <summary> Specific attributes are meant to be passed upon an array's children, and not affect the array itself. This is what this HashSet defines. </summary>
         public static readonly HashSet<Type> ArrayAppliedCustomAttributes;
@@ -353,7 +353,7 @@ namespace ArtificeToolkit.Editor
                 return new PropertyField(property);
             
             // Get all derived types and create string map for easy accessing.
-            var types = TypeCache.GetTypesDerivedFrom(baseType).OrderBy(type => type.Name).ToList();
+            var types = UnityEditor.TypeCache.GetTypesDerivedFrom(baseType).OrderBy(type => type.Name).ToList();
             var typeMap = new Dictionary<string, Type>();
             foreach (var type in types)
             {
@@ -582,7 +582,7 @@ namespace ArtificeToolkit.Editor
                 var typeName = property.arrayElementType.Replace("PPtr<$", "").Replace(">", "");
 
                 // Return cached if found. Otherwise search assemblies.
-                if (_typeCache.TryGetValue(typeName, out var arrayElementType) == false) 
+                if (TypeCache.TryGetValue(typeName, out var arrayElementType) == false) 
                 {
                     arrayElementType = AppDomain.CurrentDomain.GetAssemblies()
                         .SelectMany(a => {
@@ -590,7 +590,7 @@ namespace ArtificeToolkit.Editor
                         })
                         .FirstOrDefault(t => t.FullName == typeName || t.Name == typeName);
 
-                    _typeCache[typeName] = arrayElementType;
+                    TypeCache[typeName] = arrayElementType;
                 }
 
                 return arrayElementType != null && DoChildrenOfTypeUseCustomAttributes(arrayElementType);
