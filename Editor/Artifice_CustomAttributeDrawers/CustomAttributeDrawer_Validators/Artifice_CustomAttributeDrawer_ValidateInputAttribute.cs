@@ -36,8 +36,6 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             var condition = validateAttribute.Condition;
             _logMessage = validateAttribute.Message;
 
-            Debug.Log(_logMessage);
-
             switch (condition.ToLower())
             {
                 case "true": return true;
