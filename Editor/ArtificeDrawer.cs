@@ -67,7 +67,8 @@ namespace ArtificeToolkit.Editor
                 typeof(HideLabelAttribute),
                 typeof(InfoBoxAttribute), 
                 typeof(ConditionalInfoBoxAttribute),
-                typeof(ListElementNameAttribute)
+                typeof(ListElementNameAttribute),
+                typeof(ValidateInputAttribute)
             };
 
             PropertyIgnoreSet = new HashSet<string>()
