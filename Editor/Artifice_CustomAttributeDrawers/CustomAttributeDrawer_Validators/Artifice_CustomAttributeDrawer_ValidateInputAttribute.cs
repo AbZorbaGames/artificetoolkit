@@ -43,20 +43,19 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 case "false": return false;
             }
             
-            // Check for validation property
-            var validationMembers = targetType.GetMember(condition,
-                BindingFlags.Instance | BindingFlags.Static |
-                BindingFlags.Public | BindingFlags.NonPublic);
-            if (validationMembers is { Length: > 0 })
-                return ExecuteValidationMember(validationMembers, targetObject);
-            
             // Check for validation method
             var validationMethod = targetType.GetMethod(condition,
                 BindingFlags.Instance | BindingFlags.Static |
                 BindingFlags.Public | BindingFlags.NonPublic);
             if (validationMethod != null)
-                return ExecuteValidationMethod(
-                    validationMethod, targetObject, fieldName);
+                return ExecuteValidationMethod(validationMethod, targetObject, fieldInfo, property);
+            
+            // Check for validation field or property
+            var validationMembers = targetType.GetMember(condition,
+                BindingFlags.Instance | BindingFlags.Static |
+                BindingFlags.Public | BindingFlags.NonPublic);
+            if (validationMembers is { Length: > 0 })
+                return ExecuteValidationMember(validationMembers, targetObject);
             
             _logMessage = $"ValidateInput: Invalid validation condition: '{condition}'";
             return false;
@@ -115,8 +114,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
         }
-        
-        private bool ExecuteValidationMethod(MethodInfo validationMethod, object targetObject, string fieldName)
+
+        private bool ExecuteValidationMethod(MethodInfo validationMethod, object targetObject,
+            FieldInfo fieldInfo, SerializedProperty property)
         {
             var methodName = validationMethod.Name;
 
@@ -126,29 +126,88 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     $"ValidateInput: Validation method must return a bool: '{methodName}'";
                 return false;
             }
+            
+            var parameters = validationMethod.GetParameters();
 
+            return parameters.Length < 1
+                ? ExecuteMethodWithoutParams(validationMethod, targetObject, methodName, fieldInfo)
+                : ExecuteMethodWithParams(
+                    validationMethod, targetObject, methodName, fieldInfo, parameters, property);
+        }
+        
+        private bool ExecuteMethodWithoutParams(MethodInfo validationMethod, object targetObject,
+            string methodName, FieldInfo fieldInfo)
+        {
             try
             {
                 var result = validationMethod.Invoke(targetObject, null);
                 if (result is bool isValid) return isValid;
             }
-            catch (TargetInvocationException ex)
+            catch (Exception ex)
             {
-                _logMessage =
-                    $"ValidateInput: Exception occurred while invoking validation method" +
-                    $" '{methodName}' for field '{fieldName}'." +
-                    $"\nException: {ex.InnerException?.Message ?? ex.Message}";
-                return false;
+                HandleMethodException(ex, methodName, fieldInfo.Name);
+            }
+            return false;
+        }
+        
+        private bool ExecuteMethodWithParams(MethodInfo validationMethod, object targetObject,
+            string methodName, FieldInfo fieldInfo,
+            ParameterInfo[] parameters, SerializedProperty property)
+        {
+            try
+            {
+                var fieldValue = fieldInfo.GetValue(targetObject);
+                var paramType = parameters[0].ParameterType;
+                if (fieldValue != null && !paramType.IsAssignableFrom(fieldValue.GetType()))
+                {
+                    _logMessage =
+                        $"ValidateInput: First parameter type mismatch in '{methodName}'." +
+                        $" Expected: {paramType}, Got: {fieldValue.GetType()}";
+                    return false;
+                }
+
+                // Assign field value to the first, and default values to other params(if optional)
+                var paramValues = new object[parameters.Length];
+                paramValues[0] = fieldValue;
+                for (int i = 1; i < parameters.Length; i++)
+                {
+                    if (parameters[i].HasDefaultValue) paramValues[i] = parameters[i].DefaultValue;
+                    else
+                    {
+                        _logMessage =
+                            $"ValidateInput: Validation method parameters, other than the first," +
+                            $" must be optional.\n" +
+                            $"'Method: {methodName}', Parameter: '{parameters[i].Name}'";
+                        return false;
+                    }
+                }
+
+                var result = validationMethod.Invoke(targetObject, paramValues);
+                if (result is bool isValid) return isValid;
             }
             catch (Exception ex)
             {
-                _logMessage =
-                    $"ValidateInput: Exception occured while executing validation method" +
-                    $" '{methodName}' for field '{fieldName}'.\nException: {ex.Message}";
-                return false;
+                HandleMethodException(ex, methodName, fieldInfo.Name);
             }
-
+            
             return false;
+        }
+        
+        private void HandleMethodException(Exception ex, string methodName, string fieldName)
+        {
+            if (ex is TargetInvocationException targetEx)
+            {
+                _logMessage = 
+                    $"ValidateInput: Exception occurred while invoking validation method" +
+                    $" '{methodName}' for field '{fieldName}'." +
+                    $"\nException: {targetEx.InnerException?.Message ?? targetEx.Message}";
+            }
+            else
+            {
+                _logMessage =
+                    $"ValidateInput: Exception occurred while executing validation method" +
+                    $" '{methodName}' for field '{fieldName}'.\nException: {ex.Message}";
+            }
         }
     }
 }
