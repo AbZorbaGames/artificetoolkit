@@ -34,9 +34,6 @@ namespace ArtificeToolkit.Editor
         // Type cache for performance
         private static readonly Dictionary<string, Type> TypeCache = new();
 
-        /// <summary> Specific attributes are meant to be passed upon an array's children, and not affect the array itself. This is what this HashSet defines. </summary>
-        public static readonly HashSet<Type> ArrayAppliedCustomAttributes;
-
         /// <summary> String properties that should be ignored from Artifice. </summary>
         private static readonly HashSet<string> PropertyIgnoreSet;
 
@@ -52,24 +49,6 @@ namespace ArtificeToolkit.Editor
             // Refresh toggle of artifice drawer to secure consistency throughout package updates.
             Artifice_Utilities.ToggleArtificeDrawer(Artifice_Utilities.ArtificeDrawerEnabled);
             
-            // Initialize array applied custom attributes
-            ArrayAppliedCustomAttributes = new HashSet<Type>
-            {
-                typeof(BoxGroupAttribute),
-                typeof(HorizontalGroupAttribute),
-                typeof(VerticalGroupAttribute),
-                typeof(FoldoutGroupAttribute),
-                typeof(TabGroupAttribute),
-                typeof(EnableIfAttribute),
-                typeof(OnValueChanged), 
-                typeof(SpaceAttribute), 
-                typeof(TitleAttribute), 
-                typeof(HideLabelAttribute),
-                typeof(InfoBoxAttribute), 
-                typeof(ConditionalInfoBoxAttribute),
-                typeof(ListElementNameAttribute)
-            };
-
             PropertyIgnoreSet = new HashSet<string>()
             {
                 // "Serialized Data Mode Controller",
@@ -655,7 +634,7 @@ namespace ArtificeToolkit.Editor
             // Get property attributes and parse-split them
             var attributes = property.GetCustomAttributes();
             foreach (var attribute in attributes)
-                if(ArrayAppliedCustomAttributes.Contains(attribute.GetType()))
+                if(typeof(IArtifice_ArrayAppliedAttribute).IsAssignableFrom(attribute.GetType()))
                     arrayCustomAttributes.Add(attribute);
                 else
                     childrenCustomAttributes.Add(attribute);

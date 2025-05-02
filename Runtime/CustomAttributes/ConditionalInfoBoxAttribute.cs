@@ -1,6 +1,6 @@
 namespace ArtificeToolkit.Attributes
 {
-    public class ConditionalInfoBoxAttribute : InfoBoxAttribute
+    public class ConditionalInfoBoxAttribute : InfoBoxAttribute, IArtifice_ArrayAppliedAttribute
     {
         public readonly string PropertyName;
         public readonly object[] Values;

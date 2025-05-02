@@ -1,7 +1,7 @@
 namespace ArtificeToolkit.Attributes
 {
     /// <summary> Adds space in the given direction. </summary>
-    public class SpaceAttribute : CustomAttribute
+    public class SpaceAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {
         public readonly int ValueTop;
         public readonly int ValueBottom;

@@ -41,9 +41,6 @@ namespace ArtificeToolkit.Editor
         {
             if (property.IsArray())
             {
-                // Get array applied custom attributes
-                var arrayAppliedCustomAttributes = ArtificeDrawer.ArrayAppliedCustomAttributes;
-
                 // Create new lists
                 var childrenCustomAttributes = new List<CustomAttribute>();
             
@@ -51,7 +48,7 @@ namespace ArtificeToolkit.Editor
                 var attributes = property.GetCustomAttributes();
                 if (attributes != null)
                     foreach (var attribute in attributes)
-                        if(arrayAppliedCustomAttributes.Contains(attribute.GetType()) == false)
+                        if(attribute.GetType().IsAssignableFrom(typeof(IArtifice_ArrayAppliedAttribute)) == false)
                             childrenCustomAttributes.Add(attribute);
 
                 foreach (var child in property.GetVisibleChildren())
