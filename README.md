@@ -606,6 +606,8 @@ Creating your own validations is simple. You need to:
 1. **Create a Custom Attribute**  
    Define a custom attribute by inheriting from `ValidatorAttribute`. This attribute encapsulates the logic for what needs to be validated. For example, you might want to ensure a property is required or falls within a specific range.
 
+**NOTE**: By default, when a CustomAttribute is used on an Array or a List, the attribute is injected to the children of the array/list. If you intend your attribute to be applied to he array/list it self, add the `IArtifice_ArrayAppliedAttribute` interface to the attribute in question. 
+
 2. **Implement an Artifice_CustomAttributeDrawer_Validator**  
    Create a drawer class inheriting from `Artifice_CustomAttributeDrawer_Validator_BASE`. This class will define how the validation is performed and how any validation errors or warnings are displayed in the Unity Inspector.
 
