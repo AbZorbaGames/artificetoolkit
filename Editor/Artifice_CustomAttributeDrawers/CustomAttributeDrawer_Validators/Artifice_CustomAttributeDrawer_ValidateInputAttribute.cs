@@ -13,7 +13,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         Artifice_CustomAttributeDrawer_ValidateInputAttribute :
         Artifice_CustomAttributeDrawer_Validator_BASE
     {
-        private string _logMessage = "";
+        private         string _logMessage = "";
         public override string LogMessage => _logMessage;
 
         public override Sprite LogSprite { get; } =
@@ -25,21 +25,22 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
         public override bool IsValid(SerializedProperty property)
         {
-            object fieldObject = property.serializedObject.targetObject;
-            var fieldObjectType = fieldObject.GetType();
-            var fieldName = property.name;
+            object fieldObject     = property.serializedObject.targetObject;
+            var    fieldObjectType = fieldObject.GetType();
+            var    fieldName       = property.name;
             var fieldInfo = fieldObjectType.GetField(fieldName,
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            
+                                                     BindingFlags.Instance | BindingFlags.Public |
+                                                     BindingFlags.NonPublic);
+
             if (fieldInfo == null)
             {
                 _logMessage = $"ValidateInput: Invalid property: '{property.name}'";
                 return false;
             }
 
-            var validateAttribute = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
-            _logMessage = validateAttribute.Message;
+            var validateAttribute   = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
             var unresolvedCondition = validateAttribute.Condition;
+            _logMessage = validateAttribute.Message;
 
             // Check for literal strings
             switch (unresolvedCondition.Trim())
@@ -49,9 +50,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 case var s when string.Equals(s, "false", StringComparison.OrdinalIgnoreCase):
                     return false;
             }
-            
+
             // Get nested member
-            object validationObject;
+            object     validationObject;
             MemberInfo validationMember;
             try
             {
@@ -103,7 +104,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     $" '{validationProperty.Name}'";
                 return false;
             }
-            
+
             if (validationProperty.PropertyType != typeof(bool))
             {
                 _logMessage =
@@ -118,7 +119,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         }
 
         private bool ExecuteValidationMethod(MethodInfo validationMethod, object validationObject,
-            FieldInfo fieldInfo, object fieldObject)
+                                             FieldInfo fieldInfo, object fieldObject)
         {
             var methodName = validationMethod.Name;
             if (validationMethod.ReturnType != typeof(bool))
@@ -128,9 +129,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            var parameters = validationMethod.GetParameters();
+            var      parameters  = validationMethod.GetParameters();
             object[] paramValues = null;
-            
+
             // Get parameter values
             if (parameters.Length > 0)
             {
@@ -142,7 +143,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                         $"\nExpected: {firstParamType}, Got: {fieldInfo.FieldType}";
                     return false;
                 }
-                
+
                 paramValues    = new object[parameters.Length];
                 paramValues[0] = fieldInfo.GetValue(fieldObject);
 
@@ -153,7 +154,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     {
                         _logMessage =
                             $"ValidateInput: Validation method parameters, other than the first," +
-                            $" must be optional.\n" +
+                            $" must be optional.\n"                                               +
                             $"'Method: {methodName}', Parameter: '{parameters[i].Name}'";
                         return false;
                     }
@@ -172,8 +173,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 {
                     _logMessage =
                         $"ValidateInput: Exception occurred while invoking validation method" +
-                        $" '{methodName}' from '{validationObject}' for field" +
-                        $" '{fieldName}' in {fieldObject}." +
+                        $" '{methodName}' from '{validationObject}' for field"                +
+                        $" '{fieldName}' in {fieldObject}."                                   +
                         $"\nException: {targetEx.InnerException?.Message ?? targetEx.Message}";
                 }
                 else
