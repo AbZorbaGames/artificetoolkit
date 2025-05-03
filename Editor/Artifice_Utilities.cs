@@ -169,7 +169,6 @@ namespace ArtificeToolkit.Editor
         
         #region Reflection
 
-        // TODO: Possibly support methods with optional params/first param matching the field type
         public static (object, MemberInfo) ResolveNestedMember(
             object currentObject, string nestedMember)
         {
