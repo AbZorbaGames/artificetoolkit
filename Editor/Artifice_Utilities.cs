@@ -170,79 +170,122 @@ namespace ArtificeToolkit.Editor
         #region Reflection
 
         /// <summary>
-        /// Resolved a nested member and the object that contains it
+        /// Resolves a nested member, and the object that contains it(if not fully static)
         /// </summary>
-        /// <param name="rootObject"></param>
-        /// <param name="nestedMember"></param>
-        /// <returns></returns>
+        /// <param name="nestedMember">Path to member</param>
+        /// <param name="rootObject">Root object (null for fully static paths)</param>
+        /// <returns>Tuple of (containing object, member info)</returns>
         public static (object, MemberInfo) ResolveNestedMember(
-            object rootObject, string nestedMember)
+            string nestedMember, object rootObject)
         {
-            if (rootObject == null)
-                throw new ArgumentNullException(nameof(rootObject),
-                    "Root object can't be null");
-
             if (string.IsNullOrEmpty(nestedMember))
                 throw new ArgumentNullException(nameof(nestedMember),
-                    "Nested member can't be null or empty");
+                                                "Nested member can't be null or empty");
 
-            var parts = nestedMember.Split('.');
-            var currentType = rootObject.GetType();
+            var parts         = nestedMember.Split('.');
+            var currentObject = rootObject;
+            var currentType   = rootObject?.GetType();
+            var startIndex    = 0;
 
-            for (int i = 0; i < parts.Length; i++)
+            // Attempt to find the longest matching type name
+            Type matchedType     = null;
+            var  typePartsLength = 0;
+
+            for (int i = parts.Length; i > 0; i--)
+            {
+                var typeCandidate = string.Join(".", parts.Take(i));
+                matchedType = FindType(typeCandidate);
+                if (matchedType == null) continue;
+                typePartsLength = i;
+                break;
+            }
+
+            if (matchedType != null)
+            {
+                currentType   = matchedType;
+                currentObject = null;
+                startIndex    = typePartsLength;
+            }
+            else if (rootObject == null)
+            {
+                throw new TypeLoadException(
+                    $"Unable to resolve type from path: {parts[0]} and rootObject is null");
+            }
+
+            for (int i = startIndex; i < parts.Length; i++)
             {
                 var name = parts[i];
-                var resolvedMember = currentType.GetMember(name,
-                        BindingFlags.Instance | BindingFlags.Static |
-                        BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault();
+                var member = currentType.GetMember(name,
+                                                   BindingFlags.Instance |
+                                                   BindingFlags.Static   |
+                                                   BindingFlags.Public   |
+                                                   BindingFlags.NonPublic).FirstOrDefault();
 
-                if (resolvedMember == null)
+                if (member == null)
                     throw new MemberAccessException(
-                        $"Failed to resolve '{name}' of '{nestedMember}' in type '{currentType.Name}'");
+                        $"Failed to resolve '{name}' in type '{currentType.FullName}'");
 
                 if (i == parts.Length - 1)
-                {
-                    var resolvedTarget = rootObject;
-                    return (resolvedTarget, resolvedMember);
-                }
+                    return (currentObject, member);
 
-                switch (resolvedMember)
+                switch (member)
                 {
                     case FieldInfo field:
-                        rootObject = field.GetValue(field.IsStatic ? null : rootObject);
+                        currentObject = field.GetValue(field.IsStatic ? null : currentObject);
                         break;
 
                     case PropertyInfo property:
                         if (!property.CanRead)
                             throw new InvalidOperationException(
                                 $"Property '{property.Name}' is not readable");
-                        rootObject =
-                            property.GetValue(property.GetMethod.IsStatic ? null : rootObject);
+                        currentObject =
+                            property.GetValue(property.GetMethod.IsStatic ? null : currentObject);
                         break;
 
                     case MethodInfo method:
                         if (method.GetParameters().Length > 0)
                             throw new InvalidOperationException(
                                 $"Method '{method.Name}' in path must have no parameters");
-                        rootObject = method.Invoke(method.IsStatic ? null : rootObject, null);
+                        currentObject = method.Invoke(method.IsStatic ? null : currentObject, null);
                         break;
 
                     default:
                         throw new InvalidOperationException(
-                            $"Member '{name}' is not a field, property, or method");
+                            $"Member '{name}' is not a field, property, or parameterless method");
                 }
 
-                if (rootObject == null)
+                if (currentObject == null)
                     throw new NullReferenceException(
                         $"Path member '{name}' in '{nestedMember}' returned null");
 
-                currentType = rootObject.GetType();
+                currentType = currentObject.GetType();
             }
 
             throw new InvalidOperationException($"Failed to fully resolve '{nestedMember}'");
         }
-        
-        // TODO: Implement a resolve static member method
+
+        /// <summary>
+        /// Attempts to find a type by name in loaded assemblies
+        /// </summary>
+        private static Type FindType(string name)
+        {
+            // Try direct type lookup
+            var type = Type.GetType(name);
+            if (type != null) return type;
+
+            // Try in loaded assemblies
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = assembly.GetType(name);
+                if (type != null) return type;
+
+                // Try by simple name
+                var match = assembly.GetTypes().FirstOrDefault(t => t.Name == name);
+                if (match != null) return match;
+            }
+
+            return null;
+        }
 
         #endregion
         

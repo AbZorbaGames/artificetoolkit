@@ -56,7 +56,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             try
             {
                 (validationObject, validationMember) = Artifice_Utilities.ResolveNestedMember(
-                    fieldObject, unresolvedCondition);
+                    unresolvedCondition, fieldObject);
             }
             catch (Exception ex)
             {
