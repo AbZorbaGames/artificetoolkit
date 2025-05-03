@@ -169,59 +169,62 @@ namespace ArtificeToolkit.Editor
         
         #region Reflection
 
+        /// <summary>
+        /// Resolved a nested member and the object that contains it
+        /// </summary>
+        /// <param name="rootObject"></param>
+        /// <param name="nestedMember"></param>
+        /// <returns></returns>
         public static (object, MemberInfo) ResolveNestedMember(
-            object currentObject, string nestedMember)
+            object rootObject, string nestedMember)
         {
-            if (currentObject == null)
-                throw new ArgumentNullException(nameof(currentObject),
-                    "Target object can't be null");
+            if (rootObject == null)
+                throw new ArgumentNullException(nameof(rootObject),
+                    "Root object can't be null");
 
             if (string.IsNullOrEmpty(nestedMember))
                 throw new ArgumentNullException(nameof(nestedMember),
-                    "Condition can't be null or empty");
+                    "Nested member can't be null or empty");
 
             var parts = nestedMember.Split('.');
-            var currentType = currentObject.GetType();
+            var currentType = rootObject.GetType();
 
             for (int i = 0; i < parts.Length; i++)
             {
                 var name = parts[i];
                 var resolvedMember = currentType.GetMember(name,
-                        BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public |
-                        BindingFlags.NonPublic)
-                    .FirstOrDefault();
+                        BindingFlags.Instance | BindingFlags.Static |
+                        BindingFlags.Public | BindingFlags.NonPublic).FirstOrDefault();
 
                 if (resolvedMember == null)
                     throw new MemberAccessException(
                         $"Failed to resolve '{name}' of '{nestedMember}' in type '{currentType.Name}'");
 
-                // This is the last part of the path, so we're done
                 if (i == parts.Length - 1)
                 {
-                    var resolvedTarget = currentObject;
+                    var resolvedTarget = rootObject;
                     return (resolvedTarget, resolvedMember);
                 }
 
-                // Otherwise, navigate deeper into the object hierarchy
                 switch (resolvedMember)
                 {
                     case FieldInfo field:
-                        currentObject = field.GetValue(field.IsStatic ? null : currentObject);
+                        rootObject = field.GetValue(field.IsStatic ? null : rootObject);
                         break;
 
                     case PropertyInfo property:
                         if (!property.CanRead)
                             throw new InvalidOperationException(
                                 $"Property '{property.Name}' is not readable");
-                        currentObject =
-                            property.GetValue(property.GetMethod.IsStatic ? null : currentObject);
+                        rootObject =
+                            property.GetValue(property.GetMethod.IsStatic ? null : rootObject);
                         break;
 
                     case MethodInfo method:
                         if (method.GetParameters().Length > 0)
                             throw new InvalidOperationException(
                                 $"Method '{method.Name}' in path must have no parameters");
-                        currentObject = method.Invoke(method.IsStatic ? null : currentObject, null);
+                        rootObject = method.Invoke(method.IsStatic ? null : rootObject, null);
                         break;
 
                     default:
@@ -229,15 +232,17 @@ namespace ArtificeToolkit.Editor
                             $"Member '{name}' is not a field, property, or method");
                 }
 
-                if (currentObject == null)
+                if (rootObject == null)
                     throw new NullReferenceException(
                         $"Path member '{name}' in '{nestedMember}' returned null");
 
-                currentType = currentObject.GetType();
+                currentType = rootObject.GetType();
             }
 
             throw new InvalidOperationException($"Failed to fully resolve '{nestedMember}'");
         }
+        
+        // TODO: Implement a resolve static member method
 
         #endregion
         
