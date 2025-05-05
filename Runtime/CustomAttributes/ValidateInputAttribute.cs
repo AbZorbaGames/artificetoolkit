@@ -1,6 +1,6 @@
 namespace ArtificeToolkit.Attributes
 {
-    public class ValidateInputAttribute : ValidatorAttribute
+    public class ValidateInputAttribute : ValidatorAttribute, IArtifice_ArrayAppliedAttribute
     {
         public string Condition;
         public string Message = "Invalid Input";
