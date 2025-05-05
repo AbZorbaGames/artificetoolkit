@@ -14,7 +14,7 @@ namespace ArtificeToolkit.Attributes
     }
     
     /// <summary> All Group-like attributes should inherit from this class. </summary>
-    public abstract class GroupAttribute : CustomAttribute
+    public abstract class GroupAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {
         public readonly string GroupName;
         public readonly GroupColor GroupColor;

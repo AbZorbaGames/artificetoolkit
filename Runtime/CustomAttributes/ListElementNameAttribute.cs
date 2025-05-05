@@ -2,7 +2,7 @@ using ArtificeToolkit.Attributes;
 
 namespace CustomAttributes
 {
-    public class ListElementNameAttribute : CustomAttribute
+    public class ListElementNameAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {
         public readonly string FieldName;
 

@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.8
+- Change: Added `IArtifice_ArrayAppliedAttribute` which is used to indicate whether an attribute should be applied to a property array or be injected on its children.
+
 ## 1.3.7
 - Enhancement: Great performance boost for artifice drawer.
 - Enhancement: Added `[ArtificeIgnore]` attribute.

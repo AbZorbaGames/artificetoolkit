@@ -1,7 +1,7 @@
 namespace ArtificeToolkit.Attributes
 {
     /// <summary> Shows in the inspector an info box the parameterized message </summary>
-    public class InfoBoxAttribute : CustomAttribute
+    public class InfoBoxAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {
         public string Message;
         public InfoMessageType Type;
