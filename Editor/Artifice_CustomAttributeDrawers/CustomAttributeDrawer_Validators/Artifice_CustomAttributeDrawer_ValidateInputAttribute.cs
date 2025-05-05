@@ -27,7 +27,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             object fieldObject     = property.serializedObject.targetObject;
             var    fieldObjectType = fieldObject.GetType();
             var    fieldName       = property.name;
-            var fieldInfo = fieldObjectType.GetField(fieldName,
+            var fieldInfo = fieldObjectType.GetField(fieldName, 
                                                      BindingFlags.Instance | BindingFlags.Public |
                                                      BindingFlags.NonPublic);
 
