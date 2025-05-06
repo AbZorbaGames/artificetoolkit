@@ -170,9 +170,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     if (!parameters[i].HasDefaultValue)
                     {
                         _logMessage =
-                            $"ValidateInput: Parameter is not assignable from any of the " +
-                            $"ValidateInput properties and isn't optional:\n"              +
-                            $"'Method: {methodName}', Parameter: '{parameters[i].Name}'";
+                            $"ValidateInput: Parameter is not assignable from any of the" +
+                            $" ValidateInput properties and isn't optional:"              +
+                            $"\n'Method: {methodName}', Parameter: '{parameters[i].Name}'";
                         return false;
                     }
                     break;
@@ -186,8 +186,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 {
                     _logMessage =
                         $"ValidateInput: Validation method parameters, other than the first," +
-                        $" must be optional.\n"                                               +
-                        $"'Method: {methodName}', Parameter: '{parameters[i].Name}'";
+                        $" must be optional."                                                 +
+                        $"\n'Method: {methodName}', Parameter: '{parameters[i].Name}'";
                     return false;
                 }
             }
