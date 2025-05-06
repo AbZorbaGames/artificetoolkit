@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
@@ -14,16 +15,19 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     {
         private         string _logMessage = "";
         public override string LogMessage => _logMessage;
+             
+        private         LogType _logType = LogType.Error;
+        public override LogType LogType => _logType;
 
-        public override Sprite LogSprite { get; } =
-            Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
-
-        public override LogType LogType { get; } = LogType.Error;
+        private         Sprite _logSprite = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
+        public override Sprite LogSprite => _logSprite;
 
         protected override bool IsApplicableToProperty(SerializedProperty property) => true;
 
         public override bool IsValid(SerializedProperty property)
         {
+            ResetValues();
+            
             object fieldObject     = property.serializedObject.targetObject;
             var    fieldObjectType = fieldObject.GetType();
             var    fieldName       = property.name;
@@ -40,6 +44,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             var validateAttribute   = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
             var unresolvedCondition = validateAttribute.Condition;
             _logMessage = validateAttribute.Message;
+            _logType    = validateAttribute.LogType;
+            _logSprite  = Artifice_Utilities.LogIconFromType(_logType);
 
             // Check for literal strings
             switch (unresolvedCondition.Trim())
@@ -77,6 +83,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
             _logMessage = $"ValidateInput: Invalid validation condition: '{unresolvedCondition}'";
             return false;
+        }
+
+        private void ResetValues()
+        {
+            _logMessage = "";
+            _logType    = LogType.Error;
+            _logSprite  = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
         }
 
         private bool ExecuteValidationField(FieldInfo validationField, object validationObject)
@@ -128,41 +141,70 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            var      parameters  = validationMethod.GetParameters();
-            object[] paramValues = null;
+            var  parameters    = validationMethod.GetParameters();
+            var  paramValues   = new object[parameters.Length];
+            bool assignedField = false, assignedMessage = false, assignedType = false;
+            int  i             = 0;
 
-            // Get parameter values
-            if (parameters.Length > 0)
+            for (; i < Mathf.Min(parameters.Length, 3); i++)
             {
-                var firstParamType = parameters[0].ParameterType;
-                if (!firstParamType.IsAssignableFrom(fieldInfo.FieldType))
+                var paramType = parameters[i].ParameterType;
+                
+                if (!assignedField && paramType.IsAssignableFrom(fieldInfo.FieldType))
                 {
-                    _logMessage =
-                        $"ValidateInput: First parameter type mismatch in '{methodName}'." +
-                        $"\nExpected: {firstParamType}, Got: {fieldInfo.FieldType}";
-                    return false;
+                    paramValues[i] = fieldInfo.GetValue(fieldObject);
+                    assignedField = true;
                 }
-
-                paramValues    = new object[parameters.Length];
-                paramValues[0] = fieldInfo.GetValue(fieldObject);
-
-                for (int i = 1; i < parameters.Length; i++)
+                else if (!assignedMessage && paramType == typeof(string).MakeByRefType())
                 {
-                    if (parameters[i].HasDefaultValue) paramValues[i] = parameters[i].DefaultValue;
-                    else
+                    paramValues[i] = _logMessage;
+                    assignedMessage = true;
+                }
+                else if (!assignedType && paramType == typeof(LogType).MakeByRefType())
+                {
+                    paramValues[i] = _logType;
+                    assignedType = true;
+                }
+                else
+                {
+                    if (!parameters[i].HasDefaultValue)
                     {
                         _logMessage =
-                            $"ValidateInput: Validation method parameters, other than the first," +
-                            $" must be optional.\n"                                               +
+                            $"ValidateInput: Parameter is not assignable from any of the " +
+                            $"ValidateInput properties and isn't optional:\n"              +
                             $"'Method: {methodName}', Parameter: '{parameters[i].Name}'";
                         return false;
                     }
+                    break;
+                }
+            }
+
+            for (; i < parameters.Length; i++)
+            {
+                if (parameters[i].HasDefaultValue) paramValues[i] = parameters[i].DefaultValue;
+                else
+                {
+                    _logMessage =
+                        $"ValidateInput: Validation method parameters, other than the first," +
+                        $" must be optional.\n"                                               +
+                        $"'Method: {methodName}', Parameter: '{parameters[i].Name}'";
+                    return false;
                 }
             }
 
             try
             {
                 var result = validationMethod.Invoke(validationObject, paramValues);
+                
+                // Retrieve log message and type
+                if (assignedMessage)
+                    _logMessage = (string)paramValues.FirstOrDefault(p => p is string);
+                if (assignedType)
+                {
+                    _logType   = (LogType)paramValues.FirstOrDefault(p => p is LogType)!;
+                    _logSprite = Artifice_Utilities.LogIconFromType(_logType);
+                }
+
                 if (result is bool isValid) return isValid;
             }
             catch (Exception ex)
