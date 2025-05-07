@@ -42,15 +42,22 @@ namespace ArtificeToolkit.Editor
             if (property.IsArray())
             {
                 // Create new lists
+                var arrayCustomAttributes = new List<CustomAttribute>();
                 var childrenCustomAttributes = new List<CustomAttribute>();
-            
+                
                 // Get property attributes and parse-split them
                 var attributes = property.GetCustomAttributes();
                 if (attributes != null)
                     foreach (var attribute in attributes)
-                        if(attribute.GetType().IsAssignableFrom(typeof(IArtifice_ArrayAppliedAttribute)) == false)
+                        if (attribute.GetType().IsAssignableFrom(typeof(IArtifice_ArrayAppliedAttribute)))
+                            arrayCustomAttributes.Add(attribute);
+                        else
                             childrenCustomAttributes.Add(attribute);
-
+                
+                // Generate Array Validations
+                GenerateValidatorLogs(property, arrayCustomAttributes);
+                
+                // Generate Children Validations
                 foreach (var child in property.GetVisibleChildren())
                     if(child.name != "size")    
                         GenerateValidatorLogs(child, childrenCustomAttributes);
