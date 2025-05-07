@@ -206,6 +206,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     _logType   = (LogType)paramValues.FirstOrDefault(p => p is LogType)!;
                     _logSprite = Artifice_Utilities.LogIconFromType(_logType);
                 }
+                
+                if (assignedMessage || assignedType)
+                    InfoBox?.Update(_logSprite, _logMessage);
 
                 if (result is bool isValid) return isValid;
             }
