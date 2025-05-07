@@ -43,9 +43,11 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
             var validateAttribute   = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
             var unresolvedCondition = validateAttribute.Condition;
+            
             _logMessage = validateAttribute.Message;
             _logType    = validateAttribute.LogType;
             _logSprite  = Artifice_Utilities.LogIconFromType(_logType);
+            InfoBox.Update(_logSprite, _logMessage);
 
             // Check for literal strings
             switch (unresolvedCondition.Trim())

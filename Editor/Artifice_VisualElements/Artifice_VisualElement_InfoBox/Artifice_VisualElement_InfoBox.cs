@@ -7,7 +7,7 @@ namespace ArtificeToolkit.Editor.VisualElements
     public class Artifice_VisualElement_InfoBox : VisualElement
     {
         private readonly Image _image;
-        private readonly Label _label;
+        private readonly Label _labelMessage;
 
         private Artifice_VisualElement_InfoBox()
         {
@@ -23,20 +23,34 @@ namespace ArtificeToolkit.Editor.VisualElements
             Add(_image);
 
             // Add label
-            _label = new Label();
-            _label.AddToClassList("label");
-            _label.style.whiteSpace = WhiteSpace.Normal;
-            Add(_label);
+            _labelMessage = new Label();
+            _labelMessage.AddToClassList("label");
+            _labelMessage.style.whiteSpace = WhiteSpace.Normal;
+            Add(_labelMessage);
         }
         public Artifice_VisualElement_InfoBox(string message) : this()
         {
-            _label.text = message;
+            _labelMessage.text = message;
             _image.sprite = Artifice_SCR_CommonResourcesHolder.instance.CommentIcon;
         }
         public Artifice_VisualElement_InfoBox(string message, Sprite sprite) : this()
         {
             _image.sprite = sprite;
-            _label.text = message;
+            _labelMessage.text = message;
+        }
+
+        public void Update(Sprite sprite)
+        {
+            _image.sprite = sprite;
+        }
+        public void Update(string message)
+        {
+            _labelMessage.text = message;
+        }
+        public void Update(Sprite sprite, string message)
+        {
+            Update(sprite);
+            Update(message);
         }
     }
 }
