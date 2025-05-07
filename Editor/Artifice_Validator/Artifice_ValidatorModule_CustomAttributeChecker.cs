@@ -49,7 +49,7 @@ namespace ArtificeToolkit.Editor
                 var attributes = property.GetCustomAttributes();
                 if (attributes != null)
                     foreach (var attribute in attributes)
-                        if (attribute.GetType().IsAssignableFrom(typeof(IArtifice_ArrayAppliedAttribute)))
+                        if (attribute is IArtifice_ArrayAppliedAttribute)
                             arrayCustomAttributes.Add(attribute);
                         else
                             childrenCustomAttributes.Add(attribute);

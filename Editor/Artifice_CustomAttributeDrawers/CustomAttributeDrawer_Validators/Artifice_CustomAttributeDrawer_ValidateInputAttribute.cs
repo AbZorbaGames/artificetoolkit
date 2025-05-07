@@ -47,7 +47,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             _logMessage = validateAttribute.Message;
             _logType    = validateAttribute.LogType;
             _logSprite  = Artifice_Utilities.LogIconFromType(_logType);
-            InfoBox.Update(_logSprite, _logMessage);
+            InfoBox?.Update(_logSprite, _logMessage);
 
             // Check for literal strings
             switch (unresolvedCondition.Trim())
