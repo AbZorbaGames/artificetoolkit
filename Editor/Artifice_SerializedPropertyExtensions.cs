@@ -474,6 +474,9 @@ namespace ArtificeToolkit.Editor
                 throw new ArgumentNullException(nameof(nestedMember),
                                                 "Nested member can't be null or empty");
 
+            if (rootObject == null)
+                throw new NullReferenceException("Root object can't be null");
+
             var  parts           = nestedMember.Split('.');
             var  currentObject   = rootObject;
             var  currentType     = rootObject.GetType();
