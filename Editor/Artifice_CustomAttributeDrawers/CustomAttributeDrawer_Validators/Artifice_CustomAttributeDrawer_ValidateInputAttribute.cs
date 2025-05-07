@@ -63,8 +63,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             MemberInfo validationMember;
             try
             {
-                (validationObject, validationMember) = Artifice_Utilities.ResolveNestedMember(
-                    unresolvedCondition, fieldObject);
+                (validationObject, validationMember) =
+                    Artifice_SerializedPropertyExtensions
+                        .ResolveNestedMember(unresolvedCondition, fieldObject);
             }
             catch (Exception ex)
             {

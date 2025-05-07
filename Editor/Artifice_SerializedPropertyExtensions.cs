@@ -61,6 +61,7 @@ namespace ArtificeToolkit.Editor
             return targetType;
         }
 
+
         /// <summary> This method uses reflection to return the object reference of the property. </summary>
         private static object GetTarget(this SerializedProperty property)
         {
@@ -460,6 +461,74 @@ namespace ArtificeToolkit.Editor
             return fieldInfo;
         }
         
+        /// <summary>
+        /// Resolves a nested member and the object that contains it
+        /// </summary>
+        /// <param name="nestedMember">Path to member</param>
+        /// <param name="rootObject">Root object</param>
+        /// <returns>Tuple of (containing object, member info)</returns>
+        public static (object, MemberInfo) ResolveNestedMember(
+            string nestedMember, object rootObject)
+        {
+            if (string.IsNullOrEmpty(nestedMember))
+                throw new ArgumentNullException(nameof(nestedMember),
+                                                "Nested member can't be null or empty");
+
+            var  parts           = nestedMember.Split('.');
+            var  currentObject   = rootObject;
+            var  currentType     = rootObject.GetType();
+
+            for (int i = 0; i < parts.Length; i++)
+            {
+                var name = parts[i];
+                var member = currentType.GetMember(name,
+                                                   BindingFlags.Instance |
+                                                   BindingFlags.Static   |
+                                                   BindingFlags.Public   |
+                                                   BindingFlags.NonPublic).FirstOrDefault();
+
+                if (member == null)
+                    throw new MemberAccessException(
+                        $"Failed to resolve '{name}' in type '{currentType.FullName}'");
+
+                if (i == parts.Length - 1)
+                    return (currentObject, member);
+
+                switch (member)
+                {
+                    case FieldInfo field:
+                        currentObject = field.GetValue(field.IsStatic ? null : currentObject);
+                        break;
+
+                    case PropertyInfo property:
+                        if (!property.CanRead)
+                            throw new InvalidOperationException(
+                                $"Property '{property.Name}' is not readable");
+                        currentObject =
+                            property.GetValue(property.GetMethod.IsStatic ? null : currentObject);
+                        break;
+
+                    case MethodInfo method:
+                        if (method.GetParameters().Length > 0)
+                            throw new InvalidOperationException(
+                                $"Method '{method.Name}' in path must have no parameters");
+                        currentObject = method.Invoke(method.IsStatic ? null : currentObject, null);
+                        break;
+
+                    default:
+                        throw new InvalidOperationException(
+                            $"Member '{name}' is not a field, property, or parameterless method");
+                }
+
+                if (currentObject == null)
+                    throw new NullReferenceException(
+                        $"Path member '{name}' in '{nestedMember}' returned null");
+
+                currentType = currentObject.GetType();
+            }
+
+            throw new InvalidOperationException($"Failed to fully resolve '{nestedMember}'");
+        }
         
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindPropertyInSameScope(this SerializedProperty property, string propertyName)
