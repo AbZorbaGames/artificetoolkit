@@ -484,6 +484,36 @@ namespace ArtificeToolkit.Editor
             for (int i = 0; i < parts.Length; i++)
             {
                 var name = parts[i];
+
+                if (name == "Array")
+                {
+                    if (i + 1 >= parts.Length || !parts[i + 1].StartsWith("data["))
+                        throw new InvalidOperationException(
+                            $"Unexpected path format after 'Array'" +
+                            $" at path part '{name}' in path '{nestedMember}'");
+                    
+                    if (currentObject is not IList list)
+                        throw new InvalidOperationException(
+                            $"Path contains 'Array' but the current object is not a list or array" +
+                            $" at path part preceding '{name}' in path '{nestedMember}'");
+                        
+                    int index = ParseArrayIndex(parts[i + 1]);
+
+                    if (index < 0 || index >= list.Count)
+                        throw new IndexOutOfRangeException(
+                            $"Array index out of bounds or invalid format:" +
+                            $" {parts[i + 1]} in path '{nestedMember}'");
+                    
+                    currentObject = list[index];
+                    if (currentObject == null)
+                        throw new NullReferenceException(
+                            $"List element at index {index} in path '{nestedMember}' is null");
+
+                    currentType = currentObject.GetType();
+                    i++;
+                    continue;
+                }
+
                 var member = currentType.GetMember(name,
                                                    BindingFlags.Instance |
                                                    BindingFlags.Static   |
