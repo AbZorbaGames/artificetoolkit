@@ -1,0 +1,241 @@
+using System;
+using System.Linq;
+using System.Reflection;
+using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Editor.Resources;
+using UnityEditor;
+using UnityEngine;
+
+namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
+{
+    [Artifice_CustomAttributeDrawer(typeof(ValidateInputAttribute))]
+    public class
+        Artifice_CustomAttributeDrawer_ValidateInputAttribute :
+        Artifice_CustomAttributeDrawer_Validator_BASE
+    {
+        private         string _logMessage = "";
+        public override string LogMessage => _logMessage;
+             
+        private         LogType _logType = LogType.Error;
+        public override LogType LogType => _logType;
+
+        private         Sprite _logSprite = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
+        public override Sprite LogSprite => _logSprite;
+
+        protected override bool IsApplicableToProperty(SerializedProperty property) => true;
+
+        public override bool IsValid(SerializedProperty property)
+        {
+            ResetValues();
+            
+            var (fieldObject, memberInfo) = Artifice_SerializedPropertyExtensions
+                .ResolveNestedMember(property.propertyPath, property.serializedObject.targetObject);
+            var fieldInfo = (FieldInfo)memberInfo;
+            //object fieldObject     = property.serializedObject.targetObject;
+            var    fieldObjectType = fieldObject.GetType();
+            var    fieldName       = property.name;
+            //var fieldInfo = fieldObjectType.GetField(fieldName,
+            //                                         BindingFlags.Instance | BindingFlags.Public |
+            //                                         BindingFlags.NonPublic);
+
+            if (fieldInfo == null)
+            {
+                _logMessage = $"ValidateInput: Invalid property: '{property.name}'";
+                return false;
+            }
+
+            var validateAttribute   = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
+            var unresolvedCondition = validateAttribute.Condition;
+            
+            _logMessage = validateAttribute.Message;
+            _logType    = validateAttribute.LogType;
+            _logSprite  = Artifice_Utilities.LogIconFromType(_logType);
+            InfoBox?.Update(_logSprite, _logMessage);
+
+            // Check for literal strings
+            switch (unresolvedCondition.Trim())
+            {
+                case var s when string.Equals(s, "true", StringComparison.OrdinalIgnoreCase):
+                    return true;
+                case var s when string.Equals(s, "false", StringComparison.OrdinalIgnoreCase):
+                    return false;
+            }
+
+            // Get nested member
+            object     validationObject;
+            MemberInfo validationMember;
+            try
+            {
+                (validationObject, validationMember) =
+                    Artifice_SerializedPropertyExtensions
+                        .ResolveNestedMember(unresolvedCondition, fieldObject);
+            }
+            catch (Exception ex)
+            {
+                _logMessage = ex.Message.Insert(0, "ValidateInput: ");
+                return false;
+            }
+
+            switch (validationMember)
+            {
+                case FieldInfo field:
+                    return ExecuteValidationField(field, validationObject);
+                case PropertyInfo prop:
+                    return ExecuteValidationProperty(prop, validationObject);
+                case MethodInfo method:
+                    return ExecuteValidationMethod(
+                        method, validationObject, fieldInfo, fieldObject);
+            }
+
+            _logMessage = $"ValidateInput: Invalid validation condition: '{unresolvedCondition}'";
+            return false;
+        }
+
+        private void ResetValues()
+        {
+            _logMessage = "";
+            _logType    = LogType.Error;
+            _logSprite  = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
+        }
+
+        private bool ExecuteValidationField(FieldInfo validationField, object validationObject)
+        {
+            if (validationField.FieldType != typeof(bool))
+            {
+                _logMessage =
+                    $"ValidateInput: Validation field must be a bool: '{validationField.Name}'";
+                return false;
+            }
+
+            var value =
+                validationField.GetValue(validationField.IsStatic ? null : validationObject);
+            return value != null && (bool)value;
+        }
+
+        private bool ExecuteValidationProperty(
+            PropertyInfo validationProperty, object validationObject)
+        {
+            if (!validationProperty.CanRead)
+            {
+                _logMessage =
+                    $"ValidateInput: Validation property must be readable:" +
+                    $" '{validationProperty.Name}'";
+                return false;
+            }
+
+            if (validationProperty.PropertyType != typeof(bool))
+            {
+                _logMessage =
+                    $"ValidateInput: Validation property must be a bool:" +
+                    $" '{validationProperty.Name}'";
+                return false;
+            }
+
+            var value = validationProperty.GetValue(
+                validationProperty.GetMethod.IsStatic ? null : validationObject);
+            return value != null && (bool)value;
+        }
+
+        private bool ExecuteValidationMethod(MethodInfo validationMethod, object validationObject,
+                                             FieldInfo fieldInfo, object fieldObject)
+        {
+            var methodName = validationMethod.Name;
+            if (validationMethod.ReturnType != typeof(bool))
+            {
+                _logMessage =
+                    $"ValidateInput: Validation method must return a bool: '{methodName}'";
+                return false;
+            }
+
+            var  parameters    = validationMethod.GetParameters();
+            var  paramValues   = new object[parameters.Length];
+            bool assignedField = false, assignedMessage = false, assignedType = false;
+            int  i             = 0;
+
+            for (; i < Mathf.Min(parameters.Length, 3); i++)
+            {
+                var paramType = parameters[i].ParameterType;
+                
+                if (!assignedField && paramType.IsAssignableFrom(fieldInfo.FieldType))
+                {
+                    paramValues[i] = fieldInfo.GetValue(fieldObject);
+                    assignedField = true;
+                }
+                else if (!assignedMessage && paramType == typeof(string).MakeByRefType())
+                {
+                    paramValues[i] = _logMessage;
+                    assignedMessage = true;
+                }
+                else if (!assignedType && paramType == typeof(LogType).MakeByRefType())
+                {
+                    paramValues[i] = _logType;
+                    assignedType = true;
+                }
+                else
+                {
+                    if (!parameters[i].HasDefaultValue)
+                    {
+                        _logMessage =
+                            $"ValidateInput: Parameter is not assignable from any of the" +
+                            $" ValidateInput properties and isn't optional:"              +
+                            $"\n'Method: {methodName}', Parameter: '{parameters[i].Name}'";
+                        return false;
+                    }
+                    break;
+                }
+            }
+
+            for (; i < parameters.Length; i++)
+            {
+                if (parameters[i].HasDefaultValue) paramValues[i] = parameters[i].DefaultValue;
+                else
+                {
+                    _logMessage =
+                        $"ValidateInput: Validation method parameters, other than the first," +
+                        $" must be optional."                                                 +
+                        $"\n'Method: {methodName}', Parameter: '{parameters[i].Name}'";
+                    return false;
+                }
+            }
+
+            try
+            {
+                var result = validationMethod.Invoke(validationObject, paramValues);
+                
+                // Retrieve log message and type
+                if (assignedMessage)
+                    _logMessage = (string)paramValues.FirstOrDefault(p => p is string);
+                if (assignedType)
+                {
+                    _logType   = (LogType)paramValues.FirstOrDefault(p => p is LogType)!;
+                    _logSprite = Artifice_Utilities.LogIconFromType(_logType);
+                }
+                
+                if (assignedMessage || assignedType)
+                    InfoBox?.Update(_logSprite, _logMessage);
+
+                if (result is bool isValid) return isValid;
+            }
+            catch (Exception ex)
+            {
+                var fieldName = fieldInfo.Name;
+                if (ex is TargetInvocationException targetEx)
+                {
+                    _logMessage =
+                        $"ValidateInput: Exception occurred while invoking validation method" +
+                        $" '{methodName}' from '{validationObject}' for field"                +
+                        $" '{fieldName}' in {fieldObject}."                                   +
+                        $"\nException: {targetEx.InnerException?.Message ?? targetEx.Message}";
+                }
+                else
+                {
+                    _logMessage =
+                        $"ValidateInput: Exception occurred while executing validation method" +
+                        $" '{methodName}' for field '{fieldName}'.\nException: {ex.Message}";
+                }
+            }
+
+            return false;
+        }
+    }
+}

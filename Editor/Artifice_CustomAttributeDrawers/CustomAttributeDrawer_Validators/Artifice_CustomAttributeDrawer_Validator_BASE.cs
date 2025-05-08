@@ -12,11 +12,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         #region FIELDS
 
         protected VisualElement ValidatorLogElem;
+        protected Artifice_VisualElement_InfoBox InfoBox;
+        
 
         public abstract string LogMessage { get; }
         public abstract Sprite LogSprite { get; }
         public abstract LogType LogType { get; }
-
+        
         #endregion
         
         public override VisualElement OnPrePropertyGUI(SerializedProperty property)
@@ -28,7 +30,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return new Artifice_VisualElement_InfoBox($"Attribute is not applicable for this property [{property.name}]", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon);
 
             // Add error on container and hide unless stated otherwise
-            ValidatorLogElem.Add(new Artifice_VisualElement_InfoBox(LogMessage, LogSprite));
+            InfoBox = new Artifice_VisualElement_InfoBox(LogMessage, LogSprite);
+            ValidatorLogElem.Add(InfoBox);
             
             // Fire once for existing value
             OnPropertyValueChanged(property);

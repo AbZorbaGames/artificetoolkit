@@ -634,7 +634,7 @@ namespace ArtificeToolkit.Editor
             // Get property attributes and parse-split them
             var attributes = property.GetCustomAttributes();
             foreach (var attribute in attributes)
-                if(typeof(IArtifice_ArrayAppliedAttribute).IsAssignableFrom(attribute.GetType()))
+                if (attribute is IArtifice_ArrayAppliedAttribute)
                     arrayCustomAttributes.Add(attribute);
                 else
                     childrenCustomAttributes.Add(attribute);
