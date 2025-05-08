@@ -94,19 +94,20 @@ namespace ArtificeToolkit.Editor
                 else
                     originLocationName = target.gameObject.scene.name;
 
-                // Create log
-                var log = new Artifice_Validator.ValidatorLog(
-                    drawer.LogSprite,
-                    drawer.LogMessage,
-                    drawer.LogType,
-                    typeof(Artifice_ValidatorModule_CustomAttributeChecker),
-                    (Component)property.serializedObject.targetObject,
-                    originLocationName
-                );
-
                 // If not valid, add it to list
                 if (drawer.IsValid(property) == false)
+                {
+                    // Create log
+                    var log = new Artifice_Validator.ValidatorLog(
+                        drawer.LogSprite,
+                        drawer.LogMessage,
+                        drawer.LogType,
+                        typeof(Artifice_ValidatorModule_CustomAttributeChecker),
+                        (Component)property.serializedObject.targetObject,
+                        originLocationName
+                    );
                     Logs.Add(log);
+                }
             }
         }
     }
