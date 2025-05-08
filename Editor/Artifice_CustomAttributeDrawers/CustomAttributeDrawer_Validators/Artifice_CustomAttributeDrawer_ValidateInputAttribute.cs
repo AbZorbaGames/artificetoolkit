@@ -28,12 +28,15 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             ResetValues();
             
-            object fieldObject     = property.serializedObject.targetObject;
+            var (fieldObject, memberInfo) = Artifice_SerializedPropertyExtensions
+                .ResolveNestedMember(property.propertyPath, property.serializedObject.targetObject);
+            var fieldInfo = (FieldInfo)memberInfo;
+            //object fieldObject     = property.serializedObject.targetObject;
             var    fieldObjectType = fieldObject.GetType();
             var    fieldName       = property.name;
-            var fieldInfo = fieldObjectType.GetField(fieldName, 
-                                                     BindingFlags.Instance | BindingFlags.Public |
-                                                     BindingFlags.NonPublic);
+            //var fieldInfo = fieldObjectType.GetField(fieldName,
+            //                                         BindingFlags.Instance | BindingFlags.Public |
+            //                                         BindingFlags.NonPublic);
 
             if (fieldInfo == null)
             {
