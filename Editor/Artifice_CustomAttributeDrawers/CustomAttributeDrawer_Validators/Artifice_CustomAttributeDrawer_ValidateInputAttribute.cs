@@ -13,13 +13,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         Artifice_CustomAttributeDrawer_ValidateInputAttribute :
         Artifice_CustomAttributeDrawer_Validator_BASE
     {
-        private         string _logMessage = "";
+        private string _logMessage = "";
         public override string LogMessage => _logMessage;
-             
-        private         LogType _logType = LogType.Error;
+
+        private LogType _logType = LogType.Error;
         public override LogType LogType => _logType;
 
-        private         Sprite _logSprite = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
+        private Sprite _logSprite = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
         public override Sprite LogSprite => _logSprite;
 
         protected override bool IsApplicableToProperty(SerializedProperty property) => true;
@@ -27,12 +27,10 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         public override bool IsValid(SerializedProperty property)
         {
             ResetValues();
-            
+
             var (propertyParentTarget, propertyMemberInfo) = Artifice_SerializedPropertyExtensions
                 .ResolveNestedMember(property.propertyPath, property.serializedObject.targetObject);
             var fieldInfo = (FieldInfo)propertyMemberInfo;
-            var    propertyParentType = propertyParentTarget.GetType();
-            var    propertyName       = property.name;
 
             if (fieldInfo == null)
             {
@@ -42,10 +40,10 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
             var validateAttribute = (ValidateInputAttribute)Attribute;
             var conditionPath = validateAttribute.Condition;
-            
+
             _logMessage = validateAttribute.Message;
-            _logType    = validateAttribute.LogType;
-            _logSprite  = Artifice_Utilities.LogIconFromType(_logType);
+            _logType = validateAttribute.LogType;
+            _logSprite = Artifice_Utilities.LogIconFromType(_logType);
             InfoBox?.Update(_logSprite, _logMessage);
 
             // Check for literal strings
@@ -58,7 +56,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             }
 
             // Get nested member
-            object     validationParentTarget;
+            object validationParentTarget;
             MemberInfo validationMemberInfo;
             try
             {
@@ -90,8 +88,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         private void ResetValues()
         {
             _logMessage = "";
-            _logType    = LogType.Error;
-            _logSprite  = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
+            _logType = LogType.Error;
+            _logSprite = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
         }
 
         private bool ExecuteValidationField(FieldInfo validationField, object validationObject)
@@ -143,8 +141,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            var  parameters    = validationMethod.GetParameters();
-            var  paramValues   = new object[parameters.Length];
+            var parameters = validationMethod.GetParameters();
+            var paramValues = new object[parameters.Length];
             var assignedField = false;
             var assignedMessage = false;
             var assignedType = false;
@@ -153,7 +151,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             for (; i < Mathf.Min(parameters.Length, 3); i++)
             {
                 var paramType = parameters[i].ParameterType;
-                
+
                 if (!assignedField && paramType.IsAssignableFrom(fieldInfo.FieldType))
                 {
                     paramValues[i] = fieldInfo.GetValue(fieldObject);
@@ -179,6 +177,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                             $"\n'Method: {methodName}', Parameter: '{parameters[i].Name}'";
                         return false;
                     }
+
                     break;
                 }
             }
@@ -199,16 +198,16 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             try
             {
                 var result = validationMethod.Invoke(validationObject, paramValues);
-                
+
                 // Retrieve log message and type
                 if (assignedMessage)
                     _logMessage = (string)paramValues.FirstOrDefault(p => p is string);
                 if (assignedType)
                 {
-                    _logType   = (LogType)paramValues.FirstOrDefault(p => p is LogType)!;
+                    _logType = (LogType)paramValues.FirstOrDefault(p => p is LogType)!;
                     _logSprite = Artifice_Utilities.LogIconFromType(_logType);
                 }
-                
+
                 if (assignedMessage || assignedType)
                     InfoBox?.Update(_logSprite, _logMessage);
 

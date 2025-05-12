@@ -460,7 +460,7 @@ namespace ArtificeToolkit.Editor
 
             return fieldInfo;
         }
-        
+
         /// <summary>
         /// Resolves a nested member and the object that contains it
         /// </summary>
@@ -477,9 +477,9 @@ namespace ArtificeToolkit.Editor
             if (rootObject == null)
                 throw new NullReferenceException("Root object can't be null");
 
-            var  parts           = nestedMember.Split('.');
-            var  currentObject   = rootObject;
-            var  currentType     = rootObject.GetType();
+            var parts = nestedMember.Split('.');
+            var currentObject = rootObject;
+            var currentType = rootObject.GetType();
 
             for (int i = 0; i < parts.Length; i++)
             {
@@ -491,19 +491,19 @@ namespace ArtificeToolkit.Editor
                         throw new InvalidOperationException(
                             $"Unexpected path format after 'Array'" +
                             $" at path part '{name}' in path '{nestedMember}'");
-                    
+
                     if (currentObject is not IList list)
                         throw new InvalidOperationException(
                             $"Path contains 'Array' but the current object is not a list or array" +
                             $" at path part preceding '{name}' in path '{nestedMember}'");
-                        
+
                     int index = ParseArrayIndex(parts[i + 1]);
 
                     if (index < 0 || index >= list.Count)
                         throw new IndexOutOfRangeException(
                             $"Array index out of bounds or invalid format:" +
                             $" {parts[i + 1]} in path '{nestedMember}'");
-                    
+
                     currentObject = list[index];
                     if (currentObject == null)
                         throw new NullReferenceException(
@@ -562,7 +562,7 @@ namespace ArtificeToolkit.Editor
 
             throw new InvalidOperationException($"Failed to fully resolve '{nestedMember}'");
         }
-        
+
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindPropertyInSameScope(this SerializedProperty property, string propertyName)
        {

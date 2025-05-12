@@ -4,8 +4,8 @@ namespace ArtificeToolkit.Attributes
 {
     public class ValidateInputAttribute : ValidatorAttribute, IArtifice_ArrayAppliedAttribute
     {
-        public string  Condition;
-        public string  Message = "Invalid Input";
+        public string Condition;
+        public string Message = "Invalid Input";
         public LogType LogType = LogType.Error;
 
         public ValidateInputAttribute(string condition)
@@ -16,20 +16,20 @@ namespace ArtificeToolkit.Attributes
         public ValidateInputAttribute(string condition, string message)
         {
             Condition = condition;
-            Message   = message;
+            Message = message;
         }
 
         public ValidateInputAttribute(string condition, LogType logType)
         {
             Condition = condition;
-            LogType   = logType;
+            LogType = logType;
         }
 
         public ValidateInputAttribute(string condition, string message, LogType logType)
         {
             Condition = condition;
-            Message   = message;
-            LogType   = logType;
+            Message = message;
+            LogType = logType;
         }
     }
 }

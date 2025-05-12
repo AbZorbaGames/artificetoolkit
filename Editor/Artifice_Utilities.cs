@@ -167,10 +167,6 @@ namespace ArtificeToolkit.Editor
         }
 
         #endregion
-        
-        #region Reflection
-
-        #endregion
 
         public static Sprite LogIconFromType(LogType logType) =>
             logType switch
