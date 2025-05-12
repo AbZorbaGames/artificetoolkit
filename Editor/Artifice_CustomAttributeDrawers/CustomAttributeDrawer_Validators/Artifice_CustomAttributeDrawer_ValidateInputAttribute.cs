@@ -28,15 +28,11 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             ResetValues();
             
-            var (fieldObject, memberInfo) = Artifice_SerializedPropertyExtensions
+            var (propertyParentTarget, propertyMemberInfo) = Artifice_SerializedPropertyExtensions
                 .ResolveNestedMember(property.propertyPath, property.serializedObject.targetObject);
-            var fieldInfo = (FieldInfo)memberInfo;
-            //object fieldObject     = property.serializedObject.targetObject;
-            var    fieldObjectType = fieldObject.GetType();
-            var    fieldName       = property.name;
-            //var fieldInfo = fieldObjectType.GetField(fieldName,
-            //                                         BindingFlags.Instance | BindingFlags.Public |
-            //                                         BindingFlags.NonPublic);
+            var fieldInfo = (FieldInfo)propertyMemberInfo;
+            var    propertyParentType = propertyParentTarget.GetType();
+            var    propertyName       = property.name;
 
             if (fieldInfo == null)
             {
@@ -44,8 +40,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            var validateAttribute   = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
-            var unresolvedCondition = validateAttribute.Condition;
+            var validateAttribute = (ValidateInputAttribute)Attribute;
+            var conditionPath = validateAttribute.Condition;
             
             _logMessage = validateAttribute.Message;
             _logType    = validateAttribute.LogType;
@@ -53,7 +49,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             InfoBox?.Update(_logSprite, _logMessage);
 
             // Check for literal strings
-            switch (unresolvedCondition.Trim())
+            switch (conditionPath.Trim())
             {
                 case var s when string.Equals(s, "true", StringComparison.OrdinalIgnoreCase):
                     return true;
@@ -62,13 +58,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             }
 
             // Get nested member
-            object     validationObject;
-            MemberInfo validationMember;
+            object     validationParentTarget;
+            MemberInfo validationMemberInfo;
             try
             {
-                (validationObject, validationMember) =
+                (validationParentTarget, validationMemberInfo) =
                     Artifice_SerializedPropertyExtensions
-                        .ResolveNestedMember(unresolvedCondition, fieldObject);
+                        .ResolveNestedMember(conditionPath, propertyParentTarget);
             }
             catch (Exception ex)
             {
@@ -76,18 +72,18 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            switch (validationMember)
+            switch (validationMemberInfo)
             {
                 case FieldInfo field:
-                    return ExecuteValidationField(field, validationObject);
+                    return ExecuteValidationField(field, validationParentTarget);
                 case PropertyInfo prop:
-                    return ExecuteValidationProperty(prop, validationObject);
+                    return ExecuteValidationProperty(prop, validationParentTarget);
                 case MethodInfo method:
                     return ExecuteValidationMethod(
-                        method, validationObject, fieldInfo, fieldObject);
+                        method, validationParentTarget, fieldInfo, propertyParentTarget);
             }
 
-            _logMessage = $"ValidateInput: Invalid validation condition: '{unresolvedCondition}'";
+            _logMessage = $"ValidateInput: Invalid validation condition: '{conditionPath}'";
             return false;
         }
 
@@ -149,8 +145,10 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
             var  parameters    = validationMethod.GetParameters();
             var  paramValues   = new object[parameters.Length];
-            bool assignedField = false, assignedMessage = false, assignedType = false;
-            int  i             = 0;
+            var assignedField = false;
+            var assignedMessage = false;
+            var assignedType = false;
+            var i = 0;
 
             for (; i < Mathf.Min(parameters.Length, 3); i++)
             {
