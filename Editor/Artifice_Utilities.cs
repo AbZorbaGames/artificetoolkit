@@ -171,15 +171,7 @@ namespace ArtificeToolkit.Editor
         #region Reflection
 
         #endregion
-
-        public static Sprite LogIconFromType(LogType logType) =>
-            logType switch
-            {
-                LogType.Log     => Artifice_SCR_CommonResourcesHolder.instance.CommentIcon,
-                LogType.Warning => Artifice_SCR_CommonResourcesHolder.instance.WarningIcon,
-                _               => Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon
-            };
-
+        
         public static Dictionary<Type, Type> GetDrawerMap()
         {
             return Instance._drawerMap;
@@ -276,6 +268,15 @@ namespace ArtificeToolkit.Editor
                 _drawerMap[customDrawerAttribute.Type] = drawerType;
             }
         }
+        
+        /// <summary> Returns a sprite based on UnityEngine.LogType parameter. </summary>
+        public static Sprite LogIconFromType(LogType logType) =>
+            logType switch
+            {
+                LogType.Log     => Artifice_SCR_CommonResourcesHolder.instance.CommentIcon,
+                LogType.Warning => Artifice_SCR_CommonResourcesHolder.instance.WarningIcon,
+                _               => Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon
+            };
         
         #region Reselection Utility
         
