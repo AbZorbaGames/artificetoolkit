@@ -168,10 +168,6 @@ namespace ArtificeToolkit.Editor
 
         #endregion
         
-        #region Reflection
-
-        #endregion
-        
         public static Dictionary<Type, Type> GetDrawerMap()
         {
             return Instance._drawerMap;
