@@ -11,9 +11,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     {
         #region FIELDS
 
-        protected VisualElement ValidatorLogElem;
         protected Artifice_VisualElement_InfoBox InfoBox;
-        
 
         public abstract string LogMessage { get; }
         public abstract Sprite LogSprite { get; }
@@ -23,22 +21,19 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         
         public override VisualElement OnPrePropertyGUI(SerializedProperty property)
         {
-            ValidatorLogElem = new VisualElement();
-            
             // Check if this is a valid attribute
             if (!IsApplicableToProperty(property))
                 return new Artifice_VisualElement_InfoBox($"Attribute is not applicable for this property [{property.name}]", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon);
 
             // Add error on container and hide unless stated otherwise
             InfoBox = new Artifice_VisualElement_InfoBox(LogMessage, LogSprite);
-            ValidatorLogElem.Add(InfoBox);
             
             // Fire once for existing value
             OnPropertyValueChanged(property);
             // Track changes
-            ValidatorLogElem.TrackPropertyValue(property, OnPropertyValueChanged);
+            InfoBox.TrackPropertyValue(property, OnPropertyValueChanged);
             
-            return ValidatorLogElem;
+            return InfoBox;
         }
 
         /// <summary> Check whether the <see cref="SerializedProperty"/>.propertyType is inline with the attribute's logic. </summary>
@@ -50,9 +45,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         protected virtual void OnPropertyValueChanged(SerializedProperty property)
         {
             if(IsValid(property))
-                ValidatorLogElem.AddToClassList("hide");
+                InfoBox.AddToClassList("hide");
             else
-                ValidatorLogElem.RemoveFromClassList("hide");
+                InfoBox.RemoveFromClassList("hide");
         }
     }
 }

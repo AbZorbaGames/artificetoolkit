@@ -4,6 +4,7 @@ using System.Reflection;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
@@ -38,7 +39,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            var validateAttribute = (ValidateInputAttribute)Attribute;
+            var validateAttribute = fieldInfo.GetCustomAttribute<ValidateInputAttribute>();
+            if (validateAttribute == null)
+                Debug.Assert(false, "CustomAttributeDrawer_ValidateInput should never be called on a property which does not have a ValidateInputAttribute");
             var conditionPath = validateAttribute.Condition;
 
             _logMessage = validateAttribute.Message;
@@ -70,17 +73,26 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return false;
             }
 
-            switch (validationMemberInfo)
+            // If validation member info is of supported type, execute and return validation
+            if (validationMemberInfo is FieldInfo or PropertyInfo or MethodInfo)
             {
-                case FieldInfo field:
-                    return ExecuteValidationField(field, validationParentTarget);
-                case PropertyInfo prop:
-                    return ExecuteValidationProperty(prop, validationParentTarget);
-                case MethodInfo method:
-                    return ExecuteValidationMethod(
-                        method, validationParentTarget, fieldInfo, propertyParentTarget);
+                // Track entire serialized object to reevaluate on changes.
+                InfoBox.TrackSerializedObjectValue(property.serializedObject, _ =>
+                {
+                    var isValid = ExecuteValidation(validationMemberInfo, validationParentTarget, fieldInfo,
+                        propertyParentTarget);
+                    
+                    // Hide or show InfoBox based on reevaluated value.
+                    if(isValid)
+                        InfoBox?.AddToClassList("hide");
+                    else
+                        InfoBox?.RemoveFromClassList("hide");
+                });
+                
+                // Return validation result
+                return ExecuteValidation(validationMemberInfo, validationParentTarget, fieldInfo, propertyParentTarget);
             }
-
+            
             _logMessage = $"ValidateInput: Invalid validation condition: '{conditionPath}'";
             return false;
         }
@@ -92,6 +104,18 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             _logSprite = Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon;
         }
 
+        private bool ExecuteValidation(MemberInfo validationMemberInfo, object validationParentTarget, FieldInfo fieldInfo, object propertyParentTarget)
+        {
+            return validationMemberInfo switch
+            {
+                FieldInfo field => ExecuteValidationField(field, validationParentTarget),
+                PropertyInfo prop => ExecuteValidationProperty(prop, validationParentTarget),
+                MethodInfo method => ExecuteValidationMethod(method, validationParentTarget, fieldInfo,
+                    propertyParentTarget),
+                _ => throw new ArgumentException("Control flow should never reach this point.")
+            };
+        }
+        
         private bool ExecuteValidationField(FieldInfo validationField, object validationObject)
         {
             if (validationField.FieldType != typeof(bool))
