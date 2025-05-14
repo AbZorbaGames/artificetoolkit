@@ -76,6 +76,7 @@ Validation Attributes are used to assert certain rules over your properties. Thi
 - [AssetOnly](#assetonly)
 - [SceneObjectOnly](#sceneobjectonly)
 - [ChildGameObjectOnly](#childgameobjectonly)
+- [ValidateInput](#validateinput)
 - [MinValue](#minvalue)
 - [MaxValue](#maxvalue)
 
