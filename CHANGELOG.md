@@ -1,4 +1,10 @@
 # Change Log:
+## 1.3.10
+- Enhancement: Added `ValidateInput` attribute which allows for easy in-script validations to be created on the spot.
+- Fix: Fixed bug with `IArtifice_ArrayAppliedAttribute`
+- Fix: Allowed `Artifice_CustomAttributeDrawer_Validator_BASE` inheritors to update the InfoBox as they see fit.
+- Fix: Fixed bug with `Artifice_Validator` which would first cache the log and then call validate. That would was problematic in case of dynamic log messages per drawer. 
+
 ## 1.3.8
 - Change: Added `IArtifice_ArrayAppliedAttribute` which is used to indicate whether an attribute should be applied to a property array or be injected on its children.
 

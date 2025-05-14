@@ -277,6 +277,22 @@ private Transform requiredChildOnlyExample;
 
 ![sceneobjectonly-example](./Documentation/artifice_childgameobjectonly.gif)
 
+### ValidateInput
+
+The ValidateInput attribute allows you to create custom validations on the spot. It can be applied to any attribute, and takes as a parameter the path to some other value (does not have to be serialized). It then validates the value - either that be a field, property or method - and shows your validation message if the return value was false.
+
+```c#
+[SerializeField, ValidateInput(nameof(ValidatePeople), "You need to provide at least one person.")] 
+private List<Person> people = new();
+
+private bool ValidatePeople()
+{
+   return people.Any();
+}
+```
+
+![validateinput-example](./Documentation/artifice_validateinput.gif)
+
 ---
 
 <!-- EASY AND ESSENTIALS -->
