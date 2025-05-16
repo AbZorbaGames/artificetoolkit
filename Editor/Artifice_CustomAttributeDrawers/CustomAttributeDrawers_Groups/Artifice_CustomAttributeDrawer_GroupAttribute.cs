@@ -10,6 +10,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     {
         protected virtual Type VisualElementType { get; } = null;
 
+        public Type Get_VisualElementType() => VisualElementType;
+        
         /* Use OnPrePropertyGUI to initialize nested container order and types */
         public override VisualElement OnPrePropertyGUI(SerializedProperty property)
         {
@@ -25,7 +27,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return root;
 
             // Axiom: VisualElement root will use the name of propertyPath. On any build, this ensures to have unique copies only! 
-            if (groupContainer.Query<VisualElement>(name: property.propertyPath).First() == null)
+            if (groupContainer.Query<VisualElement>(name: root.name).First() == null)
             {
                 groupContainer.name = ((GroupAttribute)Attribute).GroupName;
                 root.AddToClassList("group-child");

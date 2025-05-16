@@ -5,13 +5,13 @@ using System.Reflection;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonAttribute;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
+using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
-using CustomAttributes;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using SpaceAttribute = ArtificeToolkit.Attributes.SpaceAttribute;
 
 // ReSharper disable GCSuppressFinalizeForTypeWithoutDestructor
 // ReSharper disable CanSimplifyDictionaryLookupWithTryGetValue
@@ -466,6 +466,9 @@ namespace ArtificeToolkit.Editor
             slidingGroup.SetTitle($"{slidingGroupTitle}: Actions");
             slidingGroup.AddToClassList("method-group-container");
             
+            // Create reusable button drawer.
+            var buttonCustomDrawer = new Artifice_CustomAttributeDrawer_ButtonAttribute();
+            
             var methods = targetType.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var method in methods)
             {
@@ -475,14 +478,57 @@ namespace ArtificeToolkit.Editor
                     continue;
 
                 // Create dedicated drawer for it
-                var buttonCustomDrawer = new Artifice_CustomAttributeDrawer_ButtonAttribute();
                 buttonCustomDrawer.Attribute = buttonAttribute;
 
                 // Create the method GUI using serializedData
                 var button = buttonCustomDrawer.CreateMethodGUI(serializedData, method);
+                button.name = method.Name;
                 button.AddToClassList("method-button");
 
-                if (buttonAttribute.ShouldAddOnSlidingPanel)
+                // Check whether a Sort or a Group attribute were used with the button.
+                var groupAttribute = method.GetCustomAttribute<GroupAttribute>();
+                if (groupAttribute != null)
+                {
+                    // From drawer map, get the type visual element group type.
+                    var drawerMap = Artifice_Utilities.GetDrawerMap();
+                    if (drawerMap.TryGetValue(groupAttribute.GetType(), out var drawerType) == false)
+                        Debug.Assert(false,
+                            $"GroupAttribute {groupAttribute.GetType().Name} does not have a respective drawer.");
+
+                    var groupAttributeDrawer =
+                        (Artifice_CustomAttributeDrawer)Activator.CreateInstance(drawerType) as
+                        Artifice_CustomAttributeDrawer_GroupAttribute;
+                    Debug.Assert(groupAttributeDrawer != null, "GroupAttribute drawer cannot be null here.");
+                    
+                    groupAttributeDrawer.Attribute = groupAttribute;
+                    _disposableStack.Push(groupAttributeDrawer);
+                    
+                    if (serializedData is SerializedObject serializedObject)
+                    {
+                        groupAttributeDrawer.OnWrapGUI(serializedObject.GetIterator(), button);
+                    }
+                    else if (serializedData is SerializedProperty serializedProperty)
+                    {
+                        // A method can only be contained in a serialized property. So the SerializedProperty we 
+                        // need for the group holder, is any of the first children.
+                        var visibleChildren = serializedProperty.GetVisibleChildren();
+                        if (visibleChildren.Count == 0)
+                        {
+                            var infoBox = new Artifice_VisualElement_InfoBox(
+                                "Cannot add method to a non-existing group container",
+                                Artifice_SCR_CommonResourcesHolder.instance.WarningIcon);
+                            container.Add(infoBox);
+                        }
+                        else
+                        {
+                            // var isAlreadyAdded = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Contains(serializedp)
+                            var element = groupAttributeDrawer.OnWrapGUI(visibleChildren.First(), button);
+                            container.Add(element);
+                        }
+                    }
+
+                }
+                else if (buttonAttribute.ShouldAddOnSlidingPanel)
                     slidingGroup.Add(button);
                 else
                     container.Add(button);

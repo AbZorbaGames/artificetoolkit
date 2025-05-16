@@ -358,7 +358,7 @@ private float onDeathSoundFxVolume;
 ### Button
 Button allows you to quickly turn any method into a button in the inspector to invoke at your hearts content. Buttons can be placed inline using an optional parameter. Otherwise they will be grouped in a sliding container to keep your inspector clean and simple.
 
-It is worth noting that buttons will always appear last in the rendering order. This is something due to change in the far future.
+It is worth noting that buttons will always appear last in the rendering order. You can use any of the [GroupAttributes](#BoxGroup) to place the button in ane existing group in the same scope.
 
 ```c#
 [SerializeField] 
