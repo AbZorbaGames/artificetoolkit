@@ -198,9 +198,16 @@ namespace ArtificeToolkit.Editor
         public const string ConfigFolderPath = "Assets/Editor/ArtificeToolkit";
 
         #endregion
-
+        
         [InitializeOnLoadMethod]
         private static void Init()
+        {
+            EditorApplication.delayCall -= DelayedInit;
+            EditorApplication.delayCall += DelayedInit;
+        }
+        
+        /// <summary> VisualElement Toolbar wont be build on [InitializeOnLoadMethod] time so initialize on delayed call. </summary>
+        private static void DelayedInit()
         {
             Instance.Initialize();
 
