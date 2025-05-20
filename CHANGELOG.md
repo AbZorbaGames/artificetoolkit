@@ -1,4 +1,7 @@
 # Change Log:
+### 1.3.11
+- Enhancement: Now group attributes can be used with the `[Button]` attributes to affect the placement of method buttons.
+
 ## 1.3.10
 - Enhancement: Added `ValidateInput` attribute which allows for easy in-script validations to be created on the spot.
 - Fix: Fixed bug with `IArtifice_ArrayAppliedAttribute`
