@@ -206,7 +206,7 @@ namespace ArtificeToolkit.Editor
             EditorApplication.delayCall += DelayedInit;
         }
         
-        /// <summary> VisualElement Toolbar wont be build on [InitializeOnLoadMethod] time so initialize on delayed call. </summary>
+        /// <summary> [InitializeOnLoadMethod] is too early time-wise, so initialize on delayed call. </summary>
         private static void DelayedInit()
         {
             Instance.Initialize();
