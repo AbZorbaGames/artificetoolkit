@@ -1,5 +1,8 @@
 # Change Log:
-### 1.3.11
+## 1.3.12
+- Fix: ArtificeToolkit no longer causes initial errors upon installation or reimport all.
+
+## 1.3.11
 - Enhancement: Now group attributes can be used with the `[Button]` attributes to affect the placement of method buttons.
 
 ## 1.3.10
