@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.13
+- Fix: Specifically for Unity 6, `EnableIf` was not working for elements created after the initial rendering.
+
 ## 1.3.12
 - Fix: ArtificeToolkit no longer causes initial errors upon installation or reimport all.
 

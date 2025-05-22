@@ -19,10 +19,11 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
        
         #endregion
         
-        /* Main Draw Method */
-        // Note: This logic was initially executed in OnWrapGUI, but it causes PropertyBinding errors on list additions/removals.
-        public override void OnPropertyBoundGUI(SerializedProperty property, VisualElement propertyField)
+        /* Get reference to VisualElement to target */
+        public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
         {
+            _targetElem = root;
+            
             _attribute = (EnableIfAttribute)Attribute;
             
             // Set Data tracked property
@@ -35,14 +36,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             var trackerElement = new VisualElement();
             trackerElement.name = "Tracker Element";
             trackerElement.tooltip = "Used only for TrackPropertyValue method";
-            propertyField.Add(trackerElement);
+            _targetElem.Add(trackerElement);
             trackerElement.TrackPropertyValue(_trackedProperty, UpdateRootVisibility);
-        }
-        
-        /* Get reference to VisualElement to target */
-        public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
-        {
-            _targetElem = root;
+            
             return _targetElem;
         }
         
