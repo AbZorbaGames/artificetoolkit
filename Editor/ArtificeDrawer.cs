@@ -337,7 +337,7 @@ namespace ArtificeToolkit.Editor
             foreach (var type in types)
             {
                 // MonoBehaviour types cannot be instantiated in runtime like c# objects.
-                if(type == typeof(MonoBehaviour) || type.IsSubclassOf(typeof(MonoBehaviour)))
+                if(type == typeof(MonoBehaviour) || type.IsSubclassOf(typeof(MonoBehaviour)) || type.IsAbstract || type.IsInterface)
                     continue;
                 
                 typeMap.Add(type.Name, type);
