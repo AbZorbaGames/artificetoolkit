@@ -9,6 +9,7 @@ using UnityEditor.UIElements;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 // ReSharper disable InconsistentNaming
 
@@ -89,7 +90,7 @@ namespace ArtificeToolkit.Editor
             private readonly Label _objectNameLabel;
             private readonly Artifice_VisualElement_LabeledButton _autoFixButton;
 
-            private Component _originComponent;
+            private Object _originObject;
 
             public ValidatorLogListItem() : base()
             {
@@ -108,14 +109,17 @@ namespace ArtificeToolkit.Editor
                 RegisterCallback<ClickEvent>(evt =>
                 {
                     var listItem = (ValidatorLogListItem)evt.currentTarget;
-                    if (evt.clickCount == 2 && listItem._originComponent != null)
+                    if (evt.clickCount == 2 && listItem._originObject != null)
                     {
-                       Selection.SetActiveObjectWithContext(listItem._originComponent, listItem._originComponent);
-                       
-                       // Collapse all other components instead of our focused component.
-                       var components = _originComponent.gameObject.GetComponents<Component>();
-                       foreach (var component in components)
-                           InternalEditorUtility.SetIsInspectorExpanded(component, component == _originComponent);
+                       Selection.SetActiveObjectWithContext(listItem._originObject, listItem._originObject);
+
+                       if (_originObject is Component originComponent)
+                       {
+                           // Collapse all other components instead of our focused component.
+                           var components = originComponent.gameObject.GetComponents<Component>();
+                           foreach (var component in components)
+                               InternalEditorUtility.SetIsInspectorExpanded(component, component == _originObject);
+                       }
 
                        ActiveEditorTracker.sharedTracker.ForceRebuild();
                     }
@@ -125,8 +129,8 @@ namespace ArtificeToolkit.Editor
             public void Set(Artifice_Validator.ValidatorLog log)
             {
                 base.Set(log.Sprite, log.Message);
-                _objectNameLabel.text = log.OriginComponent == null ? "" : log.OriginComponent.name;
-                _originComponent = log.OriginComponent;
+                _objectNameLabel.text = log.OriginObject == null ? "" : log.OriginObject.name;
+                _originObject = log.OriginObject;
 
                 if (log.HasAutoFix)
                 {

@@ -22,22 +22,31 @@ namespace ArtificeToolkit.Editor
 
         public Artifice_ValidatorModule_CustomAttributeChecker()
         {
+            _validatorDrawerMap = GenerateValidatorDrawerMap();
+        }
+
+        public static Dictionary<Type, Artifice_CustomAttributeDrawer_Validator_BASE> GenerateValidatorDrawerMap()
+        {
             // Get all drawers and map validators to their responding type
-            _validatorDrawerMap = new Dictionary<Type, Artifice_CustomAttributeDrawer_Validator_BASE>();
+            var resultingMap = new Dictionary<Type, Artifice_CustomAttributeDrawer_Validator_BASE>();
             var drawerMap = Artifice_Utilities.GetDrawerMap();
             foreach (var pair in drawerMap)
                 if (pair.Key.IsSubclassOf(typeof(ValidatorAttribute)))
-                    _validatorDrawerMap[pair.Key] = (Artifice_CustomAttributeDrawer_Validator_BASE)Activator.CreateInstance(pair.Value);
+                    resultingMap[pair.Key] = (Artifice_CustomAttributeDrawer_Validator_BASE)Activator.CreateInstance(pair.Value);
+            return resultingMap;
         }
         
         // Override for each batched property
         protected override void ValidateSerializedProperty(SerializedProperty property)
         {
-            GenerateValidatorLogs(property);
+            GenerateValidatorLogs(property, _validatorDrawerMap, Logs);
         }
         
+        //TODO move this somewhere else?
         /// <summary> Fills in-parameter list with logs found in property </summary>
-        private void GenerateValidatorLogs(SerializedProperty property)
+        public static void GenerateValidatorLogs(SerializedProperty property,
+            Dictionary<Type, Artifice_CustomAttributeDrawer_Validator_BASE> validatorDrawerMap, 
+            List<Artifice_Validator.ValidatorLog> logs)
         {
             if (property.IsArray())
             {
@@ -55,32 +64,35 @@ namespace ArtificeToolkit.Editor
                             childrenCustomAttributes.Add(attribute);
                 
                 // Generate Array Validations
-                GenerateValidatorLogs(property, arrayCustomAttributes);
+                GenerateValidatorLogs(property, arrayCustomAttributes, validatorDrawerMap, logs);
                 
                 // Generate Children Validations
                 foreach (var child in property.GetVisibleChildren())
                     if(child.name != "size")    
-                        GenerateValidatorLogs(child, childrenCustomAttributes);
+                        GenerateValidatorLogs(child, childrenCustomAttributes, validatorDrawerMap, logs);
             }
             else
             {
                 // Check property if its valid for stuff
                 var customAttributes = property.GetCustomAttributes();
                 if (customAttributes != null)
-                    GenerateValidatorLogs(property, customAttributes.ToList());
+                    GenerateValidatorLogs(property, customAttributes.ToList(), validatorDrawerMap, logs);
             }
         }
 
+        //TODO move this somewhere else?
         /// <summary> Fills in-parameter list with logs found in property for specific parameterized attributes</summary>
-        private void GenerateValidatorLogs(SerializedProperty property, List<CustomAttribute> customAttributes)
+        public static void GenerateValidatorLogs(SerializedProperty property, List<CustomAttribute> customAttributes,
+            Dictionary<Type, Artifice_CustomAttributeDrawer_Validator_BASE> validatorDrawerMap, 
+            List<Artifice_Validator.ValidatorLog> logs)
         {
             var validatorAttributes = customAttributes.Where(attribute => attribute is ValidatorAttribute).ToList();
             foreach (var validatorAttribute in validatorAttributes)
             {
                 // Get drawer
-                var drawer = _validatorDrawerMap[validatorAttribute.GetType()];
+                var drawer = validatorDrawerMap[validatorAttribute.GetType()];
 
-                var target = (MonoBehaviour)property.serializedObject.targetObject;
+                var target = property.serializedObject.targetObject;
                 if (target == null)
                     continue;
 
@@ -89,10 +101,15 @@ namespace ArtificeToolkit.Editor
                 var assetPath = AssetDatabase.GetAssetPath(target);
                 if (string.IsNullOrEmpty(assetPath) == false)
                     originLocationName = assetPath;
-                else if(PrefabStageUtility.GetCurrentPrefabStage() != null && PrefabStageUtility.GetCurrentPrefabStage().IsPartOfPrefabContents(target.gameObject))
-                    originLocationName = Artifice_EditorWindow_Validator.PrefabStageKey;
-                else
-                    originLocationName = target.gameObject.scene.name;
+                else if (target is MonoBehaviour monoBehaviour)
+                {
+                    PrefabStage prefabStage =  PrefabStageUtility.GetCurrentPrefabStage();
+                    
+                    if(prefabStage != null && prefabStage.IsPartOfPrefabContents(monoBehaviour.gameObject))
+                        originLocationName = Artifice_EditorWindow_Validator.PrefabStageKey;
+                    else
+                        originLocationName = monoBehaviour.gameObject.scene.name;
+                }
 
                 // If not valid, add it to list
                 if (drawer.IsValid(property) == false)
@@ -103,10 +120,10 @@ namespace ArtificeToolkit.Editor
                         drawer.LogMessage,
                         drawer.LogType,
                         typeof(Artifice_ValidatorModule_CustomAttributeChecker),
-                        (Component)property.serializedObject.targetObject,
+                        target,
                         originLocationName
                     );
-                    Logs.Add(log);
+                    logs.Add(log);
                 }
             }
         }

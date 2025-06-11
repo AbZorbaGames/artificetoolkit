@@ -10,6 +10,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace ArtificeToolkit.Editor
 {
@@ -23,7 +24,7 @@ namespace ArtificeToolkit.Editor
             public readonly string Message;
             public readonly LogType LogType;
             public readonly Sprite Sprite;
-            public readonly Component OriginComponent;
+            public readonly Object OriginObject;
             public readonly string OriginLocationName;
             public readonly Type OriginValidatorType;
 
@@ -36,7 +37,7 @@ namespace ArtificeToolkit.Editor
                 LogType logType,
                 Type originValidatorType,
                 // Optional Parameters (Metadata)
-                Component originComponent = null,
+                Object originObject = null,
                 string originLocationName = "",
                 bool hasAutoFix = false,
                 Action autoFixAction = null
@@ -45,7 +46,7 @@ namespace ArtificeToolkit.Editor
                 Sprite = sprite;
                 Message = message;
                 LogType = logType;
-                OriginComponent = originComponent;
+                OriginObject = originObject;
                 OriginLocationName = originLocationName;
                 OriginValidatorType = originValidatorType;
 
