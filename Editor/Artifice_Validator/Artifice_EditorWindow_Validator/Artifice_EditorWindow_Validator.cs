@@ -176,6 +176,11 @@ namespace ArtificeToolkit.Editor
         {   
             // Initialize
             Initialize();
+            if (_config == null)
+            {
+                Close();
+                return;
+            }
 
             // Create GUI
             BuildUI();

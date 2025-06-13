@@ -1,12 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using ArtificeToolkit.Editor;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
 using UnityEditor;
 using UnityEngine;
 
-namespace artificetoolkit.Editor.Artifice_Validator
+namespace ArtificeToolkit.Editor
 {
     public class Artifice_ValidatorModule_ScriptableObject : Artifice_ValidatorModule_SerializedPropertyBatching
     {
@@ -14,17 +11,8 @@ namespace artificetoolkit.Editor.Artifice_Validator
 
         public override string DisplayName { get; protected set; } = "ScriptableObject CustomAttributes Checker";
         
-        // Validator Attribute Drawer Map
-        private readonly Dictionary<Type, Artifice_CustomAttributeDrawer_Validator_BASE> _validatorDrawerMap;
-
         #endregion
 
-        public Artifice_ValidatorModule_ScriptableObject()
-        {
-            _validatorDrawerMap = Artifice_ValidatorModule_CustomAttributeChecker.GenerateValidatorDrawerMap();
-        }
-
-        //TODO why does ValidateCoroutine have a List<GameObject> as parameters here when it's not used?
         public override IEnumerator ValidateCoroutine(List<GameObject> _)
         {
             // Create an iteration stack to run through all serialized properties (even nested ones)
@@ -86,7 +74,7 @@ namespace artificetoolkit.Editor.Artifice_Validator
         
         protected override void ValidateSerializedProperty(SerializedProperty property)
         {
-            Artifice_ValidatorModule_CustomAttributeChecker.GenerateValidatorLogs(property, _validatorDrawerMap, Logs);
+            Artifice_ValidatorExtensions.GenerateValidatorLogs(property, Logs, GetType());
         }
     }
 }

@@ -227,7 +227,7 @@ namespace ArtificeToolkit.Editor
         public VisualElement CreateCustomAttributesGUI(SerializedProperty property, VisualElement propertyField, List<CustomAttribute> customAttributes)
         {
             var attributeDrawers = new List<Artifice_CustomAttributeDrawer>();
-            var drawerMap = Artifice_Utilities.GetDrawerMap();
+            var drawerMap = Artifice_Utilities.GetDrawerTypesMap();
             foreach (var customAttribute in customAttributes)
             {
                 // Skip if drawer does not exist for custom attribute
@@ -490,7 +490,7 @@ namespace ArtificeToolkit.Editor
                 if (groupAttribute != null)
                 {
                     // From drawer map, get the type visual element group type.
-                    var drawerMap = Artifice_Utilities.GetDrawerMap();
+                    var drawerMap = Artifice_Utilities.GetDrawerTypesMap();
                     if (drawerMap.TryGetValue(groupAttribute.GetType(), out var drawerType) == false)
                         Debug.Assert(false,
                             $"GroupAttribute {groupAttribute.GetType().Name} does not have a respective drawer.");

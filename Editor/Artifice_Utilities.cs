@@ -26,7 +26,8 @@ namespace ArtificeToolkit.Editor
             set => EditorPrefs.SetBool("artificeDrawerEnabled", value);
         }
         private StylesHolder _soStylesHolder;
-        private Dictionary<Type, Type> _drawerMap;
+        private Dictionary<Type, Type> _drawerTypesMap;
+        private Dictionary<Type, Artifice_CustomAttributeDrawer> _drawerInstancesMap;
         
         #endregion
 
@@ -60,7 +61,7 @@ namespace ArtificeToolkit.Editor
                 Debug.LogError($"Exactly one asset of this kind should get fetched, not {styleHolderPaths.Length}");
             
             _soStylesHolder = AssetDatabase.LoadAssetAtPath<StylesHolder>(AssetDatabase.GUIDToAssetPath(styleHolderPaths[0]));
-            InitializeDrawerMap();
+            InitializeDrawerMaps();
         }
 
         #endregion
@@ -168,9 +169,16 @@ namespace ArtificeToolkit.Editor
 
         #endregion
         
-        public static Dictionary<Type, Type> GetDrawerMap()
+        /// <summary> Returns a dictionary mapping <see cref="CustomAttribute"/> to its corresponding <see cref="Artifice_CustomAttributeDrawer"/> type.</summary>
+        public static Dictionary<Type, Type> GetDrawerTypesMap()
         {
-            return Instance._drawerMap;
+            return Instance._drawerTypesMap;
+        }
+
+        /// <summary> Returns a dictionary mapping <see cref="CustomAttribute"/> to its corresponding <see cref="Artifice_CustomAttributeDrawer"/> pre-created instance.</summary>
+        public static Dictionary<Type, Artifice_CustomAttributeDrawer> GetDrawerInstancesMap()
+        {
+            return Instance._drawerInstancesMap;
         }
         
         /* Uses singleton privately, to allow access with static method */
@@ -250,9 +258,10 @@ namespace ArtificeToolkit.Editor
         }
         
         /* Returns a map of all the AttributeDrawers */
-        private void InitializeDrawerMap()
+        private void InitializeDrawerMaps()
         {
-            _drawerMap = new Dictionary<Type, Type>();
+            _drawerTypesMap = new Dictionary<Type, Type>();
+            _drawerInstancesMap = new Dictionary<Type, Artifice_CustomAttributeDrawer>();
 
             var allDrawersTypes = TypeCache.GetTypesDerivedFrom<Artifice_CustomAttributeDrawer>();
             foreach (var drawerType in allDrawersTypes)
@@ -261,7 +270,8 @@ namespace ArtificeToolkit.Editor
                     continue;
                 
                 var customDrawerAttribute = drawerType.GetCustomAttribute<Artifice_CustomAttributeDrawerAttribute>();
-                _drawerMap[customDrawerAttribute.Type] = drawerType;
+                _drawerTypesMap[customDrawerAttribute.Type] = drawerType;
+                _drawerInstancesMap[customDrawerAttribute.Type] = (Artifice_CustomAttributeDrawer)Activator.CreateInstance(drawerType);
             }
         }
         
