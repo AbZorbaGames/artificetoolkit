@@ -1,6 +1,9 @@
 # Change Log:
-## 1.3.14
+## 1.3.15
 - Enhancement: Added `Artifice_ValidatorModule_ScriptableObject` which parses scriptable objects in the Assets and checks for custom attribute validations.
+
+## 1.3.14
+- Fix: SerializedReference with ForceArtifice for interface instantiation now skips interface and abstract types since they cannot be instantiated.
 
 ## 1.3.13
 - Fix: Specifically for Unity 6, `EnableIf` was not working for elements created after the initial rendering.
