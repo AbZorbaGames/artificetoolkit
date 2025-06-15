@@ -208,8 +208,16 @@ namespace ArtificeToolkit.Editor
                 }
             }
             else
+            {
+#if UNITY_2022_2_OR_NEWER
+                var field = new PropertyField(property);
+                field.Bind(property.serializedObject);
+                container.Add(field);
+#else
                 container.Add(CreateIMGUIField(property));
-
+#endif
+            }
+            
             return container;
         }
 
