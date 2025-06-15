@@ -430,7 +430,7 @@ namespace ArtificeToolkit.Editor
                 referenceContainer.RemoveFromClassList("reference-container");
                 
                 // Get value from type map, create instance and draw from artifice.
-                if (property.managedReferenceValue != null)
+                if (property.managedReferenceValue != null && property.hasVisibleChildren)
                 {
                     referenceContainer.RemoveFromClassList("hide");
                     referenceContainer.AddToClassList("reference-container");
