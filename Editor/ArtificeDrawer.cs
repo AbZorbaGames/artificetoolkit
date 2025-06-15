@@ -354,6 +354,9 @@ namespace ArtificeToolkit.Editor
             // Create base container for property.
             var container = new VisualElement();
             container.AddToClassList("property-container");
+            
+            // Create the custom attributes GUI
+            container = CreateCustomAttributesGUI(property, container);
 
             // Selector container
             var selectorContainer = new VisualElement();

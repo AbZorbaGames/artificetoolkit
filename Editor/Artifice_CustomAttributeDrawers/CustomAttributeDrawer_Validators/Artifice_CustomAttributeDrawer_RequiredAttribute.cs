@@ -14,12 +14,17 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
         protected override bool IsApplicableToProperty(SerializedProperty property)
         {
-            return property.propertyType == SerializedPropertyType.ObjectReference;
+            return property.propertyType is SerializedPropertyType.ObjectReference or SerializedPropertyType.ManagedReference;
         }
 
         public override bool IsValid(SerializedProperty property)
         {
-            return property.objectReferenceValue != null;
+            if(property.propertyType == SerializedPropertyType.ObjectReference)
+                return property.objectReferenceValue != null;
+            else if (property.propertyType == SerializedPropertyType.ManagedReference)
+                return property.managedReferenceValue != null;
+            else
+                return false;
         }
     }
 }
