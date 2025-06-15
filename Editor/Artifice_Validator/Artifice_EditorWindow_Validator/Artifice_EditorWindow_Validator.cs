@@ -109,7 +109,7 @@ namespace ArtificeToolkit.Editor
                 RegisterCallback<ClickEvent>(evt =>
                 {
                     var listItem = (ValidatorLogListItem)evt.currentTarget;
-                    if (evt.clickCount == 2 && listItem._originObject != null)
+                    if (evt.clickCount == 1 && listItem._originObject != null)
                     {
                        Selection.SetActiveObjectWithContext(listItem._originObject, listItem._originObject);
 
