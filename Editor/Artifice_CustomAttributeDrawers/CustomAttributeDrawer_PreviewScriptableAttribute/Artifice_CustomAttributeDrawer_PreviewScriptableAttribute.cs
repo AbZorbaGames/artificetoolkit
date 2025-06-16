@@ -25,7 +25,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             _state = false;
             
             _wrapper = new VisualElement();
-            _wrapper.name = "Abz_PreviewScriptable Wrapper";
+            _wrapper.name = "PreviewScriptable Wrapper";
             _wrapper.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
             _wrapper.AddToClassList("previewScriptable-container");
             _wrapper.AddToClassList("previewScriptable-close");

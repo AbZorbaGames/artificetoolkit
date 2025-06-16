@@ -21,6 +21,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
         {
             var wrapper = new VisualElement();
+            wrapper.name = "ConditionalInfoBox Wrapper";
             
             _attribute = (ConditionalInfoBoxAttribute)Attribute;
             

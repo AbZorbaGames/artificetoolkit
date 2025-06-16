@@ -28,6 +28,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
         {
             var wrapper = new VisualElement();
+            wrapper.name = "ChildGameObjectOnly Wrapper";
             wrapper.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
             wrapper.AddToClassList("validator-container");
             

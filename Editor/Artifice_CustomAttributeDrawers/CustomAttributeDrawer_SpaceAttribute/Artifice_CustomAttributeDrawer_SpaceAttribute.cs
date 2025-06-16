@@ -10,14 +10,15 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
         {
             var attribute = (SpaceAttribute)Attribute;
-            var container = new VisualElement();
-            container.Add(root);
-            container.style.marginTop = attribute.ValueTop;
-            container.style.marginBottom = attribute.ValueBottom;
-            container.style.marginLeft = attribute.ValueLeft;
-            container.style.marginRight = attribute.ValueRight;
+            var wrapper = new VisualElement();
+            wrapper.name = "Space Wrapper";
+            wrapper.Add(root);
+            wrapper.style.marginTop = attribute.ValueTop;
+            wrapper.style.marginBottom = attribute.ValueBottom;
+            wrapper.style.marginLeft = attribute.ValueLeft;
+            wrapper.style.marginRight = attribute.ValueRight;
             
-            return container;
+            return wrapper;
         }
     }
 }

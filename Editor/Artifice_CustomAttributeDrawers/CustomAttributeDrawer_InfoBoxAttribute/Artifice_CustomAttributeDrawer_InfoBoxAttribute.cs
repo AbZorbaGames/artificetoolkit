@@ -13,12 +13,15 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     {
         public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
         {
-            var container = new VisualElement();
             var attribute = (InfoBoxAttribute)Attribute;
-            container.Add(new Artifice_VisualElement_InfoBox(attribute.Message, LoadSpriteByType(attribute.Type))); 
-            container.Add(root);
             
-            return container;
+            var wrapper = new VisualElement();
+            wrapper.name = "InfoBox Wrapper";
+            
+            wrapper.Add(new Artifice_VisualElement_InfoBox(attribute.Message, LoadSpriteByType(attribute.Type))); 
+            wrapper.Add(root);
+            
+            return wrapper;
         }
 
         private Sprite LoadSpriteByType(InfoBoxAttribute.InfoMessageType type)
