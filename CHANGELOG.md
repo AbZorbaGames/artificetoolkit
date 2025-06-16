@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.17
+- Fix: Group attributes would break if used with specific wrapper attributes. Fixed now.
+
 ## 1.3.16
 - Enhancement: Refactored `Artifice_EditorWindow_Validator`'s logs to set selection of inspector with one click only (previously was two).
 - Enhancement: Fallback rendering from 2022.2 and newer, is now UI Toolkit rather than IMGUI. 
