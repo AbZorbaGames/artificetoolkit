@@ -1,4 +1,10 @@
 # Change Log:
+## 1.3.16
+- Enhancement: Refactored `Artifice_EditorWindow_Validator`'s logs to set selection of inspector with one click only (previously was two).
+- Enhancement: Fallback rendering from 2022.2 and newer, is now UI Toolkit rather than IMGUI. 
+- Enhancement: When using SerializedReference for interfaces, when no properties exist in the interface, it does not render the extra foldout.
+- Fix: Now custom attributes are applied to the serialized reference it self.
+
 ## 1.3.15
 - Enhancement: Added `Artifice_ValidatorModule_ScriptableObject` which parses scriptable objects in the Assets and checks for custom attribute validations.
 
