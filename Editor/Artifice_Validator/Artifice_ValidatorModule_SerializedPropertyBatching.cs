@@ -21,7 +21,7 @@ namespace ArtificeToolkit.Editor
                 if (gameObject == null)
                     continue;
                 
-                foreach (var component in gameObject.GetComponentsInChildren<Component>())
+                foreach (var component in gameObject.GetComponentsInChildren<Component>(true))
                 {
                     if(component == null)
                         continue;
