@@ -1,6 +1,6 @@
 {
   "name": "com.abzorba.artificetoolkit",
-  "version": "1.3.17",
+  "version": "1.3.18",
   "displayName": "Artifice Toolkit",
   "description": "ArtificeToolkit simplifies Unity editor customization by providing intuitive, easy-to-use custom attributes that can be applied directly in your source code. This toolkit allows developers to quickly and effortlessly enhance the look and behavior of Unity\u2019s inspector without requiring specialized knowledge of IMGUI or UI Toolkit libraries.\n\nBy using ArtificeToolkit, you can enhance the editor's functionality and customize property displays with minimal effort, reducing the need to maintain separate files or dive deep into complex editor programming.",
   "unity": "2022.3",
