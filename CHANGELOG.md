@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.18
+- Fix: Now validator runs for disabled root gameobject's as well.
+
 ## 1.3.17
 - Fix: Group attributes would break if used with specific wrapper attributes. Fixed now.
 
