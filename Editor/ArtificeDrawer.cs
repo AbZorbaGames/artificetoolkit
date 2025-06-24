@@ -516,7 +516,8 @@ namespace ArtificeToolkit.Editor
                     
                     if (serializedData is SerializedObject serializedObject)
                     {
-                        groupAttributeDrawer.OnWrapGUI(serializedObject.GetIterator(), button);
+                        var wrapper = groupAttributeDrawer.OnWrapGUI(serializedObject.GetIterator(), button);
+                        container.Add(wrapper);
                     }
                     else if (serializedData is SerializedProperty serializedProperty)
                     {
@@ -532,7 +533,6 @@ namespace ArtificeToolkit.Editor
                         }
                         else
                         {
-                            // var isAlreadyAdded = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Contains(serializedp)
                             var element = groupAttributeDrawer.OnWrapGUI(visibleChildren.First(), button);
                             container.Add(element);
                         }
