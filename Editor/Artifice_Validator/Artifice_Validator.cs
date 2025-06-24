@@ -315,6 +315,32 @@ namespace ArtificeToolkit.Editor
             _refreshCoroutine = EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(true), this);
         }
 
+        public List<ValidatorLog> RunSynchronousValidation()
+        {
+            if (_config == null) Initialize();
+
+            var allLogs = new List<ValidatorLog>();
+            
+            foreach (string sceneName in _config.scenesMap.Keys)
+            {
+                if (string.IsNullOrWhiteSpace(sceneName)) continue;
+                string[] guids = AssetDatabase.FindAssets("t:Scene " + sceneName);
+                if (guids.Length > 0)
+                {
+                    string scenePath = AssetDatabase.GUIDToAssetPath(guids[0]);
+                    EditorSceneManager.OpenScene(scenePath);
+
+                    var coroutine = RefreshLogsCoroutine(true);
+                    while (coroutine.MoveNext())
+                    {
+                    }
+                    allLogs.AddRange(_logs);
+                }
+            }
+
+            return allLogs;
+        }
+
         /// <summary> Iterates every nested property of gameobject to detect <see cref="ValidatorAttribute"/> and logs their validity. </summary>
         private IEnumerator RefreshLogsCoroutine(bool fullScan = false)
         {
