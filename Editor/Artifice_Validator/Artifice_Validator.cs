@@ -314,25 +314,31 @@ namespace ArtificeToolkit.Editor
 
             _refreshCoroutine = EditorCoroutineUtility.StartCoroutine(RefreshLogsCoroutine(true), this);
         }
-
+        
+        /// <summary> Iterates every Scene found in Assets and runs RefreshLogsCoroutine, to gather up all the validation logs. </summary> <remarks> Github user Lythom, contributed this method for their CI build solution for example. </remarks>
         public List<ValidatorLog> RunSynchronousValidation()
         {
-            if (_config == null) Initialize();
+            if (_config == null) 
+                Initialize();
 
             var allLogs = new List<ValidatorLog>();
             
-            foreach (string sceneName in _config.scenesMap.Keys)
+            foreach (var sceneName in _config.scenesMap.Keys)
             {
-                if (string.IsNullOrWhiteSpace(sceneName)) continue;
-                string[] guids = AssetDatabase.FindAssets("t:Scene " + sceneName);
+                if (string.IsNullOrWhiteSpace(sceneName)) 
+                    continue;
+                
+                var guids = AssetDatabase.FindAssets("t:Scene " + sceneName);
+                
                 if (guids.Length > 0)
                 {
-                    string scenePath = AssetDatabase.GUIDToAssetPath(guids[0]);
+                    var scenePath = AssetDatabase.GUIDToAssetPath(guids[0]);
                     EditorSceneManager.OpenScene(scenePath);
 
                     var coroutine = RefreshLogsCoroutine(true);
                     while (coroutine.MoveNext())
                     {
+                        // Noop
                     }
                     allLogs.AddRange(_logs);
                 }
@@ -340,7 +346,7 @@ namespace ArtificeToolkit.Editor
 
             return allLogs;
         }
-
+        
         /// <summary> Iterates every nested property of gameobject to detect <see cref="ValidatorAttribute"/> and logs their validity. </summary>
         private IEnumerator RefreshLogsCoroutine(bool fullScan = false)
         {

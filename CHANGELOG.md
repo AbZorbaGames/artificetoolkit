@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.20
+- Enhancement: Added `RunSynchronousValidation` method in `Artifice_Validator` to allow CI or build scripts to access and log potential validations.
+
 ## 1.3.19
 - Fix: There was an issue with FoldoutGroups + ChildGameObjectOnly, causing only the first element to appear. Now it works as designed. Also now method Button and Groups work fine.
 - 
