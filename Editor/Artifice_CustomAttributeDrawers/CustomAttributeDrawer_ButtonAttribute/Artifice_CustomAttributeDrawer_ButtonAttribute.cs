@@ -6,6 +6,8 @@ using ArtificeToolkit.Attributes;
 using UnityEditor;
 using UnityEngine.UIElements;
 
+// ReSharper disable UseObjectOrCollectionInitializer
+
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonAttribute
 {
     [Serializable]
@@ -17,7 +19,6 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             var button = new Button(() =>
             {
-                // Retrieve the underlying SerializedObject regardless of whether serializedData is SerializedObject or SerializedProperty
                 var serializedObject = serializedData switch
                 {
                     SerializedObject obj => obj,
@@ -25,66 +26,72 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     _ => throw new ArgumentException("Invalid serialized data type.")
                 };
                 
-                // Retrieve the underlying target object regardless of whether serializedData is SerializedObject or SerializedProperty
-                var targetObject = serializedData switch
-                {
-                    SerializedObject obj => obj.targetObject,
-                    SerializedProperty property => property.GetTarget<object>(),
-                    _ => throw new ArgumentException("Invalid serialized data type.")
-                };
-
-                // Begin update and call method
+                var targets = serializedObject.targetObjects;
                 serializedObject.Update();
 
-                // Generate parameters list
-                var parametersList = GetParameterList(serializedData);
+                foreach (var target in targets)
+                {
+                    // We need to find the invocation target of the Button method, since it can belong to nested property of the SerializedObject. Thus target is not enough.
+                    object invocationTarget = null;
+                    var invocationSerializedObject = new SerializedObject(target);
+                    if (serializedData is SerializedObject)
+                        invocationTarget = invocationSerializedObject.targetObject;
+                    else
+                    {
+                        var serializedProperty = serializedData as SerializedProperty;
+                        invocationTarget = invocationSerializedObject.FindProperty(serializedProperty.propertyPath).GetTarget<object>();
+                    }
+                 
+                    // Get parameter values specific to this target (you may need to refactor GetParameterList to support this)
+                    var parametersList = GetParameterListForTarget(invocationTarget);
+                    
+                    if (methodInfo.GetParameters().Length != parametersList.Count)
+                        throw new ArgumentException(
+                            $"[Artifice/Button] Parameters count do not match with method {methodInfo.Name}");
 
-                // Validate parameter count
-                if (methodInfo.GetParameters().Length != parametersList.Count)
-                    throw new ArgumentException($"[Artifice/Button] Parameters count do not match with method {methodInfo.Name}");
+                    methodInfo.Invoke(invocationTarget, parametersList.ToArray());
+                }
 
-                // Invoke the method
-                methodInfo.Invoke(targetObject, parametersList.ToArray());
-
-                // Apply changes
                 serializedObject.ApplyModifiedProperties();
             });
-    
+
             button.text = AddSpacesBeforeCapitals(methodInfo.Name);
             button.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
             button.AddToClassList("button");
 
             return button;
         }
-        
+
         /// <summary> Retrieves a list of parameters for the method invocation based on the attribute parameter names. </summary>
-        private List<object> GetParameterList<T>(T serializedData) where T : class
+        private List<object> GetParameterListForTarget(object target)
         {
             var attribute = (ButtonAttribute)Attribute;
             var parametersList = new List<object>();
 
-            // Iterate through the parameter names specified in the attribute
             foreach (var parameterName in attribute.ParameterNames)
             {
-                var parameterProperty = serializedData switch
+                var field = target.GetType().GetField(parameterName,
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (field == null)
                 {
-                    // Find the appropriate property based on the type of serializedData
-                    SerializedObject serializedObject => serializedObject.FindProperty(parameterName),
-                    SerializedProperty property => property.FindPropertyRelative(parameterName),
-                    _ => throw new ArgumentException("Invalid serialized data type.")
-                };
+                    var property = target.GetType().GetProperty(parameterName,
+                        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-                // Check if the property exists
-                if (parameterProperty == null)
-                    throw new ArgumentException($"[Artifice/Button] Cannot find parameter name {parameterName}");
+                    if (property == null)
+                        throw new ArgumentException($"[Artifice/Button] Cannot find parameter '{parameterName}' on {target}");
 
-                // Add the target value of the property to the parameter list
-                parametersList.Add(parameterProperty.GetTarget<object>());
+                    parametersList.Add(property.GetValue(target));
+                }
+                else
+                {
+                    parametersList.Add(field.GetValue(target));
+                }
             }
 
             return parametersList;
         }
-        
+
         private string AddSpacesBeforeCapitals(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -99,6 +106,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 {
                     spacedString.Append(' '); // Add a space before capital letter
                 }
+
                 spacedString.Append(input[i]);
             }
 
