@@ -14,7 +14,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     [Artifice_CustomAttributeDrawer(typeof(ButtonAttribute))]
     public class Artifice_CustomAttributeDrawer_ButtonAttribute : Artifice_CustomAttributeDrawer
     {
-        /// <summary> Returns button for method button GUI from a serialized object or property. </summary>
+        /// <summary> Returns button for method button GUI from a serialized object or property. Works with multiselect as well. </summary>
         public VisualElement CreateMethodGUI<T>(T serializedData, MethodInfo methodInfo) where T : class
         {
             var button = new Button(() =>

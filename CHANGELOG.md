@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.21
+- Enhancement: Now `Button` attribute works with multiple selected objects as well.
+
 ## 1.3.20
 - Enhancement: Added `RunSynchronousValidation` method in `Artifice_Validator` to allow CI or build scripts to access and log potential validations.
 
