@@ -1,10 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Odbc;
-using System.Linq;
-using System.Xml.Schema;
-using ArtificeToolkit.Attributes;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_EnableIfAttribute;
 using UnityEditor;
 using UnityEngine;
 
