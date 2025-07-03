@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Odbc;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,11 +34,11 @@ namespace ArtificeToolkit.Editor
             {
                 // Pop next property and skip if already visited 
                 var property = queue.Dequeue();
-
-                // If for any reason the target object is destroyed after batch sleep, just skip.
-                if (property.serializedObject.targetObject == null)
+                
+                // If for any reason the target object is destroyed after batch sleep or we should not validate it, just skip.
+                if (property.serializedObject.targetObject == null || Artifice_ValidatorExtensions.ShouldValidateProperty(property) == false)
                     continue;
-
+                
                 // Skip if already visited
                 if (visitedProperties.Contains(property))
                     continue;

@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.22
+- Enhancement: If a property is hidden by EnableIf, it is also ignored in the ValidatorModules.
+
 ## 1.3.21
 - Enhancement: Now `Button` attribute works with multiple selected objects as well.
 

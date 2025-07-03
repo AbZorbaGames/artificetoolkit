@@ -43,14 +43,27 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         }
         
         /* Executes logic on changing visibility */
-        private void UpdateRootVisibility(SerializedProperty property)
+        private void UpdateRootVisibility(SerializedProperty trackedProperty)
         {
-            var trackedValue = property.GetTarget<object>();
+            var trackedValue = trackedProperty.GetTarget<object>();
             
             if(_attribute.Values.Any(value => Artifice_Utilities.AreEqual(trackedValue, value)))
                 _targetElem.RemoveFromClassList("hide");
             else
                 _targetElem.AddToClassList("hide");
+        }
+
+        /// <summary> This method is called by Validator_Modules to be able to skip properties which are not enabled. This is not the most generic approach, but it will serve as a fine test to see if this is the desired behaviour. </summary>
+        /// <remarks> In the future and if needed, it will probably take the form of a interface. If it becomes an interface, it will also cost extra performance to parse all the attributes and type check them. </remarks> 
+        public static bool ShouldIncludeInValidation(SerializedProperty property, EnableIfAttribute attribute)
+        {
+            // Set Data tracked property
+            var trackedProperty = property.FindPropertyInSameScope(attribute.PropertyName);
+            if (trackedProperty == null)
+                return false;
+            
+            var trackedValue = trackedProperty.GetTarget<object>();
+            return attribute.Values.Any(value => Artifice_Utilities.AreEqual(trackedValue, value));
         }
     }
 }

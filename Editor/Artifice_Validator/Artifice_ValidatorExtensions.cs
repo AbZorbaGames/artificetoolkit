@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_EnableIfAttribute;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -97,6 +98,18 @@ namespace ArtificeToolkit.Editor
                     logs.Add(log);
                 }
             }
+        }
+
+        /// <summary> Returns true if property should be taken into consideration in the validation or not. </summary>
+        public static bool ShouldValidateProperty(SerializedProperty property)
+        {
+            // Check if property is under enable if => false. In that case skip that property and its children.
+            var customAttributes = property.GetCustomAttributes().ToList();
+            var attribute = customAttributes.Find(attribute => attribute is EnableIfAttribute);
+            if (attribute is EnableIfAttribute enableIfAttribute)
+                return Artifice_CustomAttributeDrawer_EnableIfAttribute.ShouldIncludeInValidation(property, enableIfAttribute);
+
+            return true;
         }
     }
 }
