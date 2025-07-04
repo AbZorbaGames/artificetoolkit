@@ -37,6 +37,8 @@ namespace ArtificeToolkit.Editor
         /// <summary> String properties that should be ignored from Artifice. </summary>
         private static readonly HashSet<string> PropertyIgnoreSet;
 
+        private static readonly HashSet<Type> DefaultRenderingTypes;
+
         // Delegate declaration for serialized property filter method.
         public delegate bool SerializedPropertyFilter(SerializedProperty property);
         private SerializedPropertyFilter _serializedPropertyFilter = property => true;
@@ -53,6 +55,15 @@ namespace ArtificeToolkit.Editor
             {
                 // "Serialized Data Mode Controller",
                 "Serialized Data Mode Controller",
+            };
+            
+            DefaultRenderingTypes = new HashSet<Type>
+            {
+                typeof(Quaternion),
+                typeof(Vector2),
+                typeof(Vector2Int),
+                typeof(Vector3),
+                typeof(Vector3Int),
             };
         }
         
@@ -176,24 +187,32 @@ namespace ArtificeToolkit.Editor
                     {
                         VisualElement childrenContainer;
 
-                        // Optionally use foldout for visible children, or have them just placed in order.
-                        if (useFoldoutForVisibleChildren)
+                        if (DefaultRenderingTypes.Contains(property.GetTargetType()))
                         {
-                            childrenContainer = new Foldout
-                            {
-                                value = property.isExpanded,
-                                text = property.displayName
-                            };
-                            childrenContainer.AddToClassList("nested-field-property");
-                            ((Foldout)childrenContainer).BindProperty(property); // Bind to make foldout state (open-closed) be persistent
+                            childrenContainer = new PropertyField(property);
                         }
                         else
-                            childrenContainer = new VisualElement();
+                        {
+                            // Optionally use foldout for visible children, or have them just placed in order.
+                            if (useFoldoutForVisibleChildren)
+                            {
+                                childrenContainer = new Foldout
+                                {
+                                    value = property.isExpanded,
+                                    text = property.displayName
+                                };
+                                childrenContainer.AddToClassList("nested-field-property");
+                                ((Foldout)childrenContainer).BindProperty(property); // Bind to make foldout state (open-closed) be persistent
+                            }
+                            else
+                                childrenContainer = new VisualElement();
+                            
+                            // Create property for each child
+                            foreach (var child in property.GetVisibleChildren().SortProperties())
+                                childrenContainer.Add(CreatePropertyGUI(child, forceArtificeStyle));
+                            
+                        }
 
-                        // Create property for each child
-                        foreach (var child in property.GetVisibleChildren().SortProperties())
-                            childrenContainer.Add(CreatePropertyGUI(child, forceArtificeStyle));
-                        
                         // Create methods group
                         childrenContainer.Add(CreateMethodsGUI(property));
                         
