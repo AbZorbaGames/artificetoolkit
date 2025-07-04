@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.23
+- Enhancement: Added a DefaultRenderingTypes set, to use default property field drawing, instead of letting artifice drawer iterate on them. Used for Vectors primarily.
+
 ## 1.3.22
 - Enhancement: If a property is hidden by EnableIf, it is also ignored in the ValidatorModules.
 
