@@ -499,7 +499,7 @@ namespace ArtificeToolkit.Editor
             // Create reusable button drawer.
             var buttonCustomDrawer = new Artifice_CustomAttributeDrawer_ButtonAttribute();
 
-            var methods = GetAllMethodsInfoOfType(targetType);
+            var methods = GetAllUniqueMethods(targetType);
             foreach (var method in methods)
             {
                 // Get button attribute
@@ -739,21 +739,24 @@ namespace ArtificeToolkit.Editor
             return container;
         }
 
-        private List<MethodInfo> GetAllMethodsInfoOfType(Type type)
+        /// <summary> Returns a list of all unique MemberInfo from the whole inheritance chain. </summary>
+        private List<MethodInfo> GetAllUniqueMethods(Type type)
         {
-            var methods = new List<MethodInfo>();
+            var methods = new Dictionary<string, MethodInfo>();
+
             while (type != null)
             {
-                methods.AddRange(type.GetMethods(
-                    BindingFlags.Instance |
-                    BindingFlags.Static |
-                    BindingFlags.NonPublic |
-                    BindingFlags.Public |
-                    BindingFlags.DeclaredOnly));
+                var declaredMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                foreach (var method in declaredMethods)
+                {
+                    var signature = method.ToString();
+                    methods.TryAdd(signature, method);
+                }
 
                 type = type.BaseType;
             }
-            return methods;
+
+            return new List<MethodInfo>(methods.Values);
         }
         
         #endregion
