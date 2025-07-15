@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.24
+- Fix: Button of base class now appears on inherited class as well. 
+
 ## 1.3.23
 - Enhancement: Added a DefaultRenderingTypes set, to use default property field drawing, instead of letting artifice drawer iterate on them. Used for Vectors primarily.
 
