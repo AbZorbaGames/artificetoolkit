@@ -1,0 +1,39 @@
+.ignored-types-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    
+    height: 300px;
+}
+
+.ignored-types-container .types-container{
+    width: 100%;
+    margin: 7px;
+    
+    justify-content: center;
+    
+}
+
+.types-container .title{
+    -unity-text-align: middle-center;
+    font-size: 15px;
+}
+
+.types-container ScrollView{
+    background-color: rgba(0, 0, 0, 0.16);
+    
+    width: 100%;
+    height: 200px;
+
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-color: black;
+}
+
+.type-label{
+    padding-top: 2px;
+}
+
+.ignored-types-container .btn-search{
+    height: 25px;
+}

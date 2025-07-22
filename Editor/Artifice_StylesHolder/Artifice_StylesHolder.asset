@@ -37,6 +37,9 @@ MonoBehaviour:
     - name: Toolbar Validator for Unity 6
       script: {fileID: 0}
       stylesheet: {fileID: 7433441132597879392, guid: adb20a2836ca00749b04c0b79f5a0613, type: 3}
+    - name: Ignore List Editor Window
+      script: {fileID: 11500000, guid: 95edf3d24efe3784c8c1b59344feb8f4, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: a7107c412f49452498311e226eeff18d, type: 3}
   - categoryName: Custom Attributes
     styleData:
     - name: Group

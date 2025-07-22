@@ -139,15 +139,11 @@ namespace ArtificeToolkit.Editor
                 return null;
             
             // Check if property enforces or skips Artifice in following calls.
-            var ignoreArtifice = false;
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes != null)
-            {
                 forceArtificeStyle = customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
-                ignoreArtifice = customAttributes.Any(attribute => attribute is ArtificeIgnoreAttribute); 
-            }
 
-            if (forceArtificeStyle || DoesRequireArtificeRendering(property) && !ignoreArtifice)
+            if (forceArtificeStyle || DoesRequireArtificeRendering(property))
             {
                 // Arrays need to use custom Artifice List Views (and not a string value!)
                 if (property.IsArray())
@@ -631,6 +627,10 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns true if the property is directly using any <see cref="CustomAttribute"/> </summary>
         private bool IsUsingCustomAttributesDirectly(SerializedProperty property)
         {
+            var typeName = property.type;
+            if (Artifice_Utilities.ShouldIgnoreTypeName(typeName))
+                return false;
+            
             // Check if property directly has a custom attribute
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes is { Length: > 0 })
@@ -638,7 +638,9 @@ namespace ArtificeToolkit.Editor
             
             if (property.IsArray() && property.arraySize == 0)
             {
-                var typeName = property.arrayElementType.Replace("PPtr<$", "").Replace(">", "");
+                typeName = property.arrayElementType.Replace("PPtr<$", "").Replace(">", "");
+                if (Artifice_Utilities.ShouldIgnoreTypeName(typeName))
+                    return false;
 
                 // Return cached if found. Otherwise search assemblies.
                 if (TypeCache.TryGetValue(typeName, out var arrayElementType) == false) 
