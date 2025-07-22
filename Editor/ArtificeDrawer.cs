@@ -602,6 +602,14 @@ namespace ArtificeToolkit.Editor
         {
             if (_doesRequireVisualElementsCache.TryGetValue(property, out var cachedResult))
                 return cachedResult;
+         
+            // Check Ignore List
+            var typeName = property.type;
+            if (property.isArray == false && Artifice_Utilities.ShouldIgnoreTypeName(typeName))
+            {
+                _doesRequireVisualElementsCache[property] = false;
+                return false;
+            }
             
             // Check self
             if (IsUsingCustomAttributesDirectly(property))
@@ -628,8 +636,6 @@ namespace ArtificeToolkit.Editor
         private bool IsUsingCustomAttributesDirectly(SerializedProperty property)
         {
             var typeName = property.type;
-            if (Artifice_Utilities.ShouldIgnoreTypeName(typeName))
-                return false;
             
             // Check if property directly has a custom attribute
             var customAttributes = property.GetCustomAttributes();
