@@ -138,12 +138,16 @@ namespace ArtificeToolkit.Editor
             if (_serializedPropertyFilter.Invoke(property) == false)
                 return null;
             
-            // Check if property enforces Artifice in following calls.
+            // Check if property enforces or skips Artifice in following calls.
+            var ignoreArtifice = false;
             var customAttributes = property.GetCustomAttributes();
-            if (customAttributes != null && customAttributes.Any(attribute => attribute is ForceArtificeAttribute))
-                forceArtificeStyle = true;
+            if (customAttributes != null)
+            {
+                forceArtificeStyle = customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
+                ignoreArtifice = customAttributes.Any(attribute => attribute is ArtificeIgnoreAttribute); 
+            }
 
-            if (forceArtificeStyle || DoesRequireArtificeRendering(property))
+            if (forceArtificeStyle || DoesRequireArtificeRendering(property) && !ignoreArtifice)
             {
                 // Arrays need to use custom Artifice List Views (and not a string value!)
                 if (property.IsArray())

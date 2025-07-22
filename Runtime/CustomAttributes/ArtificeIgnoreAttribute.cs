@@ -2,7 +2,7 @@ using System;
 
 namespace ArtificeToolkit.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Field)]
     public class ArtificeIgnoreAttribute : CustomAttribute
     {
     }
