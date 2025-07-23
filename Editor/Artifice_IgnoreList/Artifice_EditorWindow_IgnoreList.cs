@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ArtificeToolkit.Editor.VisualElements;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor
@@ -73,11 +74,6 @@ namespace ArtificeToolkit.Editor
             // Find soIgnoreList
             _ignoreSet = new HashSet<string>(Artifice_Utilities.GetIgnoredTypeNames());
         }
-
-        private void BuildUI()
-        {
-            
-        }
         
         private VisualElement BuildUI_IgnoreHandlingContainers()
         {
@@ -85,6 +81,11 @@ namespace ArtificeToolkit.Editor
             container.AddToClassList("ignored-types-container");
             
             var searchField = new ToolbarSearchField();
+            searchField.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                if(evt.keyCode is KeyCode.KeypadEnter or KeyCode.Return)
+                    UpdateSearch();
+            });
             container.Add(searchField);
 
             var typeContainers = new VisualElement();
@@ -103,7 +104,13 @@ namespace ArtificeToolkit.Editor
                 _ignoredTypesContainer.Add(entry);
             }
             
-            var buttonSearch = new Artifice_VisualElement_LabeledButton("Search", () =>
+            var buttonSearch = new Artifice_VisualElement_LabeledButton("Search", UpdateSearch);
+            buttonSearch.AddToClassList("btn-search");
+            container.Add(buttonSearch);
+
+            return container;
+
+            void UpdateSearch()
             {
                 if (string.IsNullOrEmpty(searchField.value))
                     return;
@@ -118,11 +125,7 @@ namespace ArtificeToolkit.Editor
                     
                     _notIgnoredTypesContainer.Add(BuildUI_CreateTypeEntry(type.Name, type.FullName));
                 }
-            });
-            buttonSearch.AddToClassList("btn-search");
-            container.Add(buttonSearch);
-
-            return container;
+            }
         }
 
         private Label BuildUI_CreateTypeEntry(string typeName, string fullName)
