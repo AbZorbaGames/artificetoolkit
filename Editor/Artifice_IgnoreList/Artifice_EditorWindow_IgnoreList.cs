@@ -54,7 +54,6 @@ namespace ArtificeToolkit.Editor
             Initialize();     
 
             // Base
-            base.CreateGUI();
             rootVisualElement.Add(BuildUI_IgnoreHandlingContainers());
         }
 
@@ -73,6 +72,11 @@ namespace ArtificeToolkit.Editor
             
             // Find soIgnoreList
             _ignoreSet = new HashSet<string>(Artifice_Utilities.GetIgnoredTypeNames());
+        }
+
+        private void BuildUI()
+        {
+            
         }
         
         private VisualElement BuildUI_IgnoreHandlingContainers()
@@ -95,7 +99,7 @@ namespace ArtificeToolkit.Editor
             // Set all ignored types to ignore map.
             foreach (var ignoredType in _ignoreSet)
             {
-                var entry = BuildUI_CreateTypeEntry(ignoredType);
+                var entry = BuildUI_CreateTypeEntry(ignoredType, "");
                 _ignoredTypesContainer.Add(entry);
             }
             
@@ -112,7 +116,7 @@ namespace ArtificeToolkit.Editor
                     if(_ignoreSet.Contains(type.Name))
                         continue;
                     
-                    _notIgnoredTypesContainer.Add(BuildUI_CreateTypeEntry(type.Name));
+                    _notIgnoredTypesContainer.Add(BuildUI_CreateTypeEntry(type.Name, type.FullName));
                 }
             });
             buttonSearch.AddToClassList("btn-search");
@@ -121,11 +125,13 @@ namespace ArtificeToolkit.Editor
             return container;
         }
 
-        private Label BuildUI_CreateTypeEntry(string typeName)
+        private Label BuildUI_CreateTypeEntry(string typeName, string fullName)
         {
             var entry = new Label(typeName);
             entry.AddToClassList("type-label");
 
+            entry.tooltip = fullName;
+            
             // On Entry click, add it to type ignore list.
             entry.RegisterCallback<MouseDownEvent>(evt =>
             {
@@ -139,8 +145,8 @@ namespace ArtificeToolkit.Editor
                 else
                 {
                     Artifice_Utilities.RemoveIgnoredTypeName(entry.text);
+                    _ignoredTypesContainer.Remove(entry);
                     _ignoreSet.Remove(entry.text);
-                    _notIgnoredTypesContainer.Add(entry);
                 }
             });
 

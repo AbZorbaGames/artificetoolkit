@@ -137,12 +137,13 @@ namespace ArtificeToolkit.Editor
             // If filtered, return empty container.
             if (_serializedPropertyFilter.Invoke(property) == false)
                 return null;
-            
-            // Check if property enforces or skips Artifice in following calls.
+
+            // Check if property enforces Artifice in following calls.
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes != null)
                 forceArtificeStyle = customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
 
+            // If artifice rendering is required.
             if (forceArtificeStyle || DoesRequireArtificeRendering(property))
             {
                 // Arrays need to use custom Artifice List Views (and not a string value!)
@@ -186,7 +187,7 @@ namespace ArtificeToolkit.Editor
                     else
                     {
                         VisualElement childrenContainer;
-
+                    
                         if (DefaultRenderingTypes.Contains(property.GetTargetType()))
                         {
                             childrenContainer = new PropertyField(property);
@@ -229,12 +230,12 @@ namespace ArtificeToolkit.Editor
             else
             {
 #if UNITY_2022_2_OR_NEWER
-                var field = new PropertyField(property);
-                field.Bind(property.serializedObject);
-                container.Add(field);
+                var defaultPropertyField = new PropertyField(property);
 #else
-                container.Add(CreateIMGUIField(property));
+                var defaultPropertyField = CreateIMGUIField(property);
 #endif
+                defaultPropertyField.BindProperty(property);
+                container.Add(CreateCustomAttributesGUI(property, defaultPropertyField));
             }
             
             return container;
@@ -244,9 +245,6 @@ namespace ArtificeToolkit.Editor
         public VisualElement CreateCustomAttributesGUI(SerializedProperty property, VisualElement propertyField)
         {
             var customAttributes = property.GetCustomAttributes();
-            if (DoesRequireArtificeRendering(property) == false)
-                return propertyField;
-
             return CreateCustomAttributesGUI(property, propertyField, customAttributes.ToList());
         }
         
@@ -662,7 +660,6 @@ namespace ArtificeToolkit.Editor
 
                 return arrayElementType != null && DoChildrenOfTypeUseCustomAttributes(arrayElementType);
             }
-
             
             // Otherwise, maybe some method of the object uses custom attributes.
             var obj = property.GetTarget<object>();
