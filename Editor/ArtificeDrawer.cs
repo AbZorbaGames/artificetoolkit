@@ -137,12 +137,13 @@ namespace ArtificeToolkit.Editor
             // If filtered, return empty container.
             if (_serializedPropertyFilter.Invoke(property) == false)
                 return null;
-            
+
             // Check if property enforces Artifice in following calls.
             var customAttributes = property.GetCustomAttributes();
-            if (customAttributes != null && customAttributes.Any(attribute => attribute is ForceArtificeAttribute))
-                forceArtificeStyle = true;
+            if (customAttributes != null)
+                forceArtificeStyle = customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
 
+            // If artifice rendering is required.
             if (forceArtificeStyle || DoesRequireArtificeRendering(property))
             {
                 // Arrays need to use custom Artifice List Views (and not a string value!)
@@ -186,7 +187,7 @@ namespace ArtificeToolkit.Editor
                     else
                     {
                         VisualElement childrenContainer;
-
+                    
                         if (DefaultRenderingTypes.Contains(property.GetTargetType()))
                         {
                             childrenContainer = new PropertyField(property);
@@ -229,12 +230,12 @@ namespace ArtificeToolkit.Editor
             else
             {
 #if UNITY_2022_2_OR_NEWER
-                var field = new PropertyField(property);
-                field.Bind(property.serializedObject);
-                container.Add(field);
+                var defaultPropertyField = new PropertyField(property);
 #else
-                container.Add(CreateIMGUIField(property));
+                var defaultPropertyField = CreateIMGUIField(property);
 #endif
+                defaultPropertyField.BindProperty(property);
+                container.Add(CreateCustomAttributesGUI(property, defaultPropertyField));
             }
             
             return container;
@@ -244,9 +245,6 @@ namespace ArtificeToolkit.Editor
         public VisualElement CreateCustomAttributesGUI(SerializedProperty property, VisualElement propertyField)
         {
             var customAttributes = property.GetCustomAttributes();
-            if (DoesRequireArtificeRendering(property) == false)
-                return propertyField;
-
             return CreateCustomAttributesGUI(property, propertyField, customAttributes.ToList());
         }
         
@@ -602,6 +600,14 @@ namespace ArtificeToolkit.Editor
         {
             if (_doesRequireVisualElementsCache.TryGetValue(property, out var cachedResult))
                 return cachedResult;
+         
+            // Check Ignore List
+            var typeName = property.type;
+            if (property.isArray == false && Artifice_Utilities.ShouldIgnoreTypeName(typeName))
+            {
+                _doesRequireVisualElementsCache[property] = false;
+                return false;
+            }
             
             // Check self
             if (IsUsingCustomAttributesDirectly(property))
@@ -627,6 +633,8 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns true if the property is directly using any <see cref="CustomAttribute"/> </summary>
         private bool IsUsingCustomAttributesDirectly(SerializedProperty property)
         {
+            var typeName = property.type;
+            
             // Check if property directly has a custom attribute
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes is { Length: > 0 })
@@ -634,7 +642,9 @@ namespace ArtificeToolkit.Editor
             
             if (property.IsArray() && property.arraySize == 0)
             {
-                var typeName = property.arrayElementType.Replace("PPtr<$", "").Replace(">", "");
+                typeName = property.arrayElementType.Replace("PPtr<$", "").Replace(">", "");
+                if (Artifice_Utilities.ShouldIgnoreTypeName(typeName))
+                    return false;
 
                 // Return cached if found. Otherwise search assemblies.
                 if (TypeCache.TryGetValue(typeName, out var arrayElementType) == false) 
@@ -650,7 +660,6 @@ namespace ArtificeToolkit.Editor
 
                 return arrayElementType != null && DoChildrenOfTypeUseCustomAttributes(arrayElementType);
             }
-
             
             // Otherwise, maybe some method of the object uses custom attributes.
             var obj = property.GetTarget<object>();
