@@ -141,7 +141,7 @@ namespace ArtificeToolkit.Editor
             // Check if property enforces Artifice in following calls.
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes != null)
-                forceArtificeStyle = customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
+                forceArtificeStyle = forceArtificeStyle || customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
 
             // If artifice rendering is required.
             if (forceArtificeStyle || DoesRequireArtificeRendering(property))
