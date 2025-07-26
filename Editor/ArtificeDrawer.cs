@@ -429,7 +429,13 @@ namespace ArtificeToolkit.Editor
                 
                 // Get value from type map, create instance and draw from artifice.
                 if (typeMap.TryGetValue(evt.newValue, out var type))
-                    property.managedReferenceValue = Activator.CreateInstance(type);
+                {
+                    // Only create a new instance if the current managedReferenceValue is null or the wrong type
+                    if (property.managedReferenceValue == null || property.managedReferenceValue.GetType() != type)
+                    {
+                        property.managedReferenceValue = Activator.CreateInstance(type);
+                    }
+                }
                 else
                     property.managedReferenceValue = null;
                 
