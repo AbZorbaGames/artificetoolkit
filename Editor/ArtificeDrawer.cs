@@ -380,12 +380,10 @@ namespace ArtificeToolkit.Editor
             selectorContainer.AddToClassList("serialize-reference-selector");
             container.Add(selectorContainer);
             
-            // Create label of property
-            var label = new Label(property.displayName);
-            selectorContainer.Add(label);
-
             // Create dropdown for selections.
             var dropdown = new DropdownField();
+            dropdown.AddToClassList(BaseField<object>.alignedFieldUssClassName);
+            dropdown.label = property.displayName;
             dropdown.choices.Add("Null");
             foreach (var pair in typeMap)
                 dropdown.choices.Add(pair.Key);
