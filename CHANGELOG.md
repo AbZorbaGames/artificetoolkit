@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.26
+- Enhancement: Aligned dropdown field of `SerializedReference` using `BaseField<object>.alignedFieldUssClassName`.  
+
 ## 1.3.25
 - Enhancement: Previously you could only assign to the ignore list only `Components`. Now any type can be added to the ignore list and it will cause artifice to fallback to Unity's default rendering for that specific type. See the Menu > ArtificeToolkit > Ignore List.
 - Enhancement: Small refactor was made in the `ArtificeDrawer` to allow the application of `CustomAttributes` even to ignored types. For example, using the default rendering for the `LocalizedString` class but being able to use it with `FoldoutGroup`.
