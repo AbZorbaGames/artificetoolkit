@@ -12,108 +12,146 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d2df4d23d6363e4c8f2623a5271764e, type: 3}
   m_Name: Artifice_StylesHolder
   m_EditorClassIdentifier: 
-  globalStyle: {fileID: 7433441132597879392, guid: c03fa85b6772ead4bb31df8751342c49, type: 3}
+  globalStyle: {fileID: 7433441132597879392, guid: c03fa85b6772ead4bb31df8751342c49,
+    type: 3}
   categories:
   - categoryName: Artifice
     styleData:
     - name: Artifice Drawer
       script: {fileID: 11500000, guid: 331a3cf469a5692449b2be219cbb8269, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 60467066a24749e4588f4a0f38aa557b, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 60467066a24749e4588f4a0f38aa557b,
+        type: 3}
     - name: Artifice Editor Window
       script: {fileID: 11500000, guid: c21e8b56f72892b48af4fd8540dde288, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 7948533286883584385b02c1118fdb04, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 7948533286883584385b02c1118fdb04,
+        type: 3}
     - name: Validator
       script: {fileID: 11500000, guid: 5e3717168011a2147afeb8a029560f68, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 68916b44acf8c634e89f5ef41536243e, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 68916b44acf8c634e89f5ef41536243e,
+        type: 3}
     - name: Abstract List View
       script: {fileID: 11500000, guid: 96d3b14fbfdad7845b514ced8df07232, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 9b0fdc7cddf83bd41a6dff69cbe1f296, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 9b0fdc7cddf83bd41a6dff69cbe1f296,
+        type: 3}
     - name: Table List View
       script: {fileID: 11500000, guid: 4f0f5baba53508544bc61966c5083e46, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: cd9dd4492901c8b419d84cdc039a2f50, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: cd9dd4492901c8b419d84cdc039a2f50,
+        type: 3}
     - name: Toolbar Validator
       script: {fileID: 11500000, guid: e38734e4f21f64b47b952b02325286e3, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 1718146f030296142b6f449576f2d04b, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 1718146f030296142b6f449576f2d04b,
+        type: 3}
     - name: Toolbar Validator for Unity 6
       script: {fileID: 0}
-      stylesheet: {fileID: 7433441132597879392, guid: adb20a2836ca00749b04c0b79f5a0613, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: adb20a2836ca00749b04c0b79f5a0613,
+        type: 3}
     - name: Ignore List Editor Window
       script: {fileID: 11500000, guid: 95edf3d24efe3784c8c1b59344feb8f4, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: a7107c412f49452498311e226eeff18d, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: a7107c412f49452498311e226eeff18d,
+        type: 3}
   - categoryName: Custom Attributes
     styleData:
     - name: Group
       script: {fileID: 11500000, guid: c68211cefbb766f4a94fc03ae4cd6534, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 06fe14e771ee8fa419188d5cd873f964, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 06fe14e771ee8fa419188d5cd873f964,
+        type: 3}
     - name: BoxGroup
       script: {fileID: 11500000, guid: 62e31e5cc46bfd14895b412a71355e32, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 7bf03dfcdacd27a49bfe4213f26a4f06, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 7bf03dfcdacd27a49bfe4213f26a4f06,
+        type: 3}
     - name: FoldoutGroup
       script: {fileID: 11500000, guid: 7d07670814ad18543b1a96257da686fd, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 5600d3eae7e788f45aa20a0c93142ffa, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 5600d3eae7e788f45aa20a0c93142ffa,
+        type: 3}
     - name: TabGroup
       script: {fileID: 11500000, guid: 5539cdf506354f64fb0f5398eb5431d3, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: dd0e678c63b42b242a51a3698c854777, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: dd0e678c63b42b242a51a3698c854777,
+        type: 3}
     - name: HorizontalGroup
       script: {fileID: 11500000, guid: 151c9c903b8c6164691bfa0d4bbfd46c, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 768cdbf70f0c0e7428b2bdd23930338c, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 768cdbf70f0c0e7428b2bdd23930338c,
+        type: 3}
     - name: VerticalGroup
       script: {fileID: 11500000, guid: 6b5e35661e4f5834e9c293ae654ab29a, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 264ce7b733e5a9f429b9c88718df75e3, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 264ce7b733e5a9f429b9c88718df75e3,
+        type: 3}
     - name: Title
       script: {fileID: 11500000, guid: 62268380d1c3e0c44b24ea672e27ca58, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: df0bfdb8bb6b54b408e50f39e8806e25, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: df0bfdb8bb6b54b408e50f39e8806e25,
+        type: 3}
     - name: Border
       script: {fileID: 11500000, guid: 8a3b9fb7dada5074dbcbec1df23cf9c1, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: c6fc5b1236f520e418c63d6c448f6d4d, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: c6fc5b1236f520e418c63d6c448f6d4d,
+        type: 3}
     - name: EnumToggle
       script: {fileID: 11500000, guid: 08509156d640b684d8dbad5d3474d30b, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: da9733949a870e54f94f02df4009c3b4, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: da9733949a870e54f94f02df4009c3b4,
+        type: 3}
     - name: LabelWidth
       script: {fileID: 11500000, guid: 9d838636d026dda42a82b4fe8c83e2ea, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 272597a5374a131458acfc0a5e0497df, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 272597a5374a131458acfc0a5e0497df,
+        type: 3}
     - name: Range
       script: {fileID: 11500000, guid: b90ba41a80067314db36948ca00e923a, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: b84fadc3c027f9f41908ae32f5891748, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: b84fadc3c027f9f41908ae32f5891748,
+        type: 3}
     - name: InfoBox Visual Element
       script: {fileID: 11500000, guid: c671498cd4ca7a94894806f434c0d1f8, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 532d0eb6fb97c5449873ab8759916c4c, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 532d0eb6fb97c5449873ab8759916c4c,
+        type: 3}
     - name: PreviewField
       script: {fileID: 11500000, guid: 88bcbff2e2b088547b4d627e15555c68, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: d1071288c2018434db871094deb754f8, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: d1071288c2018434db871094deb754f8,
+        type: 3}
     - name: PreviewSO
       script: {fileID: 11500000, guid: 6b03a423bada3d14ea761a30d3a0cbd6, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 8562c4310ea331841b0b00d1084faefb, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 8562c4310ea331841b0b00d1084faefb,
+        type: 3}
     - name: ChildGameObjectOnly
       script: {fileID: 11500000, guid: d56b9d86fc9280849b393616fed9b901, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: f54ee43e11500504f8dda4ce69230180, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: f54ee43e11500504f8dda4ce69230180,
+        type: 3}
     - name: MeasureUnit
       script: {fileID: 11500000, guid: 03406d22c897e4b4384ff3a443c3609c, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 20b12b8036281de4f91bb75ae579ecd3, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 20b12b8036281de4f91bb75ae579ecd3,
+        type: 3}
     - name: ReadOnly
       script: {fileID: 11500000, guid: e28bdfd0945346a4db9d896839c2fdd8, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: b0c30e94ef8393f4d8d43a5c8b0e38a6, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: b0c30e94ef8393f4d8d43a5c8b0e38a6,
+        type: 3}
     - name: Button
       script: {fileID: 11500000, guid: cec67f4c57829f141bf949d6729b956b, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 6b122f13429037748987893f2fae8fe2, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 6b122f13429037748987893f2fae8fe2,
+        type: 3}
   - categoryName: Browsers
     styleData:
     - name: GameObject Browser
       script: {fileID: 11500000, guid: 0001bdf598299e040ae78aa47d1d911d, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 6902023bc79fd5f43a719924d1602485, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 6902023bc79fd5f43a719924d1602485,
+        type: 3}
   - categoryName: Visual Elements
     styleData:
     - name: Labeled Button
       script: {fileID: 11500000, guid: a14f597540adca14ab39c8bc11e6dc1c, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: ed08c9f5015b6204ab9320951d3d0a79, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: ed08c9f5015b6204ab9320951d3d0a79,
+        type: 3}
     - name: Toggle Button
       script: {fileID: 11500000, guid: 972c212a38f48a745ad1f0bb68da5cc1, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: ba13983c18d79f34c88b85b7c5d38ccc, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: ba13983c18d79f34c88b85b7c5d38ccc,
+        type: 3}
     - name: Sliding Group
       script: {fileID: 11500000, guid: bdb6b3ae0bb13eb499e5524a872bd24e, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 9fdfec03103348d498f24cb8d622ffde, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 9fdfec03103348d498f24cb8d622ffde,
+        type: 3}
   - categoryName: Custom Property Drawers
     styleData:
     - name: Serialized Dictionary
       script: {fileID: 11500000, guid: d053bec53c68d2249b89603cb7d99fb7, type: 3}
-      stylesheet: {fileID: 7433441132597879392, guid: 51883da140386e042b63637a0c93182b, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 51883da140386e042b63637a0c93182b,
+        type: 3}
+  - categoryName: InspectorHeader
+    styleData:
+    - name: InspectorHeader
+      script: {fileID: 11500000, guid: 8f632a9e1619b7249a0230be71299ad3, type: 3}
+      stylesheet: {fileID: 7433441132597879392, guid: 4193696275425b248a5a5b41d6f739ba,
+        type: 3}

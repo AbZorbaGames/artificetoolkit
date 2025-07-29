@@ -1,4 +1,7 @@
 # Change Log:
+## 1.4.0
+- Enhancement: Added `Artifice_InspectorHeader`. A simple utility header to help manage crowded inspectors by providing a searchbar, filtering and collapse/expand all components. 
+
 ## 1.3.27
 - Enhancement: Added `ValidateJson` and `ValidateUxml` validation attributes.
 

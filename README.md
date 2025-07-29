@@ -619,8 +619,14 @@ public abstract class TraitBase
 
 7. You can selectively choose to ignore any C# type by using the "Ignore List" found in the MenuItem "ArtificeToolkit". From there you can search a type and append it into the ignored list. This will cause ArtificeToolkit to fallback to the Unity default rendering system for the specific property. Therefore this feature is for cases where you are experiencing problems with a specific type (e.g. LocalizedString has shown some issues in the past).
 <div style="display: flex; justify-content: center;">
-  <img src="./Documentation/artifice_ignorelist.png" alt="GIF Example"/>
+  <img src="./Documentation/artifice_ignorelist.png" alt="PNG Example"/>
 </div>
+
+8. The ArtificeToolkit now providers the InspectorHeader, a simple utility header to help manage crowded inspectors by providing a searchbar, filtering and collapse/expand all components. It can be toggled on and off through Menu > ArtificeToolkit > Toggle Inspector Header.
+<div style="display: flex; justify-content: center;">
+  <img src="./Documentation/artifice_inspectorheader.gif" alt="GIF Example"/>
+</div>
+
 
 <!-- ARTIFICE VALIDATOR -->
 # Artifice Validator
