@@ -607,6 +607,10 @@ public abstract class TraitBase
     - Artifice_VisualElement_FoldoutGroup
     - Artifice_VisualElement_InfoBox
 
+7. You can selectively choose to ignore any C# type by using the "Ignore List" found in the MenuItem "ArtificeToolkit". From there you can search a type and append it into the ignored list. This will cause ArtificeToolkit to fallback to the Unity default rendering system for the specific property. Therefore this feature is for cases where you are experiencing problems with a specific type (e.g. LocalizedString has shown some issues in the past).
+<div style="display: flex; justify-content: center;">
+  <img src="./Documentation/artifice_ignorelist.png" alt="GIF Example"/>
+</div>
 
 <!-- ARTIFICE VALIDATOR -->
 # Artifice Validator

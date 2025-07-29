@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using ArtificeToolkit.Editor.Resources;
+using Newtonsoft.Json;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace ArtificeToolkit.Editor
         private StylesHolder _soStylesHolder;
         private Dictionary<Type, Type> _drawerTypesMap;
         private Dictionary<Type, Artifice_CustomAttributeDrawer> _drawerInstancesMap;
+        private HashSet<string> _ignoreSet;
         
         #endregion
 
@@ -62,6 +64,8 @@ namespace ArtificeToolkit.Editor
             
             _soStylesHolder = AssetDatabase.LoadAssetAtPath<StylesHolder>(AssetDatabase.GUIDToAssetPath(styleHolderPaths[0]));
             InitializeDrawerMaps();
+            
+            LoadIgnoredTypes();
         }
 
         #endregion
@@ -71,7 +75,7 @@ namespace ArtificeToolkit.Editor
         private const string ArtificeInspectorOn = "Artifice Toolkit/" + "\u2712 Toggle ArtificeInspector/On";
         private const string ArtificeInspectorOff = "Artifice Toolkit/" +"\u2712 Toggle ArtificeInspector/Off";
         private const string ArtificeDocumentation = "Artifice Toolkit/" +"\ud83d\udcd6 Documentation...";
-        private const string ArtificeIgnoreList = "Artifice Toolkit/" + "\u2718 Preview Ignore List";
+        private const string ArtificeIgnoreList = "Artifice Toolkit/" + "\u2718 Ignore List";
         private const string ArtificeDocumentationURL = "https://github.com/AbZorbaGames/artificetoolkit";
         
         [MenuItem(ArtificeInspectorOn, true, 0)]
@@ -283,6 +287,56 @@ namespace ArtificeToolkit.Editor
                 LogType.Warning => Artifice_SCR_CommonResourcesHolder.instance.WarningIcon,
                 _               => Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon
             };
+        
+        #region Ignored Types | Proxies IArtifice_Persistency
+        
+        private const string ViewPersistenceKey = "ArtificeIgnoreList";
+
+        private void LoadIgnoredTypes()
+        {
+            var jsonString = Artifice_SCR_PersistedData.instance.LoadData(ViewPersistenceKey, "ignoredTypes");
+            if (string.IsNullOrEmpty(jsonString))
+            {
+                _ignoreSet = new HashSet<string>();
+            }
+            else
+            {
+                var list  = JsonConvert.DeserializeObject<List<string>>(jsonString);
+                _ignoreSet = new HashSet<string>(list);
+            }
+        }
+
+        private void SaveIgnoredTypes()
+        {
+            var list = new List<string>(_ignoreSet);
+            var jsonString = JsonConvert.SerializeObject(list);
+            Artifice_SCR_PersistedData.instance.SaveData(ViewPersistenceKey, "ignoredTypes", jsonString);
+        }
+
+        public static List<string> GetIgnoredTypeNames()
+        {
+            return Instance._ignoreSet.ToList();
+        }
+
+        public static bool ShouldIgnoreTypeName(string typeName)
+        {
+            return Instance._ignoreSet.Contains(typeName);
+        } 
+        
+        public static void AddIgnoredTypeName(string typeName)
+        {
+            Instance._ignoreSet.Add(typeName);
+            Instance.SaveIgnoredTypes();
+        }
+
+        public static void RemoveIgnoredTypeName(string typeName)
+        {
+            Instance._ignoreSet.Remove(typeName);
+            Instance.SaveIgnoredTypes();
+        }
+        
+        
+        #endregion
         
         #region Reselection Utility
         

@@ -84,14 +84,16 @@ namespace ArtificeToolkit.Editor
         #region Utility
 
         private static void SetArtificeIgnore(Type type, bool shouldIgnore)
-        {
-            Artifice_SCR_PersistedData.instance.SaveData(Artifice_EditorWindow_IgnoreList.ViewPersistenceKey, $"{type.Name}", shouldIgnore.ToString());
+        { 
+            if(shouldIgnore)
+                Artifice_Utilities.AddIgnoredTypeName(type.Name);
+            else
+                Artifice_Utilities.RemoveIgnoredTypeName(type.Name);
         }
 
         private static bool HasArtificeIgnore(Type type)
         {
-            var stringValue = Artifice_SCR_PersistedData.instance.LoadData(Artifice_EditorWindow_IgnoreList.ViewPersistenceKey, $"{type.Name}");
-            return bool.TryParse(stringValue, out var value) && value;
+            return Artifice_Utilities.ShouldIgnoreTypeName(type.Name);
         }
         
         #endregion
