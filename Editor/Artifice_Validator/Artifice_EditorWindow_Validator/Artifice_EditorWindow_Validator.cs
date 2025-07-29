@@ -20,6 +20,7 @@ namespace ArtificeToolkit.Editor
         #region Constants
         
         private const string MenuItemPath = "Artifice Toolkit/\u2713 Artifice Validator %&v";
+        private const int MenuItemPriority = 23;
 
         #endregion
         
@@ -163,7 +164,7 @@ namespace ArtificeToolkit.Editor
         
         #endregion
             
-        [MenuItem(MenuItemPath, priority = 22)]
+        [MenuItem(MenuItemPath, priority = MenuItemPriority)]
         public static void OpenWindow()
         {
             var wnd = GetWindow<Artifice_EditorWindow_Validator>();

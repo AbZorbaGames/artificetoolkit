@@ -22,7 +22,7 @@ namespace Editor.Artifice_InspectorHeader
         private const string MenuPath = "Artifice Toolkit/";
         private const string MenuInspectorHeaderOn = MenuPath + "\u2610 Toggle Inspector Header/On";
         private const string MenuInspectorHeaderOff = MenuPath + "\u2610 Toggle Inspector Header/Off";
-        private const int MenuPriority = 33;
+        private const int MenuItemPriority = 12;
         private const string EditorPrefKeyForToolEnabledState = "InspectorHeader EnabledState";
         private static bool _isEnabled;
 
@@ -129,7 +129,7 @@ namespace Editor.Artifice_InspectorHeader
 
         #region MENU ITEMS
 
-        [MenuItem(MenuInspectorHeaderOn, false, MenuPriority)]
+        [MenuItem(MenuInspectorHeaderOn, false, MenuItemPriority)]
         private static void EnableTool()
         {
             _isEnabled = true;
@@ -137,7 +137,7 @@ namespace Editor.Artifice_InspectorHeader
             OnInit();
         }
 
-        [MenuItem(MenuInspectorHeaderOn, true, MenuPriority)]
+        [MenuItem(MenuInspectorHeaderOn, true, MenuItemPriority)]
         private static bool ToggleOnValidate()
         {
             Menu.SetChecked(MenuInspectorHeaderOn, _isEnabled);
@@ -145,7 +145,7 @@ namespace Editor.Artifice_InspectorHeader
             return true;
         }
 
-        [MenuItem(MenuInspectorHeaderOff, false, MenuPriority)]
+        [MenuItem(MenuInspectorHeaderOff, false, MenuItemPriority)]
         private static void DisableTool()
         {
             _isEnabled = false;
@@ -153,7 +153,7 @@ namespace Editor.Artifice_InspectorHeader
             DeInit();
         }
 
-        [MenuItem(MenuInspectorHeaderOff, true, MenuPriority)]
+        [MenuItem(MenuInspectorHeaderOff, true, MenuItemPriority)]
         private static bool ToggleOffValidate()
         {
             Menu.SetChecked(MenuInspectorHeaderOn, !_isEnabled);
