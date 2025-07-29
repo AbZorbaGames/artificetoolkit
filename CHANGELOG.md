@@ -1,4 +1,7 @@
 # Change Log:
+## 1.3.27
+- Enhancement: Added `ValidateJson` and `ValidateUxml` validation attributes.
+
 ## 1.3.26
 - Enhancement: Aligned dropdown field of `SerializedReference` using `BaseField<object>.alignedFieldUssClassName`.  
 

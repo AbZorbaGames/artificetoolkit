@@ -77,6 +77,8 @@ Validation Attributes are used to assert certain rules over your properties. Thi
 - [SceneObjectOnly](#sceneobjectonly)
 - [ChildGameObjectOnly](#childgameobjectonly)
 - [ValidateInput](#validateinput)
+- [ValidateUxml](#validateuxml)
+- [ValidateJson](#validatejson)
 - [MinValue](#minvalue)
 - [MaxValue](#maxvalue)
 
@@ -293,6 +295,14 @@ private bool ValidatePeople()
 ```
 
 ![validateinput-example](./Documentation/artifice_validateinput.gif)
+
+### ValidateUxml
+
+The ValidateUxml attribute is used to validate a string which needs to be in a standard Uxml format. 
+
+### ValidateJson
+
+The ValidateJson attribute is used to validate a string which needs to be in a standard Json format.
 
 ---
 
