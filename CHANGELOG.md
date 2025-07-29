@@ -1,4 +1,7 @@
 # Change Log:
+## 1.4.1
+- Fix: Added fix for edge case bug regarding serialized reference assignment.
+
 ## 1.4.0
 - Enhancement: Added `Artifice_InspectorHeader`. A simple utility header to help manage crowded inspectors by providing a searchbar, filtering and collapse/expand all components. 
 
