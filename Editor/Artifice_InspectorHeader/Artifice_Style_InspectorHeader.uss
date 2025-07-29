@@ -1,0 +1,98 @@
+.main-line{
+    margin: 3px;
+    margin-top: 4px;
+    flex-direction: row;
+    
+    justify-content: space-between;
+}
+
+.enhancer-options-container{
+    flex-direction: row;
+    max-width: 40%;
+    flex-grow: 1;
+}
+
+.enhancer-options-container Artifice_VisualElement_LabeledButton{
+    height: 25px;
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+.enhancer-options-container Image{
+    height: 15px;
+    width: 15px;
+    margin-right: 2px;
+}
+
+.search-bar-container{
+    max-width: 35%;
+    justify-content: center;
+}
+
+/* Selected Components Containers */
+.visibility-toggle{
+    display: none;
+}
+
+.select-components-container{
+    width: 90%;
+    padding: 10px;
+    background-color: #373737;
+    
+    align-self: center;
+    margin-bottom: 20px;
+    
+    border-color: #000000;
+    border-width: 1px;
+    border-radius: 10px;
+}
+
+.select-components-container ToolbarSearchField{
+    width: 100%;
+}
+
+.select-components-scrollView{
+    min-height: 10px;
+    max-height: 200px;
+}
+
+.select-component-button{
+    flex-direction: row;
+    background-color: #444444;
+    height: 25px;
+    width: 100%;
+    margin-top: 3px;
+    align-items: center;
+    justify-content: flex-start;
+
+    border-width: 1px;
+    border-color: #1e1e1e;
+
+    border-bottom-width: 2px;
+    border-bottom-color: #000000;
+
+    overflow: hidden;
+}
+
+.select-component-button:hover{
+    background-color: #565252;
+}
+
+.select-component-button Label{
+    padding-left: 10px;
+}
+
+.select-component-button Image{
+    width: 18px;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.select-component-button-selected{
+    background-color: #386A81;
+}
+
+.select-component-button-selected:hover{
+    background-color: #458fb2;
+}
+
