@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 
-namespace Editor.Artifice_InspectorHeader
+namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 {
     /// <summary> The main class responsible for handling the inspector Docks. Initializes on load. </summary>
     public static class Artifice_InspectorHeader_Main

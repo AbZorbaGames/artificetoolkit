@@ -1,6 +1,3 @@
-using System;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
 using ArtificeToolkit.Editor.Resources;
 using CustomAttributes;
 using Newtonsoft.Json;
@@ -8,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
+namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
 {
     [Artifice_CustomAttributeDrawer(typeof(ValidateJsonAttribute))]
     public class Artifice_CustomAttributeDrawer_ValidateJsonAttribute : Artifice_CustomAttributeDrawer_Validator_BASE

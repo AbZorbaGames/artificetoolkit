@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-namespace Editor.Artifice_InspectorHeader
+namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 {
     /// <summary> Handles a single Dock. This is the component that is inserted at the top of the Inspector view.
     /// Multiple Docks can be present if more than one Inspector windows are open (1 Dock per inspector). </summary>
