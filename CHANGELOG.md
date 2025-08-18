@@ -1,4 +1,9 @@
 # Change Log:
+## 1.4.4
+- Fix: Added fix for edge case bug regarding serialized reference assignment.
+- Fix: Added dependency for newtonsoft
+- Fix: Corrected wrong namespace conflicting with unity's Editor namespace.
+
 ## 1.4.1
 - Fix: Added fix for edge case bug regarding serialized reference assignment.
 
