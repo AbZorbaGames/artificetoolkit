@@ -6,7 +6,7 @@ namespace ArtificeToolkit.Attributes
         
         public RequiredAttribute()
         {
-            
+            Message = "Property is required.";
         }
 
         public RequiredAttribute(string message)
