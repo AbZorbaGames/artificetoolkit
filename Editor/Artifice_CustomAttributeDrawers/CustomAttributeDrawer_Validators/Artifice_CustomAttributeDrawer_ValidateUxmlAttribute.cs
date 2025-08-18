@@ -1,12 +1,10 @@
 using System.Xml;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators;
 using ArtificeToolkit.Editor.Resources;
 using CustomAttributes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
+namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
 {
     [Artifice_CustomAttributeDrawer(typeof(ValidateUxmlAttribute))]
     public class Artifice_CustomAttributeDrawer_ValidateUxmlAttribute : Artifice_CustomAttributeDrawer_Validator_BASE
