@@ -22,9 +22,6 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
         public override bool IsValid(SerializedProperty property)
         {
-            var attribute = (RequiredAttribute)Attribute;
-            _logMessage = attribute.Message;
-            
             if(property.propertyType == SerializedPropertyType.ObjectReference)
                 return property.objectReferenceValue != null;
             else if (property.propertyType == SerializedPropertyType.ManagedReference)
@@ -37,6 +34,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             var attribute = (RequiredAttribute)Attribute;
             _logMessage = attribute.Message;
+            
             return base.OnPrePropertyGUI(property);
         }
     }
