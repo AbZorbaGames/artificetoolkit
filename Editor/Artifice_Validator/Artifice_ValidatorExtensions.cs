@@ -68,6 +68,9 @@ namespace ArtificeToolkit.Editor
                 if (target == null)
                     continue;
 
+                // Inject validator attribute to drawer
+                drawer.Attribute = validatorAttribute;
+                
                 // Determine origin location name.
                 var originLocationName = "";
                 var assetPath = AssetDatabase.GetAssetPath(target);
