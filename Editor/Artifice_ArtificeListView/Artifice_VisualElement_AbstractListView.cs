@@ -54,6 +54,8 @@ namespace ArtificeToolkit.Editor
 
         public bool ShouldForceArtifice { get; set; }
 
+        public event EventHandler BuildUICompleted;
+        
         private Label _listViewLabel;
         
         protected SerializedProperty Property;
@@ -356,7 +358,7 @@ namespace ArtificeToolkit.Editor
         
         protected virtual void OnBuildUICompleted()
         {
-            
+            BuildUICompleted?.Invoke(this, EventArgs.Empty);
         }
         protected virtual VisualElement BuildPrePropertyUI(SerializedProperty property)
         {

@@ -52,6 +52,7 @@ namespace ArtificeToolkit.Editor
 
         protected override void OnBuildUICompleted()
         {
+            base.OnBuildUICompleted();
             SetTitle(Property.FindParentProperty().displayName);
         }
 
