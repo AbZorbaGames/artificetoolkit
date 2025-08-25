@@ -1,4 +1,7 @@
 # Change Log:
+## 1.4.5
+- Enhancement: Added `BuildUICompleted` event for artifice abstract list view.
+
 ## 1.4.4
 - Fix: Added fix for edge case bug regarding serialized reference assignment.
 - Fix: Added dependency for newtonsoft
