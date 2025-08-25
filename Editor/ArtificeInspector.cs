@@ -23,8 +23,16 @@ namespace ArtificeToolkit.Editor
         /* Mono */
         public override VisualElement CreateInspectorGUI()
         {
+            var targetObject = serializedObject.targetObject;
+            
+            // The target (inspected) Object can be null if it is a missing script
+            if (targetObject == null)
+            {
+                return base.CreateInspectorGUI();
+            }
+            
             // Check if targetObject has ArtificeIgnore
-            var type = serializedObject.targetObject.GetType();
+            var type = targetObject.GetType();
             var hasArtificeIgnoreAttribute = type.GetCustomAttribute<ArtificeIgnoreAttribute>() != null;
             var hasMarkedAsArtificeIgnore = HasArtificeIgnore(type);
 
