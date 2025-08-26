@@ -1,4 +1,7 @@
 # Change Log:
+## 1.4.6
+- Fix: Null reference exception would be thrown if Object had no script assigned. Now its indicated in the inspector as expected.
+
 ## 1.4.5
 - Enhancement: Added `BuildUICompleted` event for artifice abstract list view.
 
