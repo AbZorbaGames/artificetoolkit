@@ -764,6 +764,8 @@ public class Artifice_CustomAttributeDrawer_Title : Artifice_CustomAttributeDraw
 }
 ```
 
+**NOTE**: When overriding the `OnPropertyGUI` method to completely override how the property will be rendered, you MUST also set `public override bool IsReplacingPropertyField { get; } = true;`.
+
 How to Use:
 You can now use the TitleAttribute in any of your MonoBehaviour or ScriptableObject classes to add custom headers to your serialized fields:
 

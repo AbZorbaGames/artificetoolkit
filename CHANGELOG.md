@@ -1,4 +1,7 @@
 # Change Log:
+## 1.4.7
+- Enhancement: Updated readme to include the `IsReplacingPropertyField` for overriding `OnPropertyGUI`
+
 ## 1.4.6
 - Fix: Null reference exception would be thrown if Object had no script assigned. Now its indicated in the inspector as expected.
 
