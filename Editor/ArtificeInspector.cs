@@ -27,9 +27,7 @@ namespace ArtificeToolkit.Editor
             
             // The target (inspected) Object can be null if it is a missing script
             if (targetObject == null)
-            {
                 return base.CreateInspectorGUI();
-            }
             
             // Check if targetObject has ArtificeIgnore
             var type = targetObject.GetType();
@@ -68,8 +66,13 @@ namespace ArtificeToolkit.Editor
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Add", true)]
         private static bool ValidateAdd(MenuCommand command)
         {
-            var type = command.context.GetType();
-            return !HasArtificeIgnore(type);
+            if (command.context != null)
+            {
+                var type = command.context.GetType();
+                return !HasArtificeIgnore(type);
+            }
+
+            return false;
         }
 
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", false, 105)]
@@ -83,8 +86,13 @@ namespace ArtificeToolkit.Editor
         [MenuItem("CONTEXT/Object/Artifice Ignore List/Remove", true)]
         private static bool ValidateRemove(MenuCommand command)
         {
-            var type = command.context.GetType();
-            return HasArtificeIgnore(type);
+            if (command.context != null)
+            {
+                var type = command.context.GetType();
+                return HasArtificeIgnore(type);
+            }
+
+            return false;
         }
 
         #endregion
