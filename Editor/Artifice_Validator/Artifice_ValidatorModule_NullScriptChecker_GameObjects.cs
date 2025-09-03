@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
-    public class Artifice_ValidatorModule_NullScriptChecker : Artifice_ValidatorModule_GameObjectBatching
+    public class Artifice_ValidatorModule_NullScriptChecker_GameObjects : Artifice_ValidatorModule_GameObjectBatching
     {
         public override string DisplayName { get; protected set; } = "Null Script Checker";
 

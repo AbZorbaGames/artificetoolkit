@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
-    public class Artifice_ValidatorModule_ScriptableObject : Artifice_ValidatorModule_SerializedPropertyBatching
+    public class Artifice_ValidatorModule_ScriptableObject_CustomAttributeChecker : Artifice_ValidatorModule
     {
         #region FIELDS
 
-        public override string DisplayName { get; protected set; } = "ScriptableObject CustomAttributes Checker";
+        public override string DisplayName { get; protected set; } = "[ScriptableObject] CustomAttributes Checker";
         
         #endregion
 
@@ -20,8 +20,11 @@ namespace ArtificeToolkit.Editor
         {
             // Create an iteration stack to run through all serialized properties (even nested ones)
             Queue<SerializedProperty> queue = new();
-            foreach (ScriptableObject scriptableObject in FindScriptableObjects())
+            foreach (var scriptableObject in Artifice_ValidatorExtensions.FindScriptableObjects())
             {
+                if (scriptableObject == null)
+                    continue;
+                
                 SerializedObject serializedObject = new(scriptableObject);
                 queue.Enqueue(serializedObject.GetIterator());
             }
@@ -53,7 +56,7 @@ namespace ArtificeToolkit.Editor
                     continue;
 
                 // Append its children
-                foreach (SerializedProperty childProperty in property.GetVisibleChildren())
+                foreach (var childProperty in property.GetVisibleChildren())
                     queue.Enqueue(childProperty);
 
                 // Clear reusable list of logs and get current property's logs
@@ -64,28 +67,7 @@ namespace ArtificeToolkit.Editor
             }
         }
 
-        private static List<ScriptableObject> FindScriptableObjects()
-        {
-            string searchString = $"t:{typeof(ScriptableObject).FullName}";
-            
-            string[] guidAssets = AssetDatabase.FindAssets(searchString);
-            List<ScriptableObject> result = new();
-
-            foreach (string guid in guidAssets)
-            {
-                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
-
-                if (assetPath.Contains("Disabled")) continue;
-
-                ScriptableObject asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
-                if (asset != null)
-                    result.Add(asset);
-            }
-
-            return result;
-        }
-        
-        protected override void ValidateSerializedProperty(SerializedProperty property)
+        private void ValidateSerializedProperty(SerializedProperty property)
         {
             Artifice_ValidatorExtensions.GenerateValidatorLogs(property, Logs, GetType());
         }
