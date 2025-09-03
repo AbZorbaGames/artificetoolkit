@@ -369,6 +369,12 @@ namespace ArtificeToolkit.Editor
             {
                 var module = _validatorModules[i];
                 module.Reset();
+                
+                // Skip validation if disabled in configs.
+                if (_config.validatorTypesMap.TryGetValue(module.GetType().Name, out var value))
+                    if(value == false)
+                        continue;
+                
 
                 // Unless blocking search. skip on demand only modules
                 if (module.OnFullScanOnly && fullScan == false)
