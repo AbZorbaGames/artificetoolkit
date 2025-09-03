@@ -29,20 +29,29 @@ namespace ArtificeToolkit.Editor
         /// <summary> Helper class to render repeatable list element </summary>
         private class ListItem : VisualElement
         {
-            private Image _image;
-            private Label _text;
-            
+            private readonly Image _image;
+            private readonly Label _text;
+            private readonly ScrollView _scrollView;
+
             public ListItem()
             {
                 AddToClassList("list-item");
 
                 _image = new Image();
                 _image.AddToClassList("icon");
+
+                // Create vertical scroll view for the text
+                _scrollView = new ScrollView(ScrollViewMode.Vertical);
+                _scrollView.verticalScrollerVisibility = ScrollerVisibility.Hidden;
+                _scrollView.AddToClassList("text-scroll");
+
                 _text = new Label();
                 _text.AddToClassList("label");
-                
+
+                _scrollView.Add(_text);
+
                 Add(_image);
-                Add(_text);
+                Add(_scrollView);
             }
 
             public void Set(Sprite sprite, string text)
@@ -56,6 +65,7 @@ namespace ArtificeToolkit.Editor
                 return _text.text;
             }
         }
+
         
         /// <summary> Extends <see cref="ListItem"/> by having a toggle </summary>
         private class ToggleListItem : ListItem
@@ -530,7 +540,7 @@ namespace ArtificeToolkit.Editor
             
             _logsListView = new ListView(
                 _filteredLogs,
-                26,
+                27,
                 () => new ValidatorLogListItem(),
                 (elem, i) =>
                 {

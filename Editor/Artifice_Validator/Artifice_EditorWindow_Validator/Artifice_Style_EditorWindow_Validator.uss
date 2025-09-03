@@ -73,8 +73,18 @@
     margin-right: 5px;
     flex-shrink: 1;
 
-    overflow: hidden;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    
+    white-space: normal;    
+    /*overflow: scroll;*/
 }   
+.list-item > ScrollView{
+    overflow: hidden;
+    height: 27px;
+    border-bottom-width: 1px;
+    border-color: #151515;
+}
 
 .list-item .count-label-container{
     position: absolute;
