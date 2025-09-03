@@ -1,4 +1,9 @@
 # Change Log:
+## 1.5.0
+- Enhancement: Updated `Artifice_EditorWindow_Validator` to have scrollable logs.
+- Enhancement: Updated `Artifice_Validator` to skip validator modules which are toggled off from the editor window. This allows you to focus on validations you actually care, saving performance.
+- Enhancement: Added a validator module to check scriptable object's with corrupted null references. 
+
 ## 1.4.7
 - Enhancement: Updated readme to include the `IsReplacingPropertyField` for overriding `OnPropertyGUI`
 
