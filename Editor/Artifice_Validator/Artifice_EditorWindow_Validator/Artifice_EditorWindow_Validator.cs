@@ -91,8 +91,6 @@ namespace ArtificeToolkit.Editor
             private readonly Label _objectNameLabel;
             private readonly Artifice_VisualElement_LabeledButton _autoFixButton;
 
-            private Object _originObject;
-
             public ValidatorLogListItem() : base()
             {
                 styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
@@ -106,32 +104,12 @@ namespace ArtificeToolkit.Editor
                 _autoFixButton = new Artifice_VisualElement_LabeledButton("Auto Fix", null);
                 _autoFixButton.AddToClassList("hide");
                 Add(_autoFixButton);
-                
-                RegisterCallback<ClickEvent>(evt =>
-                {
-                    var listItem = (ValidatorLogListItem)evt.currentTarget;
-                    if (evt.clickCount == 1 && listItem._originObject != null)
-                    {
-                       Selection.SetActiveObjectWithContext(listItem._originObject, listItem._originObject);
-
-                       if (_originObject is Component originComponent)
-                       {
-                           // Collapse all other components instead of our focused component.
-                           var components = originComponent.gameObject.GetComponents<Component>();
-                           foreach (var component in components)
-                               InternalEditorUtility.SetIsInspectorExpanded(component, component == _originObject);
-                       }
-
-                       ActiveEditorTracker.sharedTracker.ForceRebuild();
-                    }
-                });
             }
 
             public void Set(Artifice_Validator.ValidatorLog log)
             {
                 base.Set(log.Sprite, log.Message);
                 _objectNameLabel.text = log.OriginObject == null ? "" : log.OriginObject.name;
-                _originObject = log.OriginObject;
 
                 if (log.HasAutoFix)
                 {
@@ -538,6 +516,32 @@ namespace ArtificeToolkit.Editor
                     itemElem.Set(_filteredLogs[i]);
                 }
             );
+            
+            _logsListView.selectionChanged += items =>
+            {
+                if (!items.Any())
+                    return;
+                
+                var selected = (Artifice_Validator.ValidatorLog)items.First();
+
+                var originObject = selected.OriginObject;
+                
+                if (originObject != null)
+                {
+                    Selection.SetActiveObjectWithContext(originObject, originObject);
+
+                    if (originObject is Component originComponent)
+                    {
+                        // Collapse all other components instead of our focused component.
+                        var components = originComponent.gameObject.GetComponents<Component>();
+                        foreach (var component in components)
+                            InternalEditorUtility.SetIsInspectorExpanded(component, component == originObject);
+                    }
+
+                    ActiveEditorTracker.sharedTracker.ForceRebuild();
+                }
+            };
+            
             container.Add(_logsListView);
             
             return container;
