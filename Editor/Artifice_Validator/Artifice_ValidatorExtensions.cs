@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace ArtificeToolkit.Editor
 {
-    public class Artifice_ValidatorExtensions
+    public static class Artifice_ValidatorExtensions
     {
         /// <summary> Fills in-parameter list with logs found in property </summary>
         /// <remarks>Passing the List as a parameter as a minor optimization to avoid instantiating the list on each call of GenerateValidatorLogs.</remarks>
@@ -113,6 +113,27 @@ namespace ArtificeToolkit.Editor
                 return Artifice_CustomAttributeDrawer_EnableIfAttribute.ShouldIncludeInValidation(property, enableIfAttribute);
 
             return true;
+        }
+        
+        public static List<ScriptableObject> FindScriptableObjects()
+        {
+            var searchString = $"t:{typeof(ScriptableObject).FullName}";
+            
+            var guidAssets = AssetDatabase.FindAssets(searchString);
+            List<ScriptableObject> result = new();
+
+            foreach (var guid in guidAssets)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+
+                if (assetPath.Contains("Disabled")) continue;
+
+                var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
+                if (asset != null)
+                    result.Add(asset);
+            }
+
+            return result;
         }
     }
 }
