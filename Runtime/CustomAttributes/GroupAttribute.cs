@@ -1,3 +1,5 @@
+using System;
+
 namespace ArtificeToolkit.Attributes
 {
     public enum GroupColor
@@ -14,6 +16,7 @@ namespace ArtificeToolkit.Attributes
     }
     
     /// <summary> All Group-like attributes should inherit from this class. </summary>
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
     public abstract class GroupAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {
         public readonly string GroupName;
