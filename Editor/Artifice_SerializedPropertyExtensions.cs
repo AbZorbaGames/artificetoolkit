@@ -351,22 +351,37 @@ namespace ArtificeToolkit.Editor
             return null;
         }
         
-        /// <summary> Returns an array of any <see cref="CustomAttribute"/> found in the property. Otherwise returns null. </summary>
+        /// <summary> Returns all <see cref="CustomAttribute"/> found on the property field and on its field type. Returns an empty array if none are found. </summary>
         public static CustomAttribute[] GetCustomAttributes(this SerializedProperty property)
         {
-            // Arrays actually have a sibling "size". Their parent, is the actual property I will need to search in GetFieldNested.
+            // Arrays have a sibling "size". Their parent is the actual property we need to search in GetFieldNested.
             if (property.name == "Array")
                 property = property.FindParentProperty();
-            
+
             var fieldInfo = GetFieldNested(property.serializedObject.targetObject, property.propertyPath);
+            if (fieldInfo == null)
+                return Array.Empty<CustomAttribute>();
 
-            if (fieldInfo != null)
-            {
-                var attributes = (CustomAttribute[])fieldInfo.GetCustomAttributes(typeof(CustomAttribute), true);
-                return attributes;
-            }
+            // 1. Collect attributes from the field
+            var fieldAttributes = fieldInfo
+                .GetCustomAttributes(typeof(CustomAttribute), true)
+                .Cast<CustomAttribute>();
 
-            return new CustomAttribute[] { };
+            // 2. Collect attributes from the field's type
+            var typeAttributes = fieldInfo.FieldType
+                .GetCustomAttributes(typeof(CustomAttribute), true)
+                .Cast<CustomAttribute>();
+
+            // 3. Collect attributes from implemented interfaces
+            var interfaceAttributes = fieldInfo.FieldType
+                .GetInterfaces()
+                .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
+                    .Cast<CustomAttribute>());
+
+            return fieldAttributes
+                .Concat(typeAttributes)
+                .Concat(interfaceAttributes)
+                .ToArray();
         }
 
         

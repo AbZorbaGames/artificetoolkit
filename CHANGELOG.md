@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.0
+- Enhancement: `CustomAttributes` from class definitions and implemented interfaces are now also fetched in `ArtificeDrawer`. With this change, it is possible to create attributes or validations which can be allied to classes. 
+
 ## 1.5.0
 - Enhancement: Updated `Artifice_EditorWindow_Validator` to have scrollable logs.
 - Enhancement: Updated `Artifice_Validator` to skip validator modules which are toggled off from the editor window. This allows you to focus on validations you actually care, saving performance.
