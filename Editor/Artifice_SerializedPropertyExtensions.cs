@@ -372,15 +372,22 @@ namespace ArtificeToolkit.Editor
                 .GetCustomAttributes(typeof(CustomAttribute), true)
                 .Cast<CustomAttribute>();
 
-            // 3. Collect attributes from implemented interfaces
-            var interfaceAttributes = fieldInfo.FieldType
+            // 3. Collect attributes from implemented interfaces of the field type
+            var fieldTypeInterfaceAttributes = fieldInfo.FieldType
+                .GetInterfaces()
+                .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
+                    .Cast<CustomAttribute>());
+
+            // 4. Collect attributes from implemented interfaces of the declared type
+            var declaredTypeInterfaceAttributes = fieldInfo.DeclaringType
                 .GetInterfaces()
                 .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
                     .Cast<CustomAttribute>());
 
             return fieldAttributes
                 .Concat(typeAttributes)
-                .Concat(interfaceAttributes)
+                .Concat(fieldTypeInterfaceAttributes)
+                .Concat(declaredTypeInterfaceAttributes)
                 .ToArray();
         }
 
