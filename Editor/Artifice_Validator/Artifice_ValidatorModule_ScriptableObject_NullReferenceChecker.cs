@@ -14,7 +14,7 @@ namespace ArtificeToolkit.Editor
 
         public override IEnumerator ValidateCoroutine(List<GameObject> rootGameObjects)
         {
-            var guids = AssetDatabase.FindAssets(""); // find ALL assets
+            var guids = AssetDatabase.FindAssets("", new[] { "Assets" }); // Only search under Assets which is over user's control.
 
             for (var i = 0; i < guids.Length; i++)
             {
