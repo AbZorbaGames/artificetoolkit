@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.1
+- Enhancement: Updated `Artifice_ValidatorModule_ScriptableObject_NullReferenceChecker` to only run for `/Assets`. This both saves performance and skips potential ValidatorLogs for assets user does not own.
+
 ## 1.6.0
 - Enhancement: `CustomAttributes` from class definitions and implemented interfaces are now also fetched in `ArtificeDrawer`. With this change, it is possible to create attributes or validations which can be allied to classes. 
 
