@@ -1,7 +1,4 @@
 # Change Log:
-## 1.6.2
-- Enhancement: Updated log for missing drawers. Also created wrapper methods for logging in Artifice_Utilities.
-
 ## 1.6.1
 - Enhancement: Fixed disruptive problem when validator drawer was missing. Also added utility log methods in `Artifice_Utilities`
 
