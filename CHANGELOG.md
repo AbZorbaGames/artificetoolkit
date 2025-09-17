@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.1
+- Enhancement: Fixed disruptive problem when validator drawer was missing. Also added utility log methods in `Artifice_Utilities`
+
 ## 1.6.0
 - Enhancement: `CustomAttributes` from class definitions and implemented interfaces are now also fetched in `ArtificeDrawer`. With this change, it is possible to create attributes or validations which can be allied to classes. 
 
