@@ -28,7 +28,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             // Set Data tracked property
             _trackedProperty = property.FindPropertyInSameScope(_attribute.PropertyName);
             if (_trackedProperty == null)
-                Debug.LogWarning("Cannot find property with name " + _attribute.PropertyName); 
+                Artifice_Utilities.LogError("Cannot find property with name " + _attribute.PropertyName); 
             
             // Add info box
             _infoBoxElem = base.OnWrapGUI(property, null);

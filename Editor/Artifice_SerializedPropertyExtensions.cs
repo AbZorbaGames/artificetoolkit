@@ -706,7 +706,7 @@ namespace ArtificeToolkit.Editor
         {
             if (targetProperty == null || property.propertyType != targetProperty.propertyType)
             {
-                Debug.LogWarning("Cannot paste: mismatched property types or no copied value.");
+                Artifice_Utilities.LogError("Cannot paste: mismatched property types or no copied value.");
                 return;
             }
 
@@ -750,7 +750,7 @@ namespace ArtificeToolkit.Editor
                     property.enumValueFlag = targetProperty.enumValueFlag;
                     break;
                 default:
-                    Debug.LogWarning($"Unsupported property type for paste: {targetProperty.propertyType}");
+                    Artifice_Utilities.LogError($"Unsupported property type for paste: {targetProperty.propertyType}");
                     break;
             }
 

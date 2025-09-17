@@ -256,8 +256,11 @@ namespace ArtificeToolkit.Editor
             foreach (var customAttribute in customAttributes)
             {
                 // Skip if drawer does not exist for custom attribute
-                if(drawerMap.ContainsKey(customAttribute.GetType()) == false)
+                if (drawerMap.ContainsKey(customAttribute.GetType()) == false)
+                {
+                    Artifice_Utilities.LogError($"Could not find drawer type for <b>{customAttribute.GetType().Name}</b>");
                     continue;
+                }
                 
                 // Create instance of drawer
                 var attributeDrawer = (Artifice_CustomAttributeDrawer)Activator.CreateInstance(drawerMap[customAttribute.GetType()]);
