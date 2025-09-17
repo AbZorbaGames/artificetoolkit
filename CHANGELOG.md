@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.2
+- Fix: Now `Button` attribute will work correctly with a method's default parameters. 
+
 ## 1.6.1
 - Enhancement: Updated `Artifice_ValidatorModule_ScriptableObject_NullReferenceChecker` to only run for `/Assets`. This both saves performance and skips potential ValidatorLogs for assets user does not own.
 
