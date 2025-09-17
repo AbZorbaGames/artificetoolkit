@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using ArtificeToolkit.Attributes;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -44,6 +45,20 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                  
                     // Get parameter values specific to this target (you may need to refactor GetParameterList to support this)
                     var parametersList = GetParameterListForTarget(invocationTarget);
+                    
+                    // Fill in any default parameters that may exist and are not defined in the attribute.
+                    var parameterInfo = methodInfo.GetParameters();
+                    for (var i = parametersList.Count; i < parameterInfo.Length; i++)
+                    {
+                        var excessParameterInfo = parameterInfo[i];
+                        if (excessParameterInfo.HasDefaultValue)
+                            parametersList.Add(excessParameterInfo.DefaultValue);
+                        else
+                        {
+                            Debug.LogError( $"[ArtificeToolkit] Parameter \'<b>{excessParameterInfo.Name}\' in method \'{methodInfo.Name}\'</b> is not provided, nor has a default value. Aborting method invocation...");
+                            return;
+                        }
+                    }
                     
                     if (methodInfo.GetParameters().Length != parametersList.Count)
                         throw new ArgumentException(

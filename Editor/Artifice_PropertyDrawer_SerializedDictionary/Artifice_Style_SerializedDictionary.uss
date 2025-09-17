@@ -37,9 +37,9 @@
     margin: 3px;
     
     background-color: #3F3F3F;
-    border-width: 1;
-    border-bottom-width: 3;
-    border-right-width: 3;
+    border-width: 1px;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
     border-radius: 1px;
     border-color: #1f1f1f;
     

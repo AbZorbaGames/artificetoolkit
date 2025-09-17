@@ -12,9 +12,11 @@ namespace ArtificeToolkit.Editor
         public override bool DisplayOnFiltersList { get; protected set; } = true;
         public override bool OnFullScanOnly { get; protected set; } = false;
 
+        private readonly string[] _foldersToSearch = { "Assets" }; // Only search under Assets which is over user's control.
+        
         public override IEnumerator ValidateCoroutine(List<GameObject> rootGameObjects)
         {
-            var guids = AssetDatabase.FindAssets(""); // find ALL assets
+            var guids = AssetDatabase.FindAssets("", _foldersToSearch);
 
             for (var i = 0; i < guids.Length; i++)
             {
