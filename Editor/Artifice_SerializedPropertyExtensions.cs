@@ -435,7 +435,7 @@ namespace ArtificeToolkit.Editor
         }
         
         /// <summary> Returns the field info of a target object based on the path </summary>
-        private static FieldInfo GetFieldNested(object target, string path)
+        public static FieldInfo GetFieldNested(object target, string path)
         {
             var fields = path.Split('.');
             var isNextPropertyArrayIndex = false;
