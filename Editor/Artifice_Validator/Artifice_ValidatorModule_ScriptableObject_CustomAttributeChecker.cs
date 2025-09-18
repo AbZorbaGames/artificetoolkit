@@ -16,11 +16,12 @@ namespace ArtificeToolkit.Editor
         
         #endregion
 
-        public override IEnumerator ValidateCoroutine(List<GameObject> _)
+        public static Queue<SerializedProperty> GetSerializedPropertyQueue(List<ScriptableObject> scriptableObjects)
         {
             // Create an iteration stack to run through all serialized properties (even nested ones)
             Queue<SerializedProperty> queue = new();
-            foreach (var scriptableObject in Artifice_ValidatorExtensions.FindScriptableObjects())
+            
+            foreach (ScriptableObject scriptableObject in scriptableObjects)
             {
                 if (scriptableObject == null)
                     continue;
@@ -28,6 +29,14 @@ namespace ArtificeToolkit.Editor
                 SerializedObject serializedObject = new(scriptableObject);
                 queue.Enqueue(serializedObject.GetIterator());
             }
+            
+            return queue;
+        }
+        
+        public override IEnumerator ValidateCoroutine(List<GameObject> _)
+        {
+            // Create an iteration stack to run through all serialized properties (even nested ones)
+            Queue<SerializedProperty> queue = GetSerializedPropertyQueue(Artifice_ValidatorExtensions.FindScriptableObjects());
             
             // Create a set to cache already visited serialized properties
             HashSet<SerializedProperty> visitedProperties = new();
