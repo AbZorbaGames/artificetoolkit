@@ -60,7 +60,7 @@ namespace ArtificeToolkit.Editor
             var styleHolderPaths = AssetDatabase.FindAssets($"Artifice_StylesHolder t:{nameof(StylesHolder)}");
             
             if(styleHolderPaths.Length != 1)
-                Debug.LogError($"Exactly one asset of this kind should get fetched, not {styleHolderPaths.Length}");
+                LogError($"Exactly one asset of this kind should get fetched, not {styleHolderPaths.Length}");
             
             _soStylesHolder = AssetDatabase.LoadAssetAtPath<StylesHolder>(AssetDatabase.GUIDToAssetPath(styleHolderPaths[0]));
             InitializeDrawerMaps();
@@ -90,7 +90,7 @@ namespace ArtificeToolkit.Editor
         private static void ToggleArtificeDrawerOn()
         {
             ToggleArtificeDrawer(true);
-            Debug.Log("<color=lime>[Artifice Inspector]</color> Enabled");
+            Log("<color=lime>[Artifice Inspector]</color> Enabled");
         }
         
         /// <summary> Creates a MenuItem to enable and disable the Artifice system. </summary>
@@ -98,7 +98,7 @@ namespace ArtificeToolkit.Editor
         private static void ToggleArtificeDrawerOff()
         {
             ToggleArtificeDrawer(false);
-            Debug.Log($"<color=orange>[Artifice Inspector]</color> Disabled");
+            Log($"<color=orange>[Artifice Inspector]</color> Disabled");
         }
         
         [MenuItem(ArtificeInspectorOff, true, 0)]
@@ -125,7 +125,7 @@ namespace ArtificeToolkit.Editor
             var guid = AssetDatabase.FindAssets("ArtificeInspector").FirstOrDefault();
             if (guid == null)
             {
-                Debug.Log("ArtificeToolkit: Cannot find ArtificeInspector script. This makes it unable to turn on/off the ArtificeToolkit.");
+                LogError("Cannot find ArtificeInspector script. This makes it unable to turn on/off the ArtificeToolkit.");
                 return;
             }
             
@@ -287,6 +287,18 @@ namespace ArtificeToolkit.Editor
                 LogType.Warning => Artifice_SCR_CommonResourcesHolder.instance.WarningIcon,
                 _               => Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon
             };
+
+        /// <summary> Utility log method to wrap message in artifice color and prefix. </summary>
+        public static void Log(string message)
+        {
+            Debug.Log($"<color=lime>[ArtificeToolkit]</color> {message}");
+        }
+
+        /// <summary> Utility error log method to wrap message in artifice color and prefix. </summary>
+        public static void LogError(string message)
+        {
+            Debug.Log($"<color=orange>[ArtificeToolkit]</color> {message}");
+        }
         
         #region Ignored Types | Proxies IArtifice_Persistency
         

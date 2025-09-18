@@ -1,4 +1,8 @@
 # Change Log:
+## 1.6.3
+- Enhancement: Now more clear logs are provided when an attribute has a missing drawer. 
+- Enhancement: `Artifice_Utilities` now provide methods for logging.
+ 
 ## 1.6.2
 - Fix: Now `Button` attribute will work correctly with a method's default parameters.
 - Fix: Added pixel unit in USS to avoid minor warning on SerializedDictionary's stylesheet.

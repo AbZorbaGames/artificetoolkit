@@ -729,7 +729,7 @@ namespace ArtificeToolkit.Editor
                         });
                     }
                     else
-                        Debug.LogError($"[ArtificeDrawer][ListElementName] Cannot find nested property <b>\"{fieldPropertyName}\"</b> of type <b>\"{Property.type}\"</b>");
+                        Artifice_Utilities.LogError($"Issue in abstract list view. Cannot find nested property <b>\"{fieldPropertyName}\"</b> of type <b>\"{Property.type}\"</b>");
                 }
                 
                 // After everything has been hashed for the first time

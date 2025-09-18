@@ -55,7 +55,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                             parametersList.Add(excessParameterInfo.DefaultValue);
                         else
                         {
-                            Debug.LogError( $"[ArtificeToolkit] Parameter \'<b>{excessParameterInfo.Name}\' in method \'{methodInfo.Name}\'</b> is not provided, nor has a default value. Aborting method invocation...");
+                            Artifice_Utilities.LogError( $"Parameter \'<b>{excessParameterInfo.Name}\' in method \'{methodInfo.Name}\'</b> is not provided, nor has a default value. Aborting method invocation...");
                             return;
                         }
                     }

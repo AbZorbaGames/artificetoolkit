@@ -55,12 +55,17 @@ namespace ArtificeToolkit.Editor
             foreach (var validatorAttribute in validatorAttributes)
             {
                 // Get drawer and cast to validator drawer.
-                var drawer =
-                    Artifice_Utilities.GetDrawerInstancesMap()[validatorAttribute.GetType()] as
-                        Artifice_CustomAttributeDrawer_Validator_BASE;
+                var drawerInstancesMap = Artifice_Utilities.GetDrawerInstancesMap();
+                if (drawerInstancesMap.ContainsKey(validatorAttribute.GetType()) == false)
+                {
+                    Artifice_Utilities.LogError($"Could not find validator drawer for <b>{validatorAttribute.GetType().Name}</b>.");
+                    continue;
+                }
+                
+                var drawer =drawerInstancesMap[validatorAttribute.GetType()] as Artifice_CustomAttributeDrawer_Validator_BASE;
                 if (drawer == null)
                 {
-                    Debug.LogWarning($"Could not find drawer for validator type {validatorAttribute.GetType().Name}");
+                    Artifice_Utilities.LogError($"Could not find drawer for validator type {validatorAttribute.GetType().Name}.");
                     continue;
                 }
 
