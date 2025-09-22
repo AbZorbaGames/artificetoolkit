@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.4
+- Change: Changed visibility of validator log extension methods to be public for more accessible use.
+
 ## 1.6.3
 - Enhancement: Now more clear logs are provided when an attribute has a missing drawer. 
 - Enhancement: `Artifice_Utilities` now provide methods for logging.

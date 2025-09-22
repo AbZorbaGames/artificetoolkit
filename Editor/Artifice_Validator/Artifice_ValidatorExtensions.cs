@@ -49,7 +49,7 @@ namespace ArtificeToolkit.Editor
         }
 
         /// <summary> Fills in-parameter list with logs found in property for specific parameterized attributes</summary>
-        private static void GenerateValidatorLogs(SerializedProperty property, List<CustomAttribute> customAttributes, List<Artifice_Validator.ValidatorLog> logs, Type validatorType)
+        public static void GenerateValidatorLogs(SerializedProperty property, List<CustomAttribute> customAttributes, List<Artifice_Validator.ValidatorLog> logs, Type validatorType)
         {
             var validatorAttributes = customAttributes.Where(attribute => attribute is ValidatorAttribute).ToList();
             foreach (var validatorAttribute in validatorAttributes)
