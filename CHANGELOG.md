@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.5
+- Enhancement: `ForceArtifice` is not a `CustomAttribute` anymore. Since it does not have a drawer, it was breaking the pattern, causing the need for unnecessary handling.
+
 ## 1.6.4
 - Change: Changed visibility of validator log extension methods to be public for more accessible use.
 
