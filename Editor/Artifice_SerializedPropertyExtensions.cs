@@ -337,18 +337,15 @@ namespace ArtificeToolkit.Editor
             }
         }
         
-        /// <summary> Returns an array of any <see cref="CustomAttribute"/> found in the property. Otherwise returns null. </summary>
-        public static Attribute[] GetAttributes(this SerializedProperty property)
+        /// <summary> Returns an array of any <see cref="Attribute"/> found in the property. Otherwise returns null. </summary>
+        public static IEnumerable<Attribute> GetAttributes(this SerializedProperty property)
         {
             var fieldInfo = GetFieldNested(property.serializedObject.targetObject, property.propertyPath);
 
             if (fieldInfo != null)
-            {
-                // var attributes = (CustomAttribute[])fieldInfo.GetCustomAttributes(typeof(CustomAttribute), true);
                 return (Attribute[])fieldInfo.GetCustomAttributes(true);
-            }
 
-            return null;
+            return new Attribute[]{};
         }
         
         /// <summary> Returns all <see cref="CustomAttribute"/> found on the property field and on its field type. Returns an empty array if none are found. </summary>
@@ -383,7 +380,6 @@ namespace ArtificeToolkit.Editor
                 .Concat(interfaceAttributes)
                 .ToArray();
         }
-
         
         /// <summary>Gets visible children of a <see cref="SerializedProperty"/> at 1 level depth.</summary>
         public static List<SerializedProperty> GetVisibleChildren(this SerializedProperty property)

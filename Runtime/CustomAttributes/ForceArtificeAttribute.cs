@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 namespace ArtificeToolkit.Attributes
 {
-    public class ForceArtificeAttribute : CustomAttribute
+    public class ForceArtificeAttribute : Attribute
     {
     }
 }

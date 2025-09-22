@@ -139,9 +139,9 @@ namespace ArtificeToolkit.Editor
                 return null;
 
             // Check if property enforces Artifice in following calls.
-            var customAttributes = property.GetCustomAttributes();
-            if (customAttributes != null)
-                forceArtificeStyle = forceArtificeStyle || customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
+            var attributes = property.GetAttributes();
+            if (attributes != null)
+                forceArtificeStyle = forceArtificeStyle || attributes.Any(attribute => attribute is ForceArtificeAttribute);
 
             // If artifice rendering is required.
             if (forceArtificeStyle || DoesRequireArtificeRendering(property))
@@ -153,7 +153,7 @@ namespace ArtificeToolkit.Editor
                     SplitCustomPropertiesForArrays(property, out var arrayCustomAttributes, out var childrenCustomAttributes);
                     
                     // Check whether it should be drawn with table list
-                    var isTableList = property.GetAttributes().Any(attribute => attribute.GetType() == typeof(TableListAttribute));
+                    var isTableList = property.GetCustomAttributes().Any(attribute => attribute.GetType() == typeof(TableListAttribute));
                         
                     // Spawn either ListView or TableView
                     var listView = isTableList ? (Artifice_VisualElement_AbstractListView)new Artifice_VisualElement_TableListView() : new Artifice_VisualElement_ListView();
