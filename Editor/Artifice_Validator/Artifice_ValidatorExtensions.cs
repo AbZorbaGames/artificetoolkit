@@ -12,9 +12,22 @@ namespace ArtificeToolkit.Editor
 {
     public static class Artifice_ValidatorExtensions
     {
-        /// <summary> Fills in-parameter list with logs found in property </summary>
-        /// <remarks>Passing the List as a parameter as a minor optimization to avoid instantiating the list on each call of GenerateValidatorLogs.</remarks>
-        public static void GenerateValidatorLogs(SerializedProperty property, List<Artifice_Validator.ValidatorLog> logs, Type validatorType)
+        /// <summary> Fills in-parameter list with logs found among the custom attribtues in the property </summary>
+        /// <remarks>
+        /// This overload uses <see cref="SerializedProperty.GetCustomAttributes"/> to fetch attributes.
+        /// Passing the List as a parameter as a minor optimization to avoid instantiating the list on each call of GenerateValidatorLogs.
+        /// </remarks>
+        public static void GenerateValidatorLogs(SerializedProperty property,
+            List<Artifice_Validator.ValidatorLog> logs, Type validatorType)
+        {
+            GenerateValidatorLogs(property, p => p.GetCustomAttributes(), logs, validatorType);
+        }
+        
+        /// <summary> Fills in-parameter list with logs found in the property using the attribute provider </summary>
+        /// <remarks> Passing the List as a parameter as a minor optimization to avoid instantiating the list on each call of GenerateValidatorLogs. </remarks>
+        public static void GenerateValidatorLogs(SerializedProperty property, 
+            Func<SerializedProperty, IEnumerable<CustomAttribute>> attributeProvider, 
+            List<Artifice_Validator.ValidatorLog> logs, Type validatorType)
         {
             if (property.IsArray())
             {
@@ -23,7 +36,7 @@ namespace ArtificeToolkit.Editor
                 var childrenCustomAttributes = new List<CustomAttribute>();
 
                 // Get property attributes and parse-split them
-                var attributes = property.GetCustomAttributes();
+                var attributes = attributeProvider(property);
                 if (attributes != null)
                     foreach (var attribute in attributes)
                         if (attribute is IArtifice_ArrayAppliedAttribute)
@@ -42,7 +55,7 @@ namespace ArtificeToolkit.Editor
             else
             {
                 // Check property if its valid for stuff
-                var customAttributes = property.GetCustomAttributes();
+                var customAttributes = attributeProvider(property);
                 if (customAttributes != null)
                     GenerateValidatorLogs(property, customAttributes.ToList(), logs, validatorType);
             }
