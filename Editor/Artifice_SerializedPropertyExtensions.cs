@@ -576,13 +576,30 @@ namespace ArtificeToolkit.Editor
 
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindPropertyInSameScope(this SerializedProperty property, string propertyName)
-       {
-           var path = property.propertyPath.Split('.');
-           path[^1] = propertyName;
+        {
+            if (property?.serializedObject == null)
+                return null;
 
-           var newPath = String.Join('.', path);
-           return property.serializedObject.FindProperty(newPath);
-       }
+            var path = property.propertyPath.Split('.');
+            if (path.Length == 0)
+                return null;
+
+            // Replace the last element with the target property name
+            path[^1] = propertyName;
+            var newPath = string.Join(".", path);
+
+            // Try normal field name first
+            var newProp = property.serializedObject.FindProperty(newPath);
+            if (newProp != null)
+                return newProp;
+
+            // Handle [field: SerializeField] auto-property backing field
+            // e.g., "<MyProperty>k__BackingField"
+            path[^1] = $"<{propertyName}>k__BackingField";
+            newPath = string.Join(".", path);
+
+            return property.serializedObject.FindProperty(newPath);
+        }
        
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindParentProperty(this SerializedProperty property)
@@ -592,7 +609,6 @@ namespace ArtificeToolkit.Editor
             var newPath = String.Join('.', path);
             return property.serializedObject.FindProperty(newPath);
         }
-
         
         /// <summary> Returns array children type from array property. </summary>
         public static Type GetArrayChildrenType(this SerializedProperty property)
