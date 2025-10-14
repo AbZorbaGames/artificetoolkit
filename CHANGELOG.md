@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.6
+- Enhancement: Updated `FindPropertyInSameScope` to also include backing fields.
+
 ## 1.6.5
 - Enhancement: `ForceArtifice` is not a `CustomAttribute` anymore. Since it does not have a drawer, it was breaking the pattern, causing the need for unnecessary handling.
 
