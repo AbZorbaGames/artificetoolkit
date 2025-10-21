@@ -14,7 +14,7 @@ namespace ArtificeToolkit.Attributes
             Values[0] = value;
         }
 
-        /// <summary> Property will be enabled if value parameter matches the property value </summary>
+        /// <summary> Property will be enabled if value parameter is true. </summary>
         public EnableIfAttribute(string propertyName)
         {
             PropertyName = propertyName;
