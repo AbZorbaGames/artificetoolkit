@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.7
+- Enhancement: Refactored `EnableIf` to work with reflected properties in the same scope as well as it worked with serialized properties. So now, you can use anything! In addition, when using `EnableIf` with only the property name as parameter, the default value of `true` is used for the comparison.  
+
 ## 1.6.6
 - Enhancement: Updated `FindPropertyInSameScope` to also include backing fields.
 
