@@ -128,7 +128,7 @@ private bool shouldEnable;
 [SerializeField, BoxGroup("Test")]
 private int x;
 
-[SerializeField, EnableIf(nameof(shouldEnable), true), BoxGroup("Test")]
+[SerializeField, EnableIf(nameof(shouldEnable)), BoxGroup("Test")]
 private int y;
 ```
 
@@ -341,7 +341,10 @@ private Directions direction;
 
 
 ### EnableIf
-This attributes allows you to set an equality condition using another field in the same scope to dictate where the target property will be shown or not. This is a really usefull attribute to optionally show properties that depend upon a bool check or enum check. 
+The EnableIf attribute allows you to conditionally show or hide a serialized property based on the value of another field, property, or even a method within the same scope.
+This is especially useful for exposing optional settings or parameters that depend on a boolean flag, an enum value, or a custom validation check.
+
+Refer to the EnableIf constructor for detailed usage examples and supported parameter types. 
 
 ```c#
 [SerializeField]
@@ -353,7 +356,7 @@ private ParticleSystem prefabOnDeathParticles;
 [SerializeField, FoldoutGroup("On Death", GroupColor.Red)]
 private float onDeathDurationSeconds;
 
-[SerializeField, EnableIf(nameof(shouldSpawnParticlesOnDestroy), true), FoldoutGroup("On Death", GroupColor.Red)]
+[SerializeField, EnableIf(nameof(shouldSpawnParticlesOnDestroy)), FoldoutGroup("On Death", GroupColor.Red)]
 private float onDeathSoundFxVolume;
 ```
 

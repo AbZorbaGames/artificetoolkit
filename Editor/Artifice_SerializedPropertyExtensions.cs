@@ -461,7 +461,7 @@ namespace ArtificeToolkit.Editor
                 Type targetType = target.GetType();
                 while (targetType != null)
                 {
-                    fieldInfo = targetType.GetField(fields[^1], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    fieldInfo = targetType.GetField(fields[^1], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty);
                     if (fieldInfo != null)
                         return fieldInfo;
 
@@ -601,6 +601,46 @@ namespace ArtificeToolkit.Editor
             return property.serializedObject.FindProperty(newPath);
         }
        
+        /// <summary> Returns a reflected property, field, or parameterless method value in the same scope. </summary>
+        public static void FindReflectedPropertyInSameScope(this SerializedProperty property, string propertyName, out object returnValue)
+        {
+            returnValue = null;
+
+            var target = property.FindParentProperty().GetTarget();
+            if (target == null)
+                return;
+
+            var targetType = target.GetType();
+
+            // 1. Try property
+            var member = (MemberInfo)targetType.GetProperty(
+                             propertyName,
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                         ?? targetType.GetField(
+                             propertyName,
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            // 2. Try method (if property/field not found)
+            MethodInfo method = null;
+            if (member == null)
+            {
+                method = targetType.GetMethod(
+                    propertyName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    binder: null,
+                    types: Type.EmptyTypes,        // only parameterless methods
+                    modifiers: null);
+            }
+
+            // 3. Get value
+            returnValue = member switch
+            {
+                PropertyInfo p => p.GetValue(target),
+                FieldInfo f => f.GetValue(target),
+                _ => method?.Invoke(target, null)
+            };
+        }
+        
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindParentProperty(this SerializedProperty property)
         {
