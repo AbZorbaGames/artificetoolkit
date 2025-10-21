@@ -40,7 +40,7 @@ public class Artifice_CustomAttributeDrawer_EnableIfAttribute : Artifice_CustomA
             // Execute once and every 100 ms
             EvaluateReflectedCondition(property);
             root.schedule.Execute(() => EvaluateReflectedCondition(property))
-                .Every(100); // check roughly 10x/sec; cheap & avoids reflection spam
+                .Every(400);
         }
 
         return _targetElem;
