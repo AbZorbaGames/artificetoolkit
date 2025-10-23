@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.8
+- Fix: Refactored to support `EnableIf`'s reflection mode on serialized object level.
+
 ## 1.6.7
 - Enhancement: Refactored `EnableIf` to work with reflected properties in the same scope as well as it worked with serialized properties. So now, you can use anything! In addition, when using `EnableIf` with only the property name as parameter, the default value of `true` is used for the comparison.  
 
