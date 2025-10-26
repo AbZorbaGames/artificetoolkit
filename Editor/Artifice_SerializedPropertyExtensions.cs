@@ -676,6 +676,7 @@ namespace ArtificeToolkit.Editor
                 SerializedPropertyType.String => property.stringValue,
                 SerializedPropertyType.Color => property.colorValue,
                 SerializedPropertyType.ObjectReference => property.objectReferenceValue,
+                SerializedPropertyType.LayerMask => property.intValue, // LayerMask is stored as an integer
                 SerializedPropertyType.Enum => property.enumValueIndex,
                 SerializedPropertyType.Vector2 => property.vector2Value,
                 SerializedPropertyType.Vector3 => property.vector3Value,
