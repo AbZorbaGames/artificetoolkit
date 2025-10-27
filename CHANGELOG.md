@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.9
+- Fix: Added Validator's toolbar support for Unity 6000.3 and higher.
+
 ## 1.6.8
 - Fix: Refactored to support `EnableIf`'s reflection mode on serialized object level.
 
