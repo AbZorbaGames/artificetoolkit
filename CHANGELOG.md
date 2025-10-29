@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.10
+- Fix: `EnableIf` now also works for inheritance from Template classes.
+
 ## 1.6.9
 - Fix: Added Validator's toolbar support for Unity 6000.3 and higher.
 
