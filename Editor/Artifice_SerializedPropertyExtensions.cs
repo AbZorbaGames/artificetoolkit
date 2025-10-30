@@ -629,11 +629,7 @@ namespace ArtificeToolkit.Editor
         {
             returnValue = null;
 
-            var parentProperty = property.FindParentProperty();
-            var target = parentProperty == null
-                ? property.serializedObject.targetObject
-                : parentProperty.GetTarget();
-
+            var target = property.GetParentTarget();
             var targetType = target.GetType();
 
             MemberInfo member = null;
