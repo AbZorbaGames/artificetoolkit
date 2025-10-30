@@ -606,33 +606,40 @@ namespace ArtificeToolkit.Editor
         {
             returnValue = null;
 
-            object target = null;
             var parentProperty = property.FindParentProperty();
-            if (parentProperty == null)
-                target = property.serializedObject.targetObject;
-            else
-                target = parentProperty.GetTarget();
+            var target = parentProperty == null
+                ? property.serializedObject.targetObject
+                : parentProperty.GetTarget();
 
             var targetType = target.GetType();
 
-            // 1. Try property
-            var member = (MemberInfo)targetType.GetProperty(
-                             propertyName,
-                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                         ?? targetType.GetField(
-                             propertyName,
-                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-            // 2. Try method (if property/field not found)
+            MemberInfo member = null;
             MethodInfo method = null;
-            if (member == null)
+
+            // Walk the type hierarchy to find all inherited members too (added for template classes)
+            for (var type = targetType; type != null; type = type.BaseType)
             {
-                method = targetType.GetMethod(
+                member = (MemberInfo)type.GetProperty(
+                             propertyName,
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly
+                            )
+                         ?? type.GetField(
+                             propertyName,
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly
+                            );
+
+                if (member != null)
+                    break;
+
+                method = type.GetMethod(
                     propertyName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly,
                     binder: null,
-                    types: Type.EmptyTypes,        // only parameterless methods
+                    types: Type.EmptyTypes,
                     modifiers: null);
+
+                if (method != null)
+                    break;
             }
 
             // 3. Get value
@@ -643,6 +650,7 @@ namespace ArtificeToolkit.Editor
                 _ => method?.Invoke(target, null)
             };
         }
+
         
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindParentProperty(this SerializedProperty property)
