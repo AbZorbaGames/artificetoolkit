@@ -106,7 +106,7 @@ namespace ArtificeToolkit.Editor
         {
             var propertyParent = property.FindParentProperty();
             return propertyParent != null
-                ? propertyParent.GetTarget<object>()
+                ? propertyParent.GetTarget()
                 : property.serializedObject.targetObject;
         }
         
