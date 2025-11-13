@@ -63,7 +63,7 @@ namespace ArtificeToolkit.Editor
 
 
         /// <summary> This method uses reflection to return the object reference of the property. </summary>
-        private static object GetTarget(this SerializedProperty property)
+        public static object GetTarget(this SerializedProperty property)
         {
             // First try to use direct type access if possible for performance.
             if (GetTargetDirect(property, out var value))
