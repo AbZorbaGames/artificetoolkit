@@ -19,7 +19,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             // Find method
             // Get reference to target object.
             // If property does not have a SerializedProperty parent, its parent is the serializedObject
-            var propertyParent = property.GetParentTarget();
+            var parentTarget = property.GetParentTarget();
             var methodInfo = parentTarget.GetType().GetMethod(
                 attribute.MethodName,
                 BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic
