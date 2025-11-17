@@ -96,6 +96,20 @@ namespace ArtificeToolkit.Editor
             return target;
         }
 
+        /// <summary>
+        /// Find method get reference to a target object. If the property does not have a SerializedProperty parent,
+        /// its parent is the serializedObject
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static object GetParentTarget(this SerializedProperty property)
+        {
+            var propertyParent = property.FindParentProperty();
+            return propertyParent != null
+                ? propertyParent.GetTarget()
+                : property.serializedObject.targetObject;
+        }
+        
         /// <summary> This method returns the object value of the property using direct means. It does not support generic types and enums. </summary>
         private static bool GetTargetDirect(this SerializedProperty property, out object value)
         {
@@ -351,6 +365,34 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns all <see cref="CustomAttribute"/> found on the property field and on its field type. Returns an empty array if none are found. </summary>
         public static CustomAttribute[] GetCustomAttributes(this SerializedProperty property)
         {
+            return property.GetCustomAttributes(fieldInfo =>
+            {
+                // 1. Collect attributes from the field
+                var fieldAttributes = fieldInfo
+                    .GetCustomAttributes(typeof(CustomAttribute), true)
+                    .Cast<CustomAttribute>();
+
+                // 2. Collect attributes from the field's type
+                var typeAttributes = fieldInfo.FieldType
+                    .GetCustomAttributes(typeof(CustomAttribute), true)
+                    .Cast<CustomAttribute>();
+
+                // 3. Collect attributes from implemented interfaces
+                var interfaceAttributes = fieldInfo.FieldType
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
+                        .Cast<CustomAttribute>());
+
+                return fieldAttributes
+                    .Concat(typeAttributes)
+                    .Concat(interfaceAttributes)
+                    .ToArray();
+            });
+        }
+
+        public static CustomAttribute[] GetCustomAttributes(this SerializedProperty property, 
+            Func<FieldInfo, CustomAttribute[]> function)
+        {
             // Arrays have a sibling "size". Their parent is the actual property we need to search in GetFieldNested.
             if (property.name == "Array")
                 property = property.FindParentProperty();
@@ -359,26 +401,7 @@ namespace ArtificeToolkit.Editor
             if (fieldInfo == null)
                 return Array.Empty<CustomAttribute>();
 
-            // 1. Collect attributes from the field
-            var fieldAttributes = fieldInfo
-                .GetCustomAttributes(typeof(CustomAttribute), true)
-                .Cast<CustomAttribute>();
-
-            // 2. Collect attributes from the field's type
-            var typeAttributes = fieldInfo.FieldType
-                .GetCustomAttributes(typeof(CustomAttribute), true)
-                .Cast<CustomAttribute>();
-
-            // 3. Collect attributes from implemented interfaces
-            var interfaceAttributes = fieldInfo.FieldType
-                .GetInterfaces()
-                .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
-                    .Cast<CustomAttribute>());
-
-            return fieldAttributes
-                .Concat(typeAttributes)
-                .Concat(interfaceAttributes)
-                .ToArray();
+            return function.Invoke(fieldInfo);
         }
         
         /// <summary>Gets visible children of a <see cref="SerializedProperty"/> at 1 level depth.</summary>
@@ -606,11 +629,7 @@ namespace ArtificeToolkit.Editor
         {
             returnValue = null;
 
-            var parentProperty = property.FindParentProperty();
-            var target = parentProperty == null
-                ? property.serializedObject.targetObject
-                : parentProperty.GetTarget();
-
+            var target = property.GetParentTarget();
             var targetType = target.GetType();
 
             MemberInfo member = null;
