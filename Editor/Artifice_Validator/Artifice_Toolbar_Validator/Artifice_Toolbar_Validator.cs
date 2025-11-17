@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using ArtificeToolkit.Editor;
 using ArtificeToolkit.Editor.Resources;
 using UnityEditor;
@@ -23,15 +22,17 @@ namespace Artifice.Editor
         private const string ToolbarLeft = "ToolbarZoneLeftAlign";
 #endif
 
-        private static bool _isEnabled;
+        private static bool IsEnabled => EditorPrefs.GetBool(IsEnabledKey);
         private static VisualElement _rootVisualElement;
         private static VisualElement _imGUIParentElement;
         private static IMGUIContainer _imGUIContainer;
+        private static VisualElement _toolbarVisualElement;
 
         // Log Counter Labels
         private static readonly Dictionary<LogType, Label> _logLabelsMap = new();
         private static readonly Dictionary<LogType, VisualElement> _logIntensityElemMap = new();
 
+        private const string IsEnabledKey = "Artifice_Toolbar_Validator_IsEnabled";
         private const int MaxIntensityCounter = 8;
         private const string StylesheetNameForUnity6 = "Toolbar Validator for Unity 6";
 
@@ -43,7 +44,6 @@ namespace Artifice.Editor
             EditorApplication.delayCall -= DelayedInit;
             EditorApplication.delayCall += DelayedInit;
         }
-
 
         /// <summary> VisualElement Toolbar wont be build on [InitializeOnLoadMethod] time so initialize on delayed call. </summary>
         private static void DelayedInit()
@@ -66,6 +66,7 @@ namespace Artifice.Editor
 
             // Build UI
             BuildUI();
+            
 
             // Subscribe on log counter refresh event
             Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(delegate
@@ -103,16 +104,17 @@ namespace Artifice.Editor
             _rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_Toolbar_Validator)));
 #endif
 
-            var container = new VisualElement();
-            container.AddToClassList("main-container");
-            _rootVisualElement.Add(container);
+            _toolbarVisualElement = new VisualElement();
+            _toolbarVisualElement.AddToClassList("main-container");
+            _rootVisualElement.Add(_toolbarVisualElement);
+            UpdateToolbarVisibility();
 
             // Create log/warning/error icons and update count based on validator.
-            container.Add(BuildUI_LogButton(LogType.Log, Artifice_SCR_CommonResourcesHolder.instance.CommentIcon));
-            container.Add(BuildUI_LogButton(LogType.Warning, Artifice_SCR_CommonResourcesHolder.instance.WarningIcon));
-            container.Add(BuildUI_LogButton(LogType.Error, Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon));
+            _toolbarVisualElement.Add(BuildUI_LogButton(LogType.Log, Artifice_SCR_CommonResourcesHolder.instance.CommentIcon));
+            _toolbarVisualElement.Add(BuildUI_LogButton(LogType.Warning, Artifice_SCR_CommonResourcesHolder.instance.WarningIcon));
+            _toolbarVisualElement.Add(BuildUI_LogButton(LogType.Error, Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon));
 
-            container.RegisterCallback<MouseDownEvent>(evt =>
+            _toolbarVisualElement.RegisterCallback<MouseDownEvent>(evt =>
             {
                 if (EditorWindow.HasOpenInstances<Artifice_EditorWindow_Validator>())
                 {
@@ -149,7 +151,25 @@ namespace Artifice.Editor
 
             return container;
         }
+        
+        #endregion
+        
+        #region UTILITIES
 
+        public static void Set_IsEnabled(bool isEnabled)
+        {
+            EditorPrefs.SetBool(IsEnabledKey,  isEnabled);
+            UpdateToolbarVisibility();
+        }
+
+        private static void UpdateToolbarVisibility()
+        {
+            if(IsEnabled)
+                _toolbarVisualElement?.RemoveFromClassList("hide");
+            else
+                _toolbarVisualElement?.AddToClassList("hide");
+        }
+        
         #endregion
     }
 }

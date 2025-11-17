@@ -1,0 +1,8 @@
+.window-title{
+    -unity-text-align: middle-center;
+    font-size: 24px;
+    -unity-font-style: bold;
+    margin: 10px;
+    height: 10px;
+    max-height: 10px;
+}

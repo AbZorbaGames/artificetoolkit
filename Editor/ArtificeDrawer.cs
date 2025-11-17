@@ -100,7 +100,8 @@ namespace ArtificeToolkit.Editor
             artificeInspector.Add(CreateMethodsGUI(serializedObject));
             
             // Add artifice indicator if artifice has been used.
-            if (_doesRequireVisualElementsCache.Any(pair => pair.Value))
+            var targetObject = serializedObject.targetObject;
+            if (targetObject != null && !targetObject.GetType().IsSubclassOf(typeof(EditorWindow)) && _doesRequireVisualElementsCache.Any(pair => pair.Value))
                 artificeInspector.Add(CreateArtificeIndicatorGUI(serializedObject));
             
             // Apply any modified property

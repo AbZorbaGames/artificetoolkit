@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ArtificeToolkit.Editor;
 using ArtificeToolkit.Editor.VisualElements;
 using UnityEditor;
 using UnityEditor.UIElements;

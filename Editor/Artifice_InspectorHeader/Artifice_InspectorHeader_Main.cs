@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Mono.Cecil;
 using UnityEditor;
 
 namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
@@ -161,6 +162,19 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             return true;
         }
 
+        public static bool IsEnabled()
+        {
+            return _isEnabled;
+        }
+
+        public static void SetEnabled(bool option)
+        {
+            if(option)
+                EnableTool();
+            else
+                DisableTool();
+        }
+        
         #endregion
     }
 }
