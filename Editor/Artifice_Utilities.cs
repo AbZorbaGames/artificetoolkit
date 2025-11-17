@@ -72,42 +72,10 @@ namespace ArtificeToolkit.Editor
         
         #region MenuItems
 
-        private const string ArtificeInspectorOn = "Artifice Toolkit/" + "\u2712 Toggle ArtificeInspector/On";
-        private const string ArtificeInspectorOff = "Artifice Toolkit/" +"\u2712 Toggle ArtificeInspector/Off";
         private const string ArtificeDocumentation = "Artifice Toolkit/" +"\ud83d\udcd6 Documentation...";
         private const string ArtificeIgnoreList = "Artifice Toolkit/" + "\u2718 Ignore List";
         private const string ArtificeWizard = "Artifice Toolkit/" + "\u2654 Settings Wizard";
         private const string ArtificeDocumentationURL = "https://github.com/AbZorbaGames/artificetoolkit";
-        
-        [MenuItem(ArtificeInspectorOn, true, 0)]
-        private static bool ToggleOnCheckmark()
-        {
-            Menu.SetChecked(ArtificeInspectorOn, ArtificeDrawerEnabled);
-            return true;
-        }
-
-        /// <summary> Creates a MenuItem to enable and disable the Artifice system. </summary>
-        [MenuItem(ArtificeInspectorOn, priority = 11)]
-        private static void ToggleArtificeDrawerOn()
-        {
-            ToggleArtificeDrawer(true);
-            Log("<color=lime>[Artifice Inspector]</color> Enabled");
-        }
-        
-        /// <summary> Creates a MenuItem to enable and disable the Artifice system. </summary>
-        [MenuItem(ArtificeInspectorOff, priority = 11)]
-        private static void ToggleArtificeDrawerOff()
-        {
-            ToggleArtificeDrawer(false);
-            Log($"<color=orange>[Artifice Inspector]</color> Disabled");
-        }
-        
-        [MenuItem(ArtificeInspectorOff, true, 0)]
-        private static bool ToggleOffCheckmark()
-        {
-            Menu.SetChecked(ArtificeInspectorOff, !ArtificeDrawerEnabled);
-            return true;
-        }
         
         [MenuItem(ArtificeDocumentation)]
         private static void OpenArtificeDocumentationURL()
