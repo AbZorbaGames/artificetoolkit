@@ -22,7 +22,7 @@ namespace Artifice.Editor
         private const string ToolbarLeft = "ToolbarZoneLeftAlign";
 #endif
 
-        private static bool IsEnabled => EditorPrefs.GetBool(IsEnabledKey);
+        public static bool IsEnabled => EditorPrefs.GetBool(IsEnabledKey);
         private static VisualElement _rootVisualElement;
         private static VisualElement _imGUIParentElement;
         private static IMGUIContainer _imGUIContainer;

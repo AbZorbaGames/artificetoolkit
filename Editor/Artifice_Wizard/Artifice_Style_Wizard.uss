@@ -1,8 +1,46 @@
-.window-title{
+.main-container{
+    padding: 20px;
+    overflow: scroll;
+}
+
+.main-title{
     -unity-text-align: middle-center;
     font-size: 24px;
     -unity-font-style: bold;
     margin: 10px;
     height: 10px;
     max-height: 10px;
+}
+
+.sub-title{
+    -unity-text-align: middle-center;
+    font-size: 13px;
+    margin: 10px;
+    height: 10px;
+    max-height: 10px;
+}
+
+.toggle-section {
+    background-color: rgba(40, 40, 50, 0.4);
+    border-radius: 8px;
+    padding: 16px;
+    border-left-width: 4px;
+    border-left-color: rgb(100, 150, 255);
+}
+
+.toggle-section-title{
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-bottom: 8px;
+}
+
+.toggle-help-summary {
+    font-size: 12px;
+    color: rgb(180, 180, 190);        /* soft light gray – works in both light/dark skins */
+    margin-top: 6px;
+    margin-left: 4px;
+    margin-bottom: 0px;
+    padding: 0px;
+    -unity-font-style: normal;
+    white-space: normal;              /* allows line wrapping if needed */
 }
