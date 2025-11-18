@@ -44,10 +44,13 @@ You can add the ArtificeToolkit to your Unity project as a package through Git. 
 # Artifice Inspector and Custom Attributes
 By using custom attributes in your MonoBehaviour scripts you can quickly alter the inspector's appearance. In this section, you will find all the attributes which are tested and ready for use.
 
-**NOTE:** By default, the Artifice Drawer is disabled. You can always turn it on/off through the dedicated MenuItem "ArtificeToolkit"
+**NOTE:** By default, the Artifice Drawer is disabled. You can always turn it on/off through the dedicated MenuItem "ArtificeToolkit/Wizard Settings"
 
 <p align="center">
-  <img src="./Documentation/artifice_toggle.png" />
+  <img src="./Documentation/artifice_menuitem.png" />
+</p>
+<p align="center">
+  <img src="./Documentation/artifice_wizard.png" />
 </p>
 
 

@@ -38,25 +38,25 @@ namespace ArtificeToolkit.Editor
 
             // === Main Artifice Enable ===
             scrollView.Add(CreateToggleSection(
-                "Enable Artifice Toolkit",
+                "Enable Artifice Drawer",
                 Artifice_Utilities.ArtificeDrawerEnabled,
-                "Turns the entire Artifice drawing system on or off globally.\n\n" +
+                "Turns the entire inspector drawing system of Artifice Toolkit, allowing the usage of custom attributes.\n\n" +
                 "When disabled:\n" +
-                "• All custom property drawers (NiceButton, Title, ReadOnly, etc.) stop working\n" +
-                "• Performance is slightly improved in large projects\n" +
-                "• You can safely keep Artifice in the project without affecting inspectors",
+                "• All the CustomAttributes (Title, BoxGroup, Required, etc.) stop working\n" +
+                "• Performance is slightly improved in large projects inspectors\n" +
+                "• You can safely keep Artifice in the project without affecting inspectors, if you want the package for its other features.",
                 Artifice_Utilities.ToggleArtificeDrawer
             ));
 
             // === Inspector Header ===
             scrollView.Add(CreateToggleSection(
-                "Inspector Header Decorations",
+                "Inspector Header Enhancement",
                 Artifice_InspectorHeader_Main.IsEnabled(),
-                "Adds beautiful header banners with script icon, name, and optional description above MonoBehaviours and ScriptableObjects.\n\n" +
+                "Adds beautiful header banner in the inspector with mandatory features like \'Search\' and script filter.\n\n" +
                 "Features:\n" +
-                "• Automatic script icon and class name\n" +
-                "• Custom title/description via [InspectorHeader] attribute\n" +
-                "• Subtle gradient background and clean typography",
+                "• Search to filter by script name\n" +
+                "• Isolate by filtering specific scripts at a time\n" +
+                "• Collapse/Expand all Components for better clarity.",
                 Artifice_InspectorHeader_Main.SetEnabled
             ));
 
