@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.11
+- Enhancement: Added an Wizard window which allows the user to turn on and off various features of the Artifice Toolkit he may not want in his project, like the validator toolbar. This can be further extended in the future for other potential "big" features.
+
 ## 1.6.10
 - Fix: `EnableIf` now also works for inheritance from Template classes.
 
