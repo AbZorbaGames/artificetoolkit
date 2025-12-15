@@ -26,6 +26,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 return new Artifice_VisualElement_InfoBox($"Attribute is not applicable for this property [{property.name}]", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon);
 
             // Add error on container and hide unless stated otherwise
+            IsValid(property); // Invoke is valid once, so the message is updated on the OnPrePropertyGUI as well.
             InfoBox = new Artifice_VisualElement_InfoBox(LogMessage, LogSprite);
             
             // Fire once for existing value

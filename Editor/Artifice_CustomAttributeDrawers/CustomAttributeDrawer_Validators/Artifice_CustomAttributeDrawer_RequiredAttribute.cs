@@ -32,13 +32,5 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             else
                 return false;
         }
-
-        public override VisualElement OnPrePropertyGUI(SerializedProperty property)
-        {
-            var attribute = (RequiredAttribute)Attribute;
-            _logMessage = attribute.Message;
-            
-            return base.OnPrePropertyGUI(property);
-        }
     }
 }
