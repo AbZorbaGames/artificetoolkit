@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.13
+- Fix: Added IsValid call on OnPrePropertyGUI of CustomAttributeDrawer_Validator_BASE to support custom LogMessages on the ArtificeDrawer as well.
+
 ## 1.6.12
 - Enhancement: Refactored ReadOnly attribute to work with the intended functionality of UI Toolkit.
 
