@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.14
+- Enhancement: Added warning error when `ApplyModifiedProperties()` fails on `ArtificeDrawer`.
+
 ## 1.6.13
 - Fix: Added IsValid call on OnPrePropertyGUI of CustomAttributeDrawer_Validator_BASE to support custom LogMessages on the ArtificeDrawer as well.
 
