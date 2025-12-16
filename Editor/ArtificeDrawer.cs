@@ -105,7 +105,7 @@ namespace ArtificeToolkit.Editor
                 artificeInspector.Add(CreateArtificeIndicatorGUI(serializedObject));
             
             // Apply any modified property
-            serializedObject.ApplyModifiedProperties(); 
+            serializedObject.ApplyModifiedProperties();
 
             return artificeInspector;
         }
@@ -443,7 +443,9 @@ namespace ArtificeToolkit.Editor
                 else
                     property.managedReferenceValue = null;
                 
-                property.serializedObject.ApplyModifiedProperties();
+                var success = property.serializedObject.ApplyModifiedProperties();
+                if (success == false)
+                    Debug.LogWarning("<color=yellow>[ArtificeToolkit]</color> Failed to update serialized property.");
             });
 
             void RebuildReferenceContainerGUI()
