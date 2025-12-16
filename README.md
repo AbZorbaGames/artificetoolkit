@@ -633,6 +633,8 @@ public abstract class TraitBase
   <img src="./Documentation/artifice_inspectorheader.gif" alt="GIF Example"/>
 </div>
 
+9. You can create attributes which may or may not need to be evaluated by the validator. The most intuitive example is the EnableIf attribute. When something is not enabled, the validator should not be showing nested validation logs meant for the property and its children. <br><br>To do this for your own custom attributes, use the IArtifice_RequiresCheckForValidationInclusion interface on the attribute and implement IArtifice_ShouldIncludeInValidation in its corresponding custom attribute drawer. You can see a live example of this with EnableIfAttribute and the Artifice_CustomAttributeDrawer_EnableIfAttribute.
+
 
 <!-- ARTIFICE VALIDATOR -->
 # Artifice Validator

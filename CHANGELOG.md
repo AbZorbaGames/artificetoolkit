@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.15
+- Enhancement: Added support for validation inclusion for user CustomAttributes. You can read more at the documentation under ExtraFeatures (9).
+
 ## 1.6.14
 - Enhancement: Added warning error when `ApplyModifiedProperties()` fails on `ArtificeDrawer`.
 
