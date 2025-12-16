@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using ArtificeToolkit.Attributes;
 using UnityEditor;
 using UnityEngine;
 
@@ -49,16 +47,6 @@ namespace ArtificeToolkit.Editor
                 if (property.serializedObject.targetObject == null || Artifice_ValidatorExtensions.ShouldValidateProperty(property) == false)
                     continue;
 
-                // Check if property is under enable if => false. In that case skip that property and its children.
-                var customAttributes = property.GetCustomAttributes().ToList();
-                var attribute = customAttributes.Find(attribute => attribute is EnableIfAttribute);
-                if (
-                    attribute is EnableIfAttribute enableIfAttribute &&
-                    Artifice_CustomAttributeDrawer_EnableIfAttribute.ShouldIncludeInValidation(property,
-                        enableIfAttribute) == false
-                )
-                    continue;
-                
                 // Skip if already visited
                 if (!visitedProperties.Add(property))
                     continue;
