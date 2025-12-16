@@ -38,7 +38,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             }
             else
             {
-                // Execute once and every 100 ms
+                // Execute once and every 400 ms
                 EvaluateReflectedCondition(property);
                 root.schedule.Execute(() => EvaluateReflectedCondition(property))
                     .Every(400);
