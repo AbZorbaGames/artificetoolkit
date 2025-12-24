@@ -14,7 +14,28 @@ namespace ArtificeToolkit.Editor
 //[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
     public class ArtificeInspector : UnityEditor.Editor
     {
+        [MenuItem("CONTEXT/Object/Artifice Debug/Refresh Styles", false, 110)]
+        private static void RefreshArtificeStyles(MenuCommand command)
+        {
+            // Force a full reload of USS stylesheets for all Artifice inspectors
+            foreach (var window in UnityEngine.Resources.FindObjectsOfTypeAll<UnityEditor.EditorWindow>())
+            {
+                if (window.GetType().Name == "InspectorWindow")
+                {
+                    window.Repaint();
+                }
+            }
+            // Additionally, try to clear cached style sheets if possible
+            Artifice_Utilities.TriggerNextFrameReselection();
+        }
+
+        [MenuItem("CONTEXT/Object/Artifice Debug/Refresh Styles", true)]
+        private static bool ValidateRefreshArtificeStyles(MenuCommand command)
+        {
+            return command.context is UnityEngine.Object;
+        }
         #region FIELDS
+    
 
         private ArtificeDrawer _drawer;
 
