@@ -515,6 +515,7 @@ namespace ArtificeToolkit.Editor
             var currentObject = rootObject;
             var currentType = rootObject.GetType();
 
+
             for (int i = 0; i < parts.Length; i++)
             {
                 var name = parts[i];
@@ -548,11 +549,21 @@ namespace ArtificeToolkit.Editor
                     continue;
                 }
 
-                var member = currentType.GetMember(name,
-                                                   BindingFlags.Instance |
-                                                   BindingFlags.Static   |
-                                                   BindingFlags.Public   |
-                                                   BindingFlags.NonPublic).FirstOrDefault();
+                // Walk up the type chain to find the member
+                Type temporaryType = currentType;
+                MemberInfo member = null;
+                while (temporaryType != null)
+                {
+                    member = temporaryType.GetMember(name,
+                        BindingFlags.Instance |
+                        BindingFlags.Static   |
+                        BindingFlags.Public   |
+                        BindingFlags.NonPublic |
+                        BindingFlags.DeclaredOnly).FirstOrDefault();
+                    if (member != null)
+                        break;
+                    temporaryType = temporaryType.BaseType;
+                }
 
                 if (member == null)
                     throw new MemberAccessException(
