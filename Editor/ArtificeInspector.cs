@@ -2,7 +2,6 @@ using System;
 using System.Reflection;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
-using UnityEngine;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -12,7 +11,7 @@ using UnityEngine.UIElements;
 namespace ArtificeToolkit.Editor
 {
     /// <summary> Propagates rendering to the <see cref="ArtificeDrawer"/></summary>
-    [CustomEditor(typeof(UnityEngine.Object), true), CanEditMultipleObjects]
+//[CustomEditor(typeof(Object), true), CanEditMultipleObjects]
     public class ArtificeInspector : UnityEditor.Editor
     {
         #region FIELDS
@@ -36,22 +35,9 @@ namespace ArtificeToolkit.Editor
             var hasMarkedAsArtificeIgnore = HasArtificeIgnore(type);
 
             // Render with Default inspector or Artifice Inspector based on ignore values
-            VisualElement inspector;
-            if (hasArtificeIgnoreAttribute || hasMarkedAsArtificeIgnore)
-            {
-                inspector = base.CreateInspectorGUI();
-            }
-            else
-            {
-                inspector = new ArtificeDrawer().CreateInspectorGUI(serializedObject);
-                // Ensure all relevant USS stylesheets are loaded for proper group rendering
-                inspector.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
-                inspector.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_VisualElement_Group)));
-                inspector.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_VisualElement_VerticalGroup)));
-                inspector.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_VisualElement_BoxGroup)));
-                inspector.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_VisualElement_TabGroup)));
-                inspector.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_VisualElement_HorizontalGroup)));
-            }
+            var inspector = hasArtificeIgnoreAttribute || hasMarkedAsArtificeIgnore
+                ? base.CreateInspectorGUI()
+                : new ArtificeDrawer().CreateInspectorGUI(serializedObject);
 
             return inspector;
         }
