@@ -15,7 +15,7 @@ namespace ArtificeToolkit.Editor
     public class ArtificeInspector : UnityEditor.Editor
     {
         #region FIELDS
-
+        
         private ArtificeDrawer _drawer;
 
         #endregion
@@ -96,9 +96,21 @@ namespace ArtificeToolkit.Editor
         }
 
         #endregion
-
+        
         #region Utility
 
+        [MenuItem("CONTEXT/Object/Artifice Debug/Refresh Styles", false, 110)]
+        private static void RefreshArtificeStyles(MenuCommand command)
+        {
+            Artifice_Utilities.TriggerNextFrameReselection();
+        }
+
+        [MenuItem("CONTEXT/Object/Artifice Debug/Refresh Styles", true)]
+        private static bool ValidateRefreshArtificeStyles(MenuCommand command)
+        {
+            return command.context is UnityEngine.Object;
+        }
+        
         private static void SetArtificeIgnore(Type type, bool shouldIgnore)
         { 
             if(shouldIgnore)
