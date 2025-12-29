@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.16
+- Fix: Refactored `ResolveNestedMember` to work with `DeclaredOnly` binding flags fixing potential issues with `ValidateInput`.
+
 ## 1.6.15
 - Enhancement: Added support for validation inclusion for user CustomAttributes. You can read more at the documentation under ExtraFeatures (9).
 
