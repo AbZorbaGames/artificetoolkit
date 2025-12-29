@@ -15,8 +15,7 @@ namespace ArtificeToolkit.Editor
     public class ArtificeInspector : UnityEditor.Editor
     {
         #region FIELDS
-    
-
+        
         private ArtificeDrawer _drawer;
 
         #endregion
