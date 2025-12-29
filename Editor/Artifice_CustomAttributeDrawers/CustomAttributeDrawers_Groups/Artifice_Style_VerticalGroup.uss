@@ -20,16 +20,7 @@
 .group-child{
     width: 100%;
     margin: 3px;
-    
+
     flex-grow: 1;
     flex-shrink: 1;
-}
-
-.unity-property-field__label {
-    /* I really cant explain why max-width is neede */
-    max-width: 0px;
-    min-width: 1px;
-    
-    padding-left: 3px;
-    margin-right: -35px;
 }
