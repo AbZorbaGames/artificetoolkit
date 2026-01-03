@@ -149,31 +149,6 @@ namespace ArtificeToolkit.Editor
             return true;
         }
         
-        /// <summary> Returns true if property should be taken into consideration in the validation or not. </summary>
-        public static bool ShouldValidateProperty(SerializedProperty property)
-        {
-            // Check if property is under an occasional validation which evaluates to false. In that case skip that property and its children.
-            var customAttributes = property
-                .GetCustomAttributes()
-                .ToList();
-
-            foreach (var attribute in customAttributes)
-            {
-                if (attribute is not IArtifice_RequiresCheckForValidationInclusion)
-                    continue;
-             
-                // Get drawer, cast to IArtifice_ShouldIncludeInValidation and run check.
-                var customAttributeDrawer = Artifice_Utilities.GetDrawerInstancesMap()[attribute.GetType()];
-                var shouldIncludeInValidation = customAttributeDrawer as IArtifice_ShouldIncludeInValidation;
-                if (shouldIncludeInValidation != null)
-                    return shouldIncludeInValidation.ShouldIncludeInValidation(property, attribute);
-                else
-                    Debug.LogWarning($"<color=yellow>[ArtificeToolkit]</color> {attribute.GetType().Name} implements IArtifice_RequiresCheckForValidationInclusion but its corresponding drawer does not implement IArtifice_ShouldIncludeInValidation");
-            }
-
-            return true;
-        }
-        
         public static List<ScriptableObject> FindScriptableObjects()
         {
             var searchString = $"t:{typeof(ScriptableObject).FullName}";
