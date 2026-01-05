@@ -643,11 +643,16 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns true if the property is directly using any <see cref="CustomAttribute"/> </summary>
         private bool IsUsingCustomAttributesDirectly(SerializedProperty property)
         {
-            var typeName = property.type;
+            string typeName;
             
             // Check if property directly has a custom attribute
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes is { Length: > 0 })
+                return true;
+            
+            // Check if force artifice is used either way.
+            var isUsingForceArtifice = property.GetAttributes().Any(attribute => attribute is ForceArtificeAttribute);
+            if (isUsingForceArtifice)
                 return true;
             
             if (property.IsArray() && property.arraySize == 0)
