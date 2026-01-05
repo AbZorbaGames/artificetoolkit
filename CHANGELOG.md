@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.17
+- Fix: Now `ForceArtifice` is included in the check to detect the usage of potential Artifice even in the children of a property. 
+
 ## 1.6.16
 - Fix: Refactored `ResolveNestedMember` to work with `DeclaredOnly` binding flags fixing potential issues with `ValidateInput`.
 
