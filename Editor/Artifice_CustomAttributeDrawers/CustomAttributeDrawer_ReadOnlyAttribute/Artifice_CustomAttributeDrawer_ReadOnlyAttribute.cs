@@ -10,7 +10,14 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         // Set the property field enabled to false.
         public override void OnPropertyBoundGUI(SerializedProperty property, VisualElement propertyField)
         {
-            propertyField.SetEnabled(false);
+            if (propertyField is Artifice_VisualElement_AbstractListView listView)
+            {
+                listView.SetEnabled(false);
+            }
+            else
+            {
+                propertyField.SetEnabled(false);
+            }
         }
     }
 }
