@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.18
+- Fix: Now `ReadOnly` attribute works as expected for lists and arrays.
+
 ## 1.6.17
 - Fix: Now `ForceArtifice` is included in the check to detect the usage of potential Artifice even in the children of a property. 
 
