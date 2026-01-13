@@ -64,7 +64,7 @@ namespace ArtificeToolkit.Editor
         
         private readonly UIBuilder _uiBuilder = new();
         private readonly List<ChildElement> _children = new();
-        private bool _isEditable;
+        private bool _isEditable = true;
 
         private static SerializedPropertyCopier _serializedPropertyCopier;
         private bool _disposed;
@@ -665,6 +665,7 @@ namespace ArtificeToolkit.Editor
         public void SetEnabled(bool enabled)
         {
             _isEditable = enabled;
+            BuildListUI();
         }
         
         public void SetTitle(string title)
