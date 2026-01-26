@@ -634,6 +634,8 @@ public abstract class TraitBase
 </div>
 
 9. You can create attributes which may or may not need to be evaluated by the validator. The most intuitive example is the EnableIf attribute. When something is not enabled, the validator should not be showing nested validation logs meant for the property and its children. <br><br>To do this for your own custom attributes, use the IArtifice_RequiresCheckForValidationInclusion interface on the attribute and implement IArtifice_ShouldIncludeInValidation in its corresponding custom attribute drawer. You can see a live example of this with EnableIfAttribute and the Artifice_CustomAttributeDrawer_EnableIfAttribute.
+10. ArtificeToolkit introduces SerializedHashSet, a hash set that serializes as a list in the Inspector, combining efficient lookups with full editor visibility.
+
 
 
 <!-- ARTIFICE VALIDATOR -->

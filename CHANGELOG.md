@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.21
+- Enhancement: Added `SerializedHashSet` type. Works and gets serialized as a plain list, but on runtime it is treated as a hashset. Artifice provides a property drawer to show conflict of entries.
+
 ## 1.6.18
 - Fix: Now `ReadOnly` attribute works as expected for lists and arrays.
 
