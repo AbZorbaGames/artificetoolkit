@@ -53,7 +53,6 @@ namespace ArtificeToolkit.Editor
         #region FIELDS
 
         public bool ShouldForceArtifice { get; set; }
-
         public event EventHandler BuildUICompleted;
         
         private Label _listViewLabel;
@@ -83,6 +82,7 @@ namespace ArtificeToolkit.Editor
         public Artifice_VisualElement_AbstractListView()
         {
             // Load stylesheet
+            styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
             styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_VisualElement_AbstractListView)));
             
             // Apply main container class
@@ -99,7 +99,7 @@ namespace ArtificeToolkit.Editor
         
         #region BUILD UI
         
-        private void BuildListUI()
+        protected void BuildListUI()
         {
             if (Property.Verify() == false)
                 return;
@@ -113,6 +113,7 @@ namespace ArtificeToolkit.Editor
                 },
                 elem =>
                 {
+                    BeforeBuildUIStart();
                     Property.serializedObject.Update();
                     
                     // Refresh lists
@@ -354,6 +355,11 @@ namespace ArtificeToolkit.Editor
             elementContainer.Add(deleteButtonContainer);
 
             return elementContainer;
+        }
+
+        protected virtual void BeforeBuildUIStart()
+        {
+            // Noop
         }
         
         protected virtual void OnBuildUICompleted()
@@ -679,7 +685,7 @@ namespace ArtificeToolkit.Editor
             var label = propertyField.Query<Label>().First();
             if (label != null && label.text == property.displayName)
             {
-                // Cached values that may be used through-out the lifetime of the element 
+                // Cached list that may be used through-out the lifetime of the element 
                 var firstStringValue = "";
                 var listElementNameValue = "";
                 
@@ -776,7 +782,7 @@ namespace ArtificeToolkit.Editor
             BuildListUI();
         }
         
-        /// <summary> Deep copies the values of a serialized property. </summary>
+        /// <summary> Deep copies the list of a serialized property. </summary>
         private void DeepCopyProperty(SerializedProperty source)
         {
             if (_serializedPropertyCopier == null)

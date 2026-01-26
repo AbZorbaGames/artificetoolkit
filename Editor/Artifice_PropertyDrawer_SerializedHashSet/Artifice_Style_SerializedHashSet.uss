@@ -1,0 +1,10 @@
+.main-container{
+    padding: 5px;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.hash-set-entry{
+    width: 100%;
+}
