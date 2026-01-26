@@ -1,7 +1,7 @@
 namespace ArtificeToolkit.Attributes
 {
     /// <summary> Allows a property to dynamically draw/or not draw it self in the editor. </summary>
-    public class EnableIfAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
+    public class EnableIfAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute, IArtifice_RequiresCheckForValidationInclusion
     {
         public readonly string PropertyName;
         public readonly object[] Values;
@@ -14,6 +14,14 @@ namespace ArtificeToolkit.Attributes
             Values[0] = value;
         }
 
+        /// <summary> Property will be enabled if value parameter is true. </summary>
+        public EnableIfAttribute(string propertyName)
+        {
+            PropertyName = propertyName;
+            Values = new object[1];
+            Values[0] = true;
+        }
+        
         /// <summary> Property will be enabled if any value matches the property value </summary>
         public EnableIfAttribute(string propertyName, params object[] values)
         {

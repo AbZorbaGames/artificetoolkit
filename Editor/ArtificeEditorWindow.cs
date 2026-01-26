@@ -6,17 +6,23 @@ namespace ArtificeToolkit.Editor
 {
     public class ArtificeEditorWindow : EditorWindow
     {
+        #region FIELDS
+
+        protected ArtificeDrawer ArtificeDrawer;
+        
+        #endregion
+        
         protected virtual void CreateGUI()
         {
-            var drawer = new ArtificeDrawer();
-            drawer.SetSerializedPropertyFilter(property => property.name != "m_Script");
+            ArtificeDrawer = new ArtificeDrawer();
+            ArtificeDrawer.SetSerializedPropertyFilter(property => property.name != "m_Script");
 
             // Get reference to serializedObject and simply call 
             var serializedObject = new SerializedObject(this);
             
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeEditorWindow)));
             rootVisualElement.AddToClassList("root-visual-element");
-            rootVisualElement.Add(drawer.CreateInspectorGUI(serializedObject));
+            rootVisualElement.Add(ArtificeDrawer.CreateInspectorGUI(serializedObject));
         }
     }
 }

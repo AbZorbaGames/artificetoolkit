@@ -1,4 +1,53 @@
 # Change Log:
+## 1.6.18
+- Fix: Now `ReadOnly` attribute works as expected for lists and arrays.
+
+## 1.6.17
+- Fix: Now `ForceArtifice` is included in the check to detect the usage of potential Artifice even in the children of a property. 
+
+## 1.6.16
+- Fix: Refactored `ResolveNestedMember` to work with `DeclaredOnly` binding flags fixing potential issues with `ValidateInput`.
+
+## 1.6.15
+- Enhancement: Added support for validation inclusion for user CustomAttributes. You can read more at the documentation under ExtraFeatures (9).
+
+## 1.6.14
+- Enhancement: Added warning error when `ApplyModifiedProperties()` fails on `ArtificeDrawer`.
+
+## 1.6.13
+- Fix: Added IsValid call on OnPrePropertyGUI of CustomAttributeDrawer_Validator_BASE to support custom LogMessages on the ArtificeDrawer as well.
+
+## 1.6.12
+- Enhancement: Refactored ReadOnly attribute to work with the intended functionality of UI Toolkit.
+
+## 1.6.11
+- Enhancement: Added an Wizard window which allows the user to turn on and off various features of the Artifice Toolkit he may not want in his project, like the validator toolbar. This can be further extended in the future for other potential "big" features.
+
+## 1.6.10
+- Fix: `EnableIf` now also works for inheritance from Template classes.
+
+## 1.6.9
+- Fix: Added Validator's toolbar support for Unity 6000.3 and higher.
+
+## 1.6.8
+- Fix: Refactored to support `EnableIf`'s reflection mode on serialized object level.
+
+## 1.6.7
+- Enhancement: Refactored `EnableIf` to work with reflected properties in the same scope as well as it worked with serialized properties. So now, you can use anything! In addition, when using `EnableIf` with only the property name as parameter, the default value of `true` is used for the comparison.  
+
+## 1.6.6
+- Enhancement: Updated `FindPropertyInSameScope` to also include backing fields.
+
+## 1.6.5
+- Enhancement: `ForceArtifice` is not a `CustomAttribute` anymore. Since it does not have a drawer, it was breaking the pattern, causing the need for unnecessary handling.
+
+## 1.6.4
+- Change: Changed visibility of validator log extension methods to be public for more accessible use.
+
+## 1.6.3
+- Enhancement: Now more clear logs are provided when an attribute has a missing drawer. 
+- Enhancement: `Artifice_Utilities` now provide methods for logging.
+ 
 ## 1.6.2
 - Fix: Now `Button` attribute will work correctly with a method's default parameters.
 - Fix: Added pixel unit in USS to avoid minor warning on SerializedDictionary's stylesheet.

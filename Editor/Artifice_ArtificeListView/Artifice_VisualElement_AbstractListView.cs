@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Artifice.Editor;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -56,6 +55,7 @@ namespace ArtificeToolkit.Editor
         public event EventHandler BuildUICompleted;
         
         private Label _listViewLabel;
+        private VisualElement _childrenContainer;
         
         protected SerializedProperty Property;
         protected List<CustomAttribute> ChildrenInjectedCustomAttributes = new();
@@ -63,6 +63,7 @@ namespace ArtificeToolkit.Editor
         
         private readonly UIBuilder _uiBuilder = new();
         private readonly List<ChildElement> _children = new();
+        private bool _isEditable = true;
 
         private static SerializedPropertyCopier _serializedPropertyCopier;
         private bool _disposed;
@@ -132,15 +133,16 @@ namespace ArtificeToolkit.Editor
                     
                     // Add children
                     var index = 0;
-                    var childrenContainer = new VisualElement();
-                    childrenContainer.AddToClassList("children-container");
+                    _childrenContainer = new VisualElement();
+                    _childrenContainer.AddToClassList("children-container");
+                    _childrenContainer.SetEnabled(_isEditable);
 
                     var childrenProperties = Property.GetVisibleChildren();
                     if (childrenProperties.Count == 1) // childProperty for list size will always exist, so Count == 1 means the list is empty
                     {
                         var emptyListLabel = new Label("List is empty.");
                         emptyListLabel.AddToClassList("empty-list-label");
-                        childrenContainer.Add(emptyListLabel);
+                        _childrenContainer.Add(emptyListLabel);
                     }
                     else
                     {
@@ -151,16 +153,16 @@ namespace ArtificeToolkit.Editor
 
                             var childElem = BuildListElementUI(childProperty, index);
                             _children.Add(new ChildElement(childElem, childProperty, index++));
-                            childrenContainer.Add(childElem);
+                            _childrenContainer.Add(childElem);
                         }
                     }
-                    elem.Add(childrenContainer);
+                    elem.Add(_childrenContainer);
 
                     // Set children container hide state based on isExpanded
                     if (Property.isExpanded == false)
                     {
                         prePropertyElem?.AddToClassList("hide");
-                        childrenContainer.AddToClassList("hide");
+                        _childrenContainer.AddToClassList("hide");
                     }
                     
                     Property.serializedObject.ApplyModifiedProperties();
@@ -213,6 +215,7 @@ namespace ArtificeToolkit.Editor
             
             var sizeField = new VisualElement();
             sizeField.AddToClassList("size-field");
+            sizeField.SetEnabled(_isEditable);
             listHeader.Add(sizeField);
             
             var sizeTitleLabel = new Label("Size");
@@ -254,6 +257,7 @@ namespace ArtificeToolkit.Editor
             // Add button for new elements
             var addButton = new Artifice_VisualElement_LabeledButton("+", OnAddItem);
             addButton.AddToClassList("add-button");
+            addButton.SetEnabled(_isEditable);
             listHeader.Add(addButton);
             
             // Change isExpanded on click
@@ -664,6 +668,12 @@ namespace ArtificeToolkit.Editor
         
         #region Utility
 
+        public void SetEnabled(bool enabled)
+        {
+            _isEditable = enabled;
+            BuildListUI();
+        }
+        
         public void SetTitle(string title)
         {
             _listViewLabel.text = title;
@@ -735,14 +745,14 @@ namespace ArtificeToolkit.Editor
                         });
                     }
                     else
-                        Debug.LogError($"[ArtificeDrawer][ListElementName] Cannot find nested property <b>\"{fieldPropertyName}\"</b> of type <b>\"{Property.type}\"</b>");
+                        Artifice_Utilities.LogError($"Issue in abstract list view. Cannot find nested property <b>\"{fieldPropertyName}\"</b> of type <b>\"{Property.type}\"</b>");
                 }
                 
                 // After everything has been hashed for the first time
                 UpdateElementLabel();
             }
         }
-        
+
         #endregion
         
         #region Context Menu Options

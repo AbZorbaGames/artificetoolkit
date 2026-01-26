@@ -127,9 +127,8 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             return false;
         }
 
-        #region MENU ITEMS
+        #region Utilities
 
-        [MenuItem(MenuInspectorHeaderOn, false, MenuItemPriority)]
         private static void EnableTool()
         {
             _isEnabled = true;
@@ -137,15 +136,6 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             OnInit();
         }
 
-        [MenuItem(MenuInspectorHeaderOn, true, MenuItemPriority)]
-        private static bool ToggleOnValidate()
-        {
-            Menu.SetChecked(MenuInspectorHeaderOn, _isEnabled);
-            Menu.SetChecked(MenuInspectorHeaderOff, !_isEnabled);
-            return true;
-        }
-
-        [MenuItem(MenuInspectorHeaderOff, false, MenuItemPriority)]
         private static void DisableTool()
         {
             _isEnabled = false;
@@ -153,14 +143,19 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             DeInit();
         }
 
-        [MenuItem(MenuInspectorHeaderOff, true, MenuItemPriority)]
-        private static bool ToggleOffValidate()
+        public static bool IsEnabled()
         {
-            Menu.SetChecked(MenuInspectorHeaderOn, !_isEnabled);
-            Menu.SetChecked(MenuInspectorHeaderOff, _isEnabled);
-            return true;
+            return _isEnabled;
         }
 
+        public static void SetEnabled(bool option)
+        {
+            if(option)
+                EnableTool();
+            else
+                DisableTool();
+        }
+        
         #endregion
     }
 }

@@ -1,8 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using ArtificeToolkit.Attributes;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_EnableIfAttribute;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,11 +13,12 @@ namespace ArtificeToolkit.Editor
         
         #endregion
 
-        public override IEnumerator ValidateCoroutine(List<GameObject> _)
+        public static Queue<SerializedProperty> GetSerializedPropertyQueue(List<ScriptableObject> scriptableObjects)
         {
             // Create an iteration stack to run through all serialized properties (even nested ones)
             Queue<SerializedProperty> queue = new();
-            foreach (var scriptableObject in Artifice_ValidatorExtensions.FindScriptableObjects())
+            
+            foreach (ScriptableObject scriptableObject in scriptableObjects)
             {
                 if (scriptableObject == null)
                     continue;
@@ -28,6 +26,14 @@ namespace ArtificeToolkit.Editor
                 SerializedObject serializedObject = new(scriptableObject);
                 queue.Enqueue(serializedObject.GetIterator());
             }
+            
+            return queue;
+        }
+        
+        public override IEnumerator ValidateCoroutine(List<GameObject> _)
+        {
+            // Create an iteration stack to run through all serialized properties (even nested ones)
+            Queue<SerializedProperty> queue = GetSerializedPropertyQueue(Artifice_ValidatorExtensions.FindScriptableObjects());
             
             // Create a set to cache already visited serialized properties
             HashSet<SerializedProperty> visitedProperties = new();
@@ -41,16 +47,6 @@ namespace ArtificeToolkit.Editor
                 if (property.serializedObject.targetObject == null || Artifice_ValidatorExtensions.ShouldValidateProperty(property) == false)
                     continue;
 
-                // Check if property is under enable if => false. In that case skip that property and its children.
-                var customAttributes = property.GetCustomAttributes().ToList();
-                var attribute = customAttributes.Find(attribute => attribute is EnableIfAttribute);
-                if (
-                    attribute is EnableIfAttribute enableIfAttribute &&
-                    Artifice_CustomAttributeDrawer_EnableIfAttribute.ShouldIncludeInValidation(property,
-                        enableIfAttribute) == false
-                )
-                    continue;
-                
                 // Skip if already visited
                 if (!visitedProperties.Add(property))
                     continue;

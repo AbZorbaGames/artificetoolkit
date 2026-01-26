@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using ArtificeToolkit.Editor.Resources;
 using Newtonsoft.Json;
@@ -60,7 +61,7 @@ namespace ArtificeToolkit.Editor
             var styleHolderPaths = AssetDatabase.FindAssets($"Artifice_StylesHolder t:{nameof(StylesHolder)}");
             
             if(styleHolderPaths.Length != 1)
-                Debug.LogError($"Exactly one asset of this kind should get fetched, not {styleHolderPaths.Length}");
+                LogError($"Exactly one asset of this kind should get fetched, not {styleHolderPaths.Length}");
             
             _soStylesHolder = AssetDatabase.LoadAssetAtPath<StylesHolder>(AssetDatabase.GUIDToAssetPath(styleHolderPaths[0]));
             InitializeDrawerMaps();
@@ -72,41 +73,10 @@ namespace ArtificeToolkit.Editor
         
         #region MenuItems
 
-        private const string ArtificeInspectorOn = "Artifice Toolkit/" + "\u2712 Toggle ArtificeInspector/On";
-        private const string ArtificeInspectorOff = "Artifice Toolkit/" +"\u2712 Toggle ArtificeInspector/Off";
         private const string ArtificeDocumentation = "Artifice Toolkit/" +"\ud83d\udcd6 Documentation...";
         private const string ArtificeIgnoreList = "Artifice Toolkit/" + "\u2718 Ignore List";
+        private const string ArtificeWizard = "Artifice Toolkit/" + "\u2654 Settings Wizard";
         private const string ArtificeDocumentationURL = "https://github.com/AbZorbaGames/artificetoolkit";
-        
-        [MenuItem(ArtificeInspectorOn, true, 0)]
-        private static bool ToggleOnCheckmark()
-        {
-            Menu.SetChecked(ArtificeInspectorOn, ArtificeDrawerEnabled);
-            return true;
-        }
-
-        /// <summary> Creates a MenuItem to enable and disable the Artifice system. </summary>
-        [MenuItem(ArtificeInspectorOn, priority = 11)]
-        private static void ToggleArtificeDrawerOn()
-        {
-            ToggleArtificeDrawer(true);
-            Debug.Log("<color=lime>[Artifice Inspector]</color> Enabled");
-        }
-        
-        /// <summary> Creates a MenuItem to enable and disable the Artifice system. </summary>
-        [MenuItem(ArtificeInspectorOff, priority = 11)]
-        private static void ToggleArtificeDrawerOff()
-        {
-            ToggleArtificeDrawer(false);
-            Debug.Log($"<color=orange>[Artifice Inspector]</color> Disabled");
-        }
-        
-        [MenuItem(ArtificeInspectorOff, true, 0)]
-        private static bool ToggleOffCheckmark()
-        {
-            Menu.SetChecked(ArtificeInspectorOff, !ArtificeDrawerEnabled);
-            return true;
-        }
         
         [MenuItem(ArtificeDocumentation)]
         private static void OpenArtificeDocumentationURL()
@@ -120,12 +90,18 @@ namespace ArtificeToolkit.Editor
             Artifice_EditorWindow_IgnoreList.ShowWindow();
         }
         
+        [MenuItem(ArtificeWizard)]
+        private static void OpenArtificeWizard()
+        {
+            Artifice_EditorWindow_Wizard.ShowWindow();
+        }
+        
         public static void ToggleArtificeDrawer(bool toggle)
         {
             var guid = AssetDatabase.FindAssets("ArtificeInspector").FirstOrDefault();
             if (guid == null)
             {
-                Debug.Log("ArtificeToolkit: Cannot find ArtificeInspector script. This makes it unable to turn on/off the ArtificeToolkit.");
+                LogError("Cannot find ArtificeInspector script. This makes it unable to turn on/off the ArtificeToolkit.");
                 return;
             }
             
@@ -287,6 +263,18 @@ namespace ArtificeToolkit.Editor
                 LogType.Warning => Artifice_SCR_CommonResourcesHolder.instance.WarningIcon,
                 _               => Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon
             };
+
+        /// <summary> Utility log method to wrap message in artifice color and prefix. </summary>
+        public static void Log(string message)
+        {
+            Debug.Log($"<color=lime>[ArtificeToolkit]</color> {message}");
+        }
+
+        /// <summary> Utility error log method to wrap message in artifice color and prefix. </summary>
+        public static void LogError(string message)
+        {
+            Debug.Log($"<color=orange>[ArtificeToolkit]</color> {message}");
+        }
         
         #region Ignored Types | Proxies IArtifice_Persistency
         

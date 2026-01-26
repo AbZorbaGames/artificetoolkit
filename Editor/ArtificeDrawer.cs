@@ -100,11 +100,12 @@ namespace ArtificeToolkit.Editor
             artificeInspector.Add(CreateMethodsGUI(serializedObject));
             
             // Add artifice indicator if artifice has been used.
-            if (_doesRequireVisualElementsCache.Any(pair => pair.Value))
+            var targetObject = serializedObject.targetObject;
+            if (targetObject != null && !targetObject.GetType().IsSubclassOf(typeof(EditorWindow)) && _doesRequireVisualElementsCache.Any(pair => pair.Value))
                 artificeInspector.Add(CreateArtificeIndicatorGUI(serializedObject));
             
             // Apply any modified property
-            serializedObject.ApplyModifiedProperties(); 
+            serializedObject.ApplyModifiedProperties();
 
             return artificeInspector;
         }
@@ -139,9 +140,9 @@ namespace ArtificeToolkit.Editor
                 return null;
 
             // Check if property enforces Artifice in following calls.
-            var customAttributes = property.GetCustomAttributes();
-            if (customAttributes != null)
-                forceArtificeStyle = forceArtificeStyle || customAttributes.Any(attribute => attribute is ForceArtificeAttribute);
+            var attributes = property.GetAttributes();
+            if (attributes != null)
+                forceArtificeStyle = forceArtificeStyle || attributes.Any(attribute => attribute is ForceArtificeAttribute);
 
             // If artifice rendering is required.
             if (forceArtificeStyle || DoesRequireArtificeRendering(property))
@@ -153,7 +154,7 @@ namespace ArtificeToolkit.Editor
                     SplitCustomPropertiesForArrays(property, out var arrayCustomAttributes, out var childrenCustomAttributes);
                     
                     // Check whether it should be drawn with table list
-                    var isTableList = property.GetAttributes().Any(attribute => attribute.GetType() == typeof(TableListAttribute));
+                    var isTableList = property.GetCustomAttributes().Any(attribute => attribute.GetType() == typeof(TableListAttribute));
                         
                     // Spawn either ListView or TableView
                     var listView = isTableList ? (Artifice_VisualElement_AbstractListView)new Artifice_VisualElement_TableListView() : new Artifice_VisualElement_ListView();
@@ -256,8 +257,11 @@ namespace ArtificeToolkit.Editor
             foreach (var customAttribute in customAttributes)
             {
                 // Skip if drawer does not exist for custom attribute
-                if(drawerMap.ContainsKey(customAttribute.GetType()) == false)
+                if (drawerMap.ContainsKey(customAttribute.GetType()) == false)
+                {
+                    Artifice_Utilities.LogError($"Could not find drawer type for <b>{customAttribute.GetType().Name}</b>");
                     continue;
+                }
                 
                 // Create instance of drawer
                 var attributeDrawer = (Artifice_CustomAttributeDrawer)Activator.CreateInstance(drawerMap[customAttribute.GetType()]);
@@ -439,7 +443,9 @@ namespace ArtificeToolkit.Editor
                 else
                     property.managedReferenceValue = null;
                 
-                property.serializedObject.ApplyModifiedProperties();
+                var success = property.serializedObject.ApplyModifiedProperties();
+                if (success == false)
+                    Debug.LogWarning("<color=yellow>[ArtificeToolkit]</color> Failed to update serialized property.");
             });
 
             void RebuildReferenceContainerGUI()
@@ -637,11 +643,16 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns true if the property is directly using any <see cref="CustomAttribute"/> </summary>
         private bool IsUsingCustomAttributesDirectly(SerializedProperty property)
         {
-            var typeName = property.type;
+            string typeName;
             
             // Check if property directly has a custom attribute
             var customAttributes = property.GetCustomAttributes();
             if (customAttributes is { Length: > 0 })
+                return true;
+            
+            // Check if force artifice is used either way.
+            var isUsingForceArtifice = property.GetAttributes().Any(attribute => attribute is ForceArtificeAttribute);
+            if (isUsingForceArtifice)
                 return true;
             
             if (property.IsArray() && property.arraySize == 0)

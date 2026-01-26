@@ -63,7 +63,7 @@ namespace ArtificeToolkit.Editor
 
 
         /// <summary> This method uses reflection to return the object reference of the property. </summary>
-        private static object GetTarget(this SerializedProperty property)
+        public static object GetTarget(this SerializedProperty property)
         {
             // First try to use direct type access if possible for performance.
             if (GetTargetDirect(property, out var value))
@@ -96,6 +96,20 @@ namespace ArtificeToolkit.Editor
             return target;
         }
 
+        /// <summary>
+        /// Find method get reference to a target object. If the property does not have a SerializedProperty parent,
+        /// its parent is the serializedObject
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static object GetParentTarget(this SerializedProperty property)
+        {
+            var propertyParent = property.FindParentProperty();
+            return propertyParent != null
+                ? propertyParent.GetTarget()
+                : property.serializedObject.targetObject;
+        }
+        
         /// <summary> This method returns the object value of the property using direct means. It does not support generic types and enums. </summary>
         private static bool GetTargetDirect(this SerializedProperty property, out object value)
         {
@@ -337,22 +351,47 @@ namespace ArtificeToolkit.Editor
             }
         }
         
-        /// <summary> Returns an array of any <see cref="CustomAttribute"/> found in the property. Otherwise returns null. </summary>
-        public static Attribute[] GetAttributes(this SerializedProperty property)
+        /// <summary> Returns an array of any <see cref="Attribute"/> found in the property. Otherwise returns null. </summary>
+        public static IEnumerable<Attribute> GetAttributes(this SerializedProperty property)
         {
             var fieldInfo = GetFieldNested(property.serializedObject.targetObject, property.propertyPath);
 
             if (fieldInfo != null)
-            {
-                // var attributes = (CustomAttribute[])fieldInfo.GetCustomAttributes(typeof(CustomAttribute), true);
                 return (Attribute[])fieldInfo.GetCustomAttributes(true);
-            }
 
-            return null;
+            return new Attribute[]{};
         }
         
         /// <summary> Returns all <see cref="CustomAttribute"/> found on the property field and on its field type. Returns an empty array if none are found. </summary>
         public static CustomAttribute[] GetCustomAttributes(this SerializedProperty property)
+        {
+            return property.GetCustomAttributes(fieldInfo =>
+            {
+                // 1. Collect attributes from the field
+                var fieldAttributes = fieldInfo
+                    .GetCustomAttributes(typeof(CustomAttribute), true)
+                    .Cast<CustomAttribute>();
+
+                // 2. Collect attributes from the field's type
+                var typeAttributes = fieldInfo.FieldType
+                    .GetCustomAttributes(typeof(CustomAttribute), true)
+                    .Cast<CustomAttribute>();
+
+                // 3. Collect attributes from implemented interfaces
+                var interfaceAttributes = fieldInfo.FieldType
+                    .GetInterfaces()
+                    .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
+                        .Cast<CustomAttribute>());
+
+                return fieldAttributes
+                    .Concat(typeAttributes)
+                    .Concat(interfaceAttributes)
+                    .ToArray();
+            });
+        }
+
+        public static CustomAttribute[] GetCustomAttributes(this SerializedProperty property, 
+            Func<FieldInfo, CustomAttribute[]> function)
         {
             // Arrays have a sibling "size". Their parent is the actual property we need to search in GetFieldNested.
             if (property.name == "Array")
@@ -362,28 +401,8 @@ namespace ArtificeToolkit.Editor
             if (fieldInfo == null)
                 return Array.Empty<CustomAttribute>();
 
-            // 1. Collect attributes from the field
-            var fieldAttributes = fieldInfo
-                .GetCustomAttributes(typeof(CustomAttribute), true)
-                .Cast<CustomAttribute>();
-
-            // 2. Collect attributes from the field's type
-            var typeAttributes = fieldInfo.FieldType
-                .GetCustomAttributes(typeof(CustomAttribute), true)
-                .Cast<CustomAttribute>();
-
-            // 3. Collect attributes from implemented interfaces
-            var interfaceAttributes = fieldInfo.FieldType
-                .GetInterfaces()
-                .SelectMany(i => i.GetCustomAttributes(typeof(CustomAttribute), true)
-                    .Cast<CustomAttribute>());
-
-            return fieldAttributes
-                .Concat(typeAttributes)
-                .Concat(interfaceAttributes)
-                .ToArray();
+            return function.Invoke(fieldInfo);
         }
-
         
         /// <summary>Gets visible children of a <see cref="SerializedProperty"/> at 1 level depth.</summary>
         public static List<SerializedProperty> GetVisibleChildren(this SerializedProperty property)
@@ -435,7 +454,7 @@ namespace ArtificeToolkit.Editor
         }
         
         /// <summary> Returns the field info of a target object based on the path </summary>
-        private static FieldInfo GetFieldNested(object target, string path)
+        public static FieldInfo GetFieldNested(object target, string path)
         {
             var fields = path.Split('.');
             var isNextPropertyArrayIndex = false;
@@ -465,7 +484,7 @@ namespace ArtificeToolkit.Editor
                 Type targetType = target.GetType();
                 while (targetType != null)
                 {
-                    fieldInfo = targetType.GetField(fields[^1], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    fieldInfo = targetType.GetField(fields[^1], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty);
                     if (fieldInfo != null)
                         return fieldInfo;
 
@@ -495,6 +514,7 @@ namespace ArtificeToolkit.Editor
             var parts = nestedMember.Split('.');
             var currentObject = rootObject;
             var currentType = rootObject.GetType();
+
 
             for (int i = 0; i < parts.Length; i++)
             {
@@ -529,11 +549,21 @@ namespace ArtificeToolkit.Editor
                     continue;
                 }
 
-                var member = currentType.GetMember(name,
-                                                   BindingFlags.Instance |
-                                                   BindingFlags.Static   |
-                                                   BindingFlags.Public   |
-                                                   BindingFlags.NonPublic).FirstOrDefault();
+                // Walk up the type chain to find the member
+                Type temporaryType = currentType;
+                MemberInfo member = null;
+                while (temporaryType != null)
+                {
+                    member = temporaryType.GetMember(name,
+                        BindingFlags.Instance |
+                        BindingFlags.Static   |
+                        BindingFlags.Public   |
+                        BindingFlags.NonPublic |
+                        BindingFlags.DeclaredOnly).FirstOrDefault();
+                    if (member != null)
+                        break;
+                    temporaryType = temporaryType.BaseType;
+                }
 
                 if (member == null)
                     throw new MemberAccessException(
@@ -580,14 +610,78 @@ namespace ArtificeToolkit.Editor
 
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindPropertyInSameScope(this SerializedProperty property, string propertyName)
-       {
-           var path = property.propertyPath.Split('.');
-           path[^1] = propertyName;
+        {
+            if (property?.serializedObject == null)
+                return null;
 
-           var newPath = String.Join('.', path);
-           return property.serializedObject.FindProperty(newPath);
-       }
+            var path = property.propertyPath.Split('.');
+            if (path.Length == 0)
+                return null;
+
+            // Replace the last element with the target property name
+            path[^1] = propertyName;
+            var newPath = string.Join(".", path);
+
+            // Try normal field name first
+            var newProp = property.serializedObject.FindProperty(newPath);
+            if (newProp != null)
+                return newProp;
+
+            // Handle [field: SerializeField] auto-property backing field
+            // e.g., "<MyProperty>k__BackingField"
+            path[^1] = $"<{propertyName}>k__BackingField";
+            newPath = string.Join(".", path);
+
+            return property.serializedObject.FindProperty(newPath);
+        }
        
+        /// <summary> Returns a reflected property, field, or parameterless method value in the same scope. </summary>
+        public static void FindReflectedPropertyInSameScope(this SerializedProperty property, string propertyName, out object returnValue)
+        {
+            returnValue = null;
+
+            var target = property.GetParentTarget();
+            var targetType = target.GetType();
+
+            MemberInfo member = null;
+            MethodInfo method = null;
+
+            // Walk the type hierarchy to find all inherited members too (added for template classes)
+            for (var type = targetType; type != null; type = type.BaseType)
+            {
+                member = (MemberInfo)type.GetProperty(
+                             propertyName,
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly
+                            )
+                         ?? type.GetField(
+                             propertyName,
+                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly
+                            );
+
+                if (member != null)
+                    break;
+
+                method = type.GetMethod(
+                    propertyName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly,
+                    binder: null,
+                    types: Type.EmptyTypes,
+                    modifiers: null);
+
+                if (method != null)
+                    break;
+            }
+
+            // 3. Get value
+            returnValue = member switch
+            {
+                PropertyInfo p => p.GetValue(target),
+                FieldInfo f => f.GetValue(target),
+                _ => method?.Invoke(target, null)
+            };
+        }
+
+        
         /// <summary> Returns a serialized property in the same scope </summary>
         public static SerializedProperty FindParentProperty(this SerializedProperty property)
         {
@@ -596,7 +690,6 @@ namespace ArtificeToolkit.Editor
             var newPath = String.Join('.', path);
             return property.serializedObject.FindProperty(newPath);
         }
-
         
         /// <summary> Returns array children type from array property. </summary>
         public static Type GetArrayChildrenType(this SerializedProperty property)
@@ -706,7 +799,7 @@ namespace ArtificeToolkit.Editor
         {
             if (targetProperty == null || property.propertyType != targetProperty.propertyType)
             {
-                Debug.LogWarning("Cannot paste: mismatched property types or no copied value.");
+                Artifice_Utilities.LogError("Cannot paste: mismatched property types or no copied value.");
                 return;
             }
 
@@ -750,7 +843,7 @@ namespace ArtificeToolkit.Editor
                     property.enumValueFlag = targetProperty.enumValueFlag;
                     break;
                 default:
-                    Debug.LogWarning($"Unsupported property type for paste: {targetProperty.propertyType}");
+                    Artifice_Utilities.LogError($"Unsupported property type for paste: {targetProperty.propertyType}");
                     break;
             }
 

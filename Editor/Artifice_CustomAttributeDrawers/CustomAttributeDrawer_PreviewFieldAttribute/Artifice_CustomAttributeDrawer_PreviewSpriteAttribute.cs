@@ -77,7 +77,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             else if (_property.objectReferenceValue is Texture2D texture)
                 _image.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
             else
-                Debug.LogError($"Assignment failed. Make sure you are using type of {_property.type}");
+                Artifice_Utilities.LogError($"Assignment failed. Make sure you are using type of {_property.type}");
         }
         
         #endregion

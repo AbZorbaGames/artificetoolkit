@@ -44,10 +44,13 @@ You can add the ArtificeToolkit to your Unity project as a package through Git. 
 # Artifice Inspector and Custom Attributes
 By using custom attributes in your MonoBehaviour scripts you can quickly alter the inspector's appearance. In this section, you will find all the attributes which are tested and ready for use.
 
-**NOTE:** By default, the Artifice Drawer is disabled. You can always turn it on/off through the dedicated MenuItem "ArtificeToolkit"
+**NOTE:** By default, the Artifice Drawer is disabled. You can always turn it on/off through the dedicated MenuItem "ArtificeToolkit/Wizard Settings"
 
 <p align="center">
-  <img src="./Documentation/artifice_toggle.png" />
+  <img src="./Documentation/artifice_menuitem.png" />
+</p>
+<p align="center">
+  <img src="./Documentation/artifice_wizard.png" />
 </p>
 
 
@@ -128,7 +131,7 @@ private bool shouldEnable;
 [SerializeField, BoxGroup("Test")]
 private int x;
 
-[SerializeField, EnableIf(nameof(shouldEnable), true), BoxGroup("Test")]
+[SerializeField, EnableIf(nameof(shouldEnable)), BoxGroup("Test")]
 private int y;
 ```
 
@@ -341,7 +344,10 @@ private Directions direction;
 
 
 ### EnableIf
-This attributes allows you to set an equality condition using another field in the same scope to dictate where the target property will be shown or not. This is a really usefull attribute to optionally show properties that depend upon a bool check or enum check. 
+The EnableIf attribute allows you to conditionally show or hide a serialized property based on the value of another field, property, or even a method within the same scope.
+This is especially useful for exposing optional settings or parameters that depend on a boolean flag, an enum value, or a custom validation check.
+
+Refer to the EnableIf constructor for detailed usage examples and supported parameter types. 
 
 ```c#
 [SerializeField]
@@ -353,7 +359,7 @@ private ParticleSystem prefabOnDeathParticles;
 [SerializeField, FoldoutGroup("On Death", GroupColor.Red)]
 private float onDeathDurationSeconds;
 
-[SerializeField, EnableIf(nameof(shouldSpawnParticlesOnDestroy), true), FoldoutGroup("On Death", GroupColor.Red)]
+[SerializeField, EnableIf(nameof(shouldSpawnParticlesOnDestroy)), FoldoutGroup("On Death", GroupColor.Red)]
 private float onDeathSoundFxVolume;
 ```
 
@@ -626,6 +632,8 @@ public abstract class TraitBase
 <div style="display: flex; justify-content: center;">
   <img src="./Documentation/artifice_inspectorheader.gif" alt="GIF Example"/>
 </div>
+
+9. You can create attributes which may or may not need to be evaluated by the validator. The most intuitive example is the EnableIf attribute. When something is not enabled, the validator should not be showing nested validation logs meant for the property and its children. <br><br>To do this for your own custom attributes, use the IArtifice_RequiresCheckForValidationInclusion interface on the attribute and implement IArtifice_ShouldIncludeInValidation in its corresponding custom attribute drawer. You can see a live example of this with EnableIfAttribute and the Artifice_CustomAttributeDrawer_EnableIfAttribute.
 
 
 <!-- ARTIFICE VALIDATOR -->
