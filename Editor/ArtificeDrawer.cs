@@ -93,6 +93,9 @@ namespace ArtificeToolkit.Editor
                 if (PropertyIgnoreSet.Contains(property.displayName))
                     continue;
                 
+                if (Artifice_Utilities.MScriptVisibility == false && property.name == "m_Script")
+                    continue; 
+                
                 artificeInspector.Add(CreatePropertyGUI(property.Copy()));
             }
 

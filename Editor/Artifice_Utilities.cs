@@ -27,6 +27,13 @@ namespace ArtificeToolkit.Editor
             get => EditorPrefs.GetBool("artificeDrawerEnabled");
             set => EditorPrefs.SetBool("artificeDrawerEnabled", value);
         }
+        public static bool MScriptVisibility
+        {
+            get => EditorPrefs.GetBool("artificeDrawer_mScriptVisibility");
+            set => EditorPrefs.SetBool("artificeDrawer_mScriptVisibility", value);
+        }
+        
+        
         private StylesHolder _soStylesHolder;
         private Dictionary<Type, Type> _drawerTypesMap;
         private Dictionary<Type, Artifice_CustomAttributeDrawer> _drawerInstancesMap;
