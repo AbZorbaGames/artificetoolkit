@@ -1,3 +1,4 @@
+using System;
 using Artifice.Editor;
 using ArtificeToolkit.Editor.Artifice_InspectorHeader;
 using UnityEngine;
@@ -69,9 +70,11 @@ namespace ArtificeToolkit.Editor
                 "Add on your top left toolbar, a quick and easy way to open/close your validator and see an overview of your validations.",
                 Artifice_Toolbar_Validator.Set_IsEnabled
             ));
+            
+            scrollView.Add(CreateAdditionalFeaturesList());
         }
 
-        private VisualElement CreateToggleSection(string title, bool currentValue, string tooltip, System.Action<bool> onValueChanged)
+        private VisualElement CreateToggleSection(string title, bool currentValue, string tooltip, Action<bool> onValueChanged)
         {
             var container = new VisualElement();
             container.AddToClassList("toggle-section");
@@ -98,6 +101,28 @@ namespace ArtificeToolkit.Editor
             helpLabel.AddToClassList("toggle-help-summary");
             container.Add(helpLabel);
 
+            return container;
+        }
+
+        private VisualElement CreateAdditionalFeaturesList()
+        {
+            var container = new ScrollView(ScrollViewMode.Vertical);
+            container.AddToClassList("additional-features-container");
+
+            var header = new Label("Additional Options");
+            header.AddToClassList("additional-features-header");
+            container.Add(header);
+
+            var mScriptVisibilityToggle = new Toggle("m_Script Visibility");
+            mScriptVisibilityToggle.AddToClassList("additional-features-toggle");
+            container.Add(mScriptVisibilityToggle);
+
+            mScriptVisibilityToggle.value = Artifice_Utilities.MScriptVisibility;
+            mScriptVisibilityToggle.RegisterValueChangedCallback(value =>
+            {
+                Artifice_Utilities.MScriptVisibility = value.newValue;
+            });
+            
             return container;
         }
     }

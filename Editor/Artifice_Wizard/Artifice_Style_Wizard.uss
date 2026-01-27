@@ -44,3 +44,21 @@
     -unity-font-style: normal;
     white-space: normal;              /* allows line wrapping if needed */
 }
+
+.additional-features-container{
+    background-color: rgba(40, 40, 50, 0.4);
+        
+    border-width: 1px;
+    border-color: rgb(0, 0, 0);
+    
+    padding: 6px;
+}
+
+.additional-features-container .additional-features-header{
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.additional-features-container .additional-features-toggle{
+    width: auto;
+}
