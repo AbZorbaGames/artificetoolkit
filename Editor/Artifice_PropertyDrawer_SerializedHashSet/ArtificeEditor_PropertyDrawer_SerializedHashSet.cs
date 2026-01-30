@@ -1,9 +1,8 @@
-using ArtificeToolkit.Editor;
 using ArtificeToolkit.Runtime.SerializedHashSet;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace Editor.Artifice_PropertyDrawer_SerializedHashSet
+namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
 {
     [CustomPropertyDrawer(typeof(SerializedHashSetWrapper), true)]
     public class ArtificeEditor_PropertyDrawer_SerializedHashSet : PropertyDrawer
