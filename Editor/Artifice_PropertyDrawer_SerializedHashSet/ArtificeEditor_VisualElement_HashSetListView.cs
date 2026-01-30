@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ArtificeToolkit.Editor;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -10,7 +9,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-namespace Editor.Artifice_PropertyDrawer_SerializedHashSet
+namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
 {
     public class ArtificeEditor_VisualElement_HashSetListView : Artifice_VisualElement_AbstractListView
     {
