@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.24
+- Fix: `UnityEngine.Tooltip` attribute was breaking rendering of Artifice lists. This was caused because unity uses a custom property drawer for the tooltip which somehow completely breaks the interaction with artifice. To avoid such issues, the `SafeTooltip` attribute has been added which has the exact same functionality as `Tooltip` but it works through Artifice.
+
 ## 1.6.23
 - Fix: Corrected wrong Editor namespace.
 

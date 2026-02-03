@@ -109,6 +109,7 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [MeasureUnit](#measureunit)
 - [ForceArtifice](#forceartifice)
 - [OnValueChanged](#onvaluechanged)
+- [SafeTooltip](#safetooltip)
 
 <!-- WHY ORDER MATTERS -->
 ## Why Order Matters!
@@ -576,6 +577,9 @@ public void TestMethod()
 }
 ```
 
+### SafeTooltip
+The default UnityEngine `Tooltip` interacts really poorly with Artifice lists for some mysterious reasons. To avoid such issues, use the `SafeTooltip` which has the exact same functionality. 
+
 <!-- EXTRA FEATURES -->
 ## Extra Features
 The ArtificeToolkit comes with a lot of extra stuff that will be briefly mentioned here. In the future, more documentation will be added in this section.
@@ -799,7 +803,7 @@ public class ExampleComponent : MonoBehaviour
 Serialized property type Generic does not support value tracking; callback is not set for characters
 UnityEditor.RetainedMode:UpdateSchedulers ()
 ```
-
-- Copying an entire Artifice List requires both lists to be alive when the Paste happens. This will be fixed in the future. 
-
+ 
 - The ArtificeToolkit was created with Dark Theme is mind and is currently the only supported color palette.
+
+- `UnityEngine.Tooltip` breaks the rendering of Artifice lists. Use `SafeTooltip` instead.

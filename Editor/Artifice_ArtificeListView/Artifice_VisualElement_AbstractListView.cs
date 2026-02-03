@@ -208,7 +208,6 @@ namespace ArtificeToolkit.Editor
             _listViewLabel = new Label(Property.displayName);
             _listViewLabel.AddToClassList("list-title-label");
             listHeader.Add(_listViewLabel);
-            _listViewLabel.tooltip = "Artifice List:\nTreat this as exactly as you would treat Unity's default list. If you find missing functionality that you would like to add, contact the ArtificeDrawer developers.";
             
             // Size field
             var sizeProperty = Property.FindPropertyRelative("Array.size");
