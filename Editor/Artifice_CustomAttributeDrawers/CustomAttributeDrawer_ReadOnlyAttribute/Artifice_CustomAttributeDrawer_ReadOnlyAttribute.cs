@@ -12,7 +12,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             if (propertyField is Artifice_VisualElement_AbstractListView listView)
             {
-                listView.SetEnabled(false);
+                listView.Set_Enabled(false);
             }
             else
             {
