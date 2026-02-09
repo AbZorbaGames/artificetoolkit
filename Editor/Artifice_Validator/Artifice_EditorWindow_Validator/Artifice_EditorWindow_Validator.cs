@@ -539,6 +539,7 @@ namespace ArtificeToolkit.Editor
                 if (originObject != null)
                 {
                     Selection.SetActiveObjectWithContext(originObject, originObject);
+                    EditorGUIUtility.PingObject(originObject);
 
                     if (originObject is Component originComponent)
                     {

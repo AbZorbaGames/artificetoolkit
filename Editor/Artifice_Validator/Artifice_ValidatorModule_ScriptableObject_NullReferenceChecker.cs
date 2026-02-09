@@ -5,6 +5,7 @@ using System.Linq;
 using ArtificeToolkit.Editor.Resources;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArtificeToolkit.Editor
 {
@@ -38,7 +39,7 @@ namespace ArtificeToolkit.Editor
                 // Case 1: Script rebound to MonoScript
                 if (obj is MonoScript)
                 {
-                    Logs.Add(CreateMissingScriptableObjectValidatorLog(path, $"Corrupted ScriptableObject (script rebound): {obj.name}"));
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (script rebound): {obj.name}"));
                     continue;
                 }
 
@@ -49,7 +50,7 @@ namespace ArtificeToolkit.Editor
                 }
                 catch
                 {
-                    Logs.Add(CreateMissingScriptableObjectValidatorLog(path, $"Corrupted ScriptableObject (cannot deserialize): {obj.name}"));
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (cannot deserialize): {obj.name}"));
                     continue;
                 }
 
@@ -58,27 +59,27 @@ namespace ArtificeToolkit.Editor
                 // Case 2: ScriptableObject lost its script field entirely
                 if (scriptProp == null)
                 {
-                    Logs.Add(CreateMissingScriptableObjectValidatorLog(path, $"Corrupted ScriptableObject (no m_Script): {obj.name}"));
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (no m_Script): {obj.name}"));
                     continue;
                 }
                 
                 // Case 3: Script field exists but is null
                 if (scriptProp.objectReferenceValue == null)
                 {
-                    Logs.Add(CreateMissingScriptableObjectValidatorLog(path, $"Corrupted ScriptableObject (missing Script): {obj.name}"));
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (missing Script): {obj.name}"));
                     continue;
                 }
             }
         }
 
-        private Artifice_Validator.ValidatorLog CreateMissingScriptableObjectValidatorLog(string path, string message = "")
+        private Artifice_Validator.ValidatorLog CreateMissingScriptableObjectValidatorLog(Object obj, string path, string message)
         {
             return new Artifice_Validator.ValidatorLog(
                 Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon,
-                $"Missing script on scriptable object at path {path}",
+                message,
                 LogType.Error,
                 GetType(),
-                null,
+                obj,
                 path
             );
         }
