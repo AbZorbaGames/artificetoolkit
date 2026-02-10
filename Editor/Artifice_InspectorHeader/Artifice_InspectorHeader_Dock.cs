@@ -32,16 +32,16 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         private bool _isProjectPrefab;
         private bool _isProjectModel;
 
-        private List<int> _selectedComponentIDs;
+        private List<int> _filteredComponentIDs;
         private readonly Dictionary<int, Component> _indexToComponentDictionary = new();
         private readonly HashSet<string> _noMultiEditVisualElementsHashset = new();
 
         private VisualElement _rootVisualElement;
         private VisualElement _inspectorHeader;
-        private VisualElement _selectComponentsContainer;
+        private VisualElement _filterComponentsContainer;
         private VisualElement _filterComponentsButton;
         private ToolbarSearchField _searchComponentsToolbar;
-        private readonly List<VisualElement> _selectComponentButtons = new();
+        private readonly List<VisualElement> _filterComponentButtons = new();
         private string _searchedComponentPrompt = string.Empty;
 
         private readonly Texture _allButtonIconTexture;
@@ -98,7 +98,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
             RefreshNoMultiInspectVisualsSet();
 
-            _selectedComponentIDs = new List<int>();
+            _filteredComponentIDs = new List<int>();
             var isAsset = AssetDatabase.Contains(_inspectingObject);
             var prefabType = PrefabUtility.GetPrefabAssetType(_inspectingObject);
             _isProjectPrefab = isAsset && prefabType is PrefabAssetType.Regular or PrefabAssetType.Variant;
@@ -160,23 +160,30 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
             for (var i = 0; i < components.Count; i++)
                 _indexToComponentDictionary.Add(i, components[i]);
-
+         
+            // Create main container.
             var mainContainer = new VisualElement();
             mainContainer.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
             mainContainer.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
-
-            var mainLineContainer = new VisualElement();
-            mainLineContainer.AddToClassList("main-line");
-            mainContainer.Add(mainLineContainer);
-
-            mainLineContainer.Add(BuildUI_InspectorHeaderButtons());
-            mainLineContainer.Add(BuildUI_SearchBar());
-
-            mainContainer.Add(BuildUI_SelectComponentContainer());
+            
+            // Add parts of the main container.
+            mainContainer.Add(BuildUI_QuickToolsLine());
+            mainContainer.Add(BuildUI_FilterComponentsList());
 
             return mainContainer;
         }
 
+        private VisualElement BuildUI_QuickToolsLine()
+        {
+            var container = new VisualElement();
+            container.AddToClassList("main-line");
+
+            container.Add(BuildUI_InspectorHeaderButtons());
+            container.Add(BuildUI_SearchBar());
+
+            return container;
+        }
+        
         private VisualElement BuildUI_InspectorHeaderButtons()
         {
             var container = new VisualElement();
@@ -193,7 +200,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             container.Add(expandAllButton);
 
             _filterComponentsButton = new Artifice_VisualElement_LabeledButton("Filter",
-                () => { _selectComponentsContainer.ToggleInClassList("visibility-toggle"); });
+                () => { _filterComponentsContainer.ToggleInClassList("visibility-toggle"); });
             _filterComponentsButton.Insert(0, new Image()
             {
                 image = _filterButtonIconTexture
@@ -217,13 +224,13 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             return _searchComponentsToolbar;
         }
 
-        private VisualElement BuildUI_SelectComponentContainer()
+        private VisualElement BuildUI_FilterComponentsList()
         {
             var components = GetAllVisibleComponents();
 
-            _selectComponentsContainer = new VisualElement();
-            _selectComponentsContainer.AddToClassList("visibility-toggle");
-            _selectComponentsContainer.AddToClassList("select-components-container");
+            _filterComponentsContainer = new VisualElement();
+            _filterComponentsContainer.AddToClassList("visibility-toggle");
+            _filterComponentsContainer.AddToClassList("filter-components-container");
 
             // Add searchbar
             var searchbarField = new ToolbarSearchField();
@@ -231,104 +238,104 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             {
                 var searchText = evt.newValue;
 
-                foreach (var selectComponentButton in _selectComponentButtons)
+                foreach (var filterComponentButton in _filterComponentButtons)
                 {
-                    var label = selectComponentButton.Q<Label>();
+                    var label = filterComponentButton.Q<Label>();
                     var type = label.text;
 
                     // Search check
                     if (string.IsNullOrEmpty(searchText) ||
                         type.Contains(searchText, StringComparison.InvariantCultureIgnoreCase))
-                        selectComponentButton.RemoveFromClassList("hide");
+                        filterComponentButton.RemoveFromClassList("hide");
                     else
-                        selectComponentButton.AddToClassList("hide");
+                        filterComponentButton.AddToClassList("hide");
                 }
             });
-            _selectComponentsContainer.Add(searchbarField);
+            _filterComponentsContainer.Add(searchbarField);
 
             // Add All button
-            var selectAllComponentButton = BuildUI_SelectComponentButton("All", null);
-            selectAllComponentButton.AddToClassList("select-component-button-selected");
-            selectAllComponentButton.Insert(0, new Image()
+            var filterAllComponentButton = BuildUI_FilterComponentButton("All", null);
+            filterAllComponentButton.AddToClassList("filter-component-button-selected");
+            filterAllComponentButton.Insert(0, new Image()
             {
                 image = _allButtonIconTexture
             });
-            _selectComponentsContainer.Add(selectAllComponentButton);
+            _filterComponentsContainer.Add(filterAllComponentButton);
 
             // Create scroll view with snap scroll handling. 
             var scrollView = new ScrollView { mouseWheelScrollSize = 9 };
-            scrollView.AddToClassList("select-components-scrollView");
+            scrollView.AddToClassList("filter-components-scrollView");
             scrollView.RegisterCallback<WheelEvent>(evt => { evt.StopPropagation(); });
-            _selectComponentsContainer.Add(scrollView);
+            _filterComponentsContainer.Add(scrollView);
 
             // Register callback to all button
-            selectAllComponentButton.RegisterCallback<MouseDownEvent>(_ =>
+            filterAllComponentButton.RegisterCallback<MouseDownEvent>(_ =>
             {
-                _filterComponentsButton.RemoveFromClassList("select-component-button-selected");
-                selectAllComponentButton.AddToClassList("select-component-button-selected");
-                foreach (var selectedComponent in _selectComponentButtons)
-                    selectedComponent.RemoveFromClassList("select-component-button-selected");
+                _filterComponentsButton.RemoveFromClassList("filter-component-button-selected");
+                filterAllComponentButton.AddToClassList("filter-component-button-selected");
+                foreach (var selectedComponent in _filterComponentButtons)
+                    selectedComponent.RemoveFromClassList("filter-component-button-selected");
 
-                _selectedComponentIDs.Clear();
+                _filteredComponentIDs.Clear();
                 UpdateComponentVisibility();
             });
 
             // Add components as buttons
             foreach (var component in components)
             {
-                var selectComponentButton = BuildUI_SelectComponentButton(component.GetType().Name, component);
-                _selectComponentButtons.Add(selectComponentButton);
-                scrollView.Add(selectComponentButton);
+                var filterComponentButton = BuildUI_FilterComponentButton(component.GetType().Name, component);
+                _filterComponentButtons.Add(filterComponentButton);
+                scrollView.Add(filterComponentButton);
 
                 // Add click callback to button
-                selectComponentButton.RegisterCallback<MouseDownEvent>(evt =>
+                filterComponentButton.RegisterCallback<MouseDownEvent>(evt =>
                 {
                     if (evt.button == 0) // Add or remove selection among others.
                     {
-                        if (_selectedComponentIDs.Contains(component.GetInstanceID()))
+                        if (_filteredComponentIDs.Contains(component.GetInstanceID()))
                         {
-                            _selectedComponentIDs.Remove(component.GetInstanceID());
-                            selectComponentButton.RemoveFromClassList("select-component-button-selected");
+                            _filteredComponentIDs.Remove(component.GetInstanceID());
+                            filterComponentButton.RemoveFromClassList("filter-component-button-selected");
                         }
                         else
                         {
-                            _selectedComponentIDs.Add(component.GetInstanceID());
-                            selectComponentButton.AddToClassList("select-component-button-selected");
+                            _filteredComponentIDs.Add(component.GetInstanceID());
+                            filterComponentButton.AddToClassList("filter-component-button-selected");
                         }
                     }
                     else if (evt.button == 1) // Deselect previous, and select right-clicked element.
                     {
-                        _selectedComponentIDs.Clear();
-                        foreach (var selectedComponent in _selectComponentButtons)
-                            selectedComponent.RemoveFromClassList("select-component-button-selected");
+                        _filteredComponentIDs.Clear();
+                        foreach (var selectedComponent in _filterComponentButtons)
+                            selectedComponent.RemoveFromClassList("filter-component-button-selected");
 
-                        _selectedComponentIDs.Add(component.GetInstanceID());
-                        selectComponentButton.AddToClassList("select-component-button-selected");
+                        _filteredComponentIDs.Add(component.GetInstanceID());
+                        filterComponentButton.AddToClassList("filter-component-button-selected");
                     }
 
                     // Update style class of all button
-                    if (_selectedComponentIDs.Count == 0)
+                    if (_filteredComponentIDs.Count == 0)
                     {
-                        selectAllComponentButton.AddToClassList("select-component-button-selected");
-                        _filterComponentsButton.RemoveFromClassList("select-component-button-selected");
+                        filterAllComponentButton.AddToClassList("filter-component-button-selected");
+                        _filterComponentsButton.RemoveFromClassList("filter-component-button-selected");
                     }
                     else
                     {
-                        selectAllComponentButton.RemoveFromClassList("select-component-button-selected");
-                        _filterComponentsButton.AddToClassList("select-component-button-selected");
+                        filterAllComponentButton.RemoveFromClassList("filter-component-button-selected");
+                        _filterComponentsButton.AddToClassList("filter-component-button-selected");
                     }
 
                     UpdateComponentVisibility();
                 });
             }
 
-            return _selectComponentsContainer;
+            return _filterComponentsContainer;
         }
 
-        private VisualElement BuildUI_SelectComponentButton(string title, Component component)
+        private VisualElement BuildUI_FilterComponentButton(string title, Component component)
         {
-            var selectComponentButton = new VisualElement();
-            selectComponentButton.AddToClassList("select-component-button");
+            var filterComponentButton = new VisualElement();
+            filterComponentButton.AddToClassList("filter-component-button");
 
             if (component != null)
             {
@@ -337,13 +344,13 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                 {
                     image = content?.image
                 };
-                selectComponentButton.Add(image);
+                filterComponentButton.Add(image);
             }
 
             var label = new Label(title);
-            selectComponentButton.Add(label);
+            filterComponentButton.Add(label);
 
-            return selectComponentButton;
+            return filterComponentButton;
         }
 
         #endregion
@@ -356,7 +363,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             var skippedComponentsCount = 0;
 
             var isSearchUsed = string.IsNullOrWhiteSpace(_searchedComponentPrompt) == false;
-            var isSelectionUsed = _selectedComponentIDs.Count > 0;
+            var isFilterUsed = _filteredComponentIDs.Count > 0;
 
             for (var i = startIndex; i < _rootVisualElement.childCount; i++)
             {
@@ -369,8 +376,8 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                 var compIndex = i - startIndex - skippedComponentsCount;
                 if (_indexToComponentDictionary.TryGetValue(compIndex, out var component))
                 {
-                    var shouldShow = !(isSelectionUsed &&
-                                       _selectedComponentIDs.Contains(component.GetInstanceID()) == false);
+                    var shouldShow = !(isFilterUsed &&
+                                       _filteredComponentIDs.Contains(component.GetInstanceID()) == false);
 
                     if (shouldShow && isSearchUsed && !component.GetType().Name.Contains(_searchedComponentPrompt,
                             StringComparison.InvariantCultureIgnoreCase))

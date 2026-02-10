@@ -34,7 +34,7 @@
     display: none;
 }
 
-.select-components-container{
+.filter-components-container{
     width: 90%;
     padding: 10px;
     background-color: #373737;
@@ -47,16 +47,16 @@
     border-radius: 10px;
 }
 
-.select-components-container ToolbarSearchField{
+.filter-components-container ToolbarSearchField{
     width: 100%;
 }
 
-.select-components-scrollView{
+.filter-components-scrollView{
     min-height: 10px;
     max-height: 200px;
 }
 
-.select-component-button{
+.filter-component-button{
     flex-direction: row;
     background-color: #444444;
     height: 25px;
@@ -74,25 +74,25 @@
     overflow: hidden;
 }
 
-.select-component-button:hover{
+.filter-component-button:hover{
     background-color: #565252;
 }
 
-.select-component-button Label{
+.filter-component-button Label{
     padding-left: 10px;
 }
 
-.select-component-button Image{
+.filter-component-button Image{
     width: 18px;
     flex-shrink: 0;
     margin-left: 10px;
 }
 
-.select-component-button-selected{
+.filter-component-button-selected{
     background-color: #386A81;
 }
 
-.select-component-button-selected:hover{
+.filter-component-button-selected:hover{
     background-color: #458fb2;
 }
 
