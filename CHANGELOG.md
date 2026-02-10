@@ -1,4 +1,8 @@
 # Change Log:
+## 1.6.25
+- Fix: Minor refactor to naming of Abstract List View method to resolve unity warning.
+- Enhancement: Refactored `Artifice_ValidatorModule_ScriptableObject_NullReferenceChecker` to work with all types of corrupted ScriptableObject asset.
+
 ## 1.6.24
 - Fix: `UnityEngine.Tooltip` attribute was breaking rendering of Artifice lists. This was caused because unity uses a custom property drawer for the tooltip which somehow completely breaks the interaction with artifice. To avoid such issues, the `SafeTooltip` attribute has been added which has the exact same functionality as `Tooltip` but it works through Artifice.
 
@@ -7,7 +11,7 @@
 
 ## 1.6.22
 - Enhancement: Added a list of additional minor features in `Artifice Wizard` menu. First and sole option for now is to make the `m_Script` property of `MonoBehaviours` to not be visible.
-- 
+ 
 ## 1.6.21
 - Enhancement: Added `SerializedHashSet` type. Works and gets serialized as a plain list, but on runtime it is treated as a hashset. Artifice provides a property drawer to show conflict of entries.
 

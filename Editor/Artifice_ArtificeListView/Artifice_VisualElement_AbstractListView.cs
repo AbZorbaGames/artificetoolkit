@@ -667,7 +667,7 @@ namespace ArtificeToolkit.Editor
         
         #region Utility
 
-        public void SetEnabled(bool enabled)
+        public void Set_Enabled(bool enabled)
         {
             _isEditable = enabled;
             BuildListUI();

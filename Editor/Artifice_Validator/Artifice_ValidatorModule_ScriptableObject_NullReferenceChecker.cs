@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ArtificeToolkit.Editor.Resources;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArtificeToolkit.Editor
 {
@@ -16,43 +19,82 @@ namespace ArtificeToolkit.Editor
         
         public override IEnumerator ValidateCoroutine(List<GameObject> rootGameObjects)
         {
-            var guids = AssetDatabase.FindAssets("", _foldersToSearch);
+            var allAssetPaths = AssetDatabase.GetAllAssetPaths();
+            var iterationCounter = 0;
 
-            for (var i = 0; i < guids.Length; i++)
+            var pathsToSearch = allAssetPaths.Where(IsUnderSearchFolders);
+            foreach (var path in pathsToSearch)
             {
-                var path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                var asset = AssetDatabase.LoadMainAssetAtPath(path);
-
-                // Check if it's a scriptable object with a missing script
-                if (asset != null && asset is ScriptableObject scriptableObject)
-                {
-                    var script = MonoScript.FromScriptableObject(scriptableObject);
-                    if (script == null)
-                    {
-                        Logs.Add(CreateMissingScriptableObjectValidatorLog(path));
-                    }
-                }
-                else if (asset == null && path.EndsWith(".asset"))
-                {
-                    // Unity returns null if the script is missing entirely
-                    Logs.Add(CreateMissingScriptableObjectValidatorLog(path));
-                }
-
-                if (i % 50 == 0)
+                iterationCounter++;
+                if (iterationCounter % 100 == 0)
                     yield return null; // avoid editor freeze
+                
+                if (!path.EndsWith(".asset"))
+                    continue;
+
+                var obj = AssetDatabase.LoadMainAssetAtPath(path);
+                if (obj == null)
+                {
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(null, path, $"Corrupted ScriptableObject (null obj): {path}"));
+                    continue;
+                }
+
+                // Case 1: Script rebound to MonoScript
+                if (obj is MonoScript)
+                {
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (script rebound): {obj.name}"));
+                    continue;
+                }
+
+                SerializedObject so;
+                try
+                {
+                    so = new SerializedObject(obj);
+                }
+                catch
+                {
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (cannot deserialize): {obj.name}"));
+                    continue;
+                }
+
+                var scriptProp = so.FindProperty("m_Script");
+
+                // Case 2: ScriptableObject lost its script field entirely
+                if (scriptProp == null)
+                {
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (no m_Script): {obj.name}"));
+                    continue;
+                }
+                
+                // Case 3: Script field exists but is null
+                if (scriptProp.objectReferenceValue == null)
+                {
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(obj, path, $"Corrupted ScriptableObject (missing Script): {obj.name}"));
+                    continue;
+                }
             }
         }
 
-        private Artifice_Validator.ValidatorLog CreateMissingScriptableObjectValidatorLog(string path)
+        private Artifice_Validator.ValidatorLog CreateMissingScriptableObjectValidatorLog(Object obj, string path, string message)
         {
             return new Artifice_Validator.ValidatorLog(
                 Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon,
-                $"Missing script on scriptable object at path {path}",
+                message,
                 LogType.Error,
                 GetType(),
-                null,
+                obj,
                 path
             );
+        }
+        
+        private bool IsUnderSearchFolders(string path)
+        {
+            foreach (var folder in _foldersToSearch)
+            {
+                if (path.StartsWith(folder + "/", StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
         }
     }
 }
