@@ -3,7 +3,7 @@ using CustomAttributes;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_SafeTooltipAttribute
+namespace ArtificeToolkit.Editor.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_SafeTooltipAttribute
 {
     [Artifice_CustomAttributeDrawer(typeof(SafeTooltipAttribute))]
     public class Artifice_CustomAttributeDrawer_SafeTooltipAttribute : Artifice_CustomAttributeDrawer

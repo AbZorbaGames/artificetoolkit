@@ -2,7 +2,7 @@ using ArtificeToolkit.Attributes;
 
 namespace CustomAttributes
 {
-    public class SafeTooltipAttribute : CustomAttribute
+    public class SafeTooltipAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {
         public readonly string Tooltip;
 
