@@ -34,7 +34,10 @@ namespace ArtificeToolkit.Editor
 
                 var obj = AssetDatabase.LoadMainAssetAtPath(path);
                 if (obj == null)
+                {
+                    Logs.Add(CreateMissingScriptableObjectValidatorLog(null, path, $"Corrupted ScriptableObject (null obj): {path}"));
                     continue;
+                }
 
                 // Case 1: Script rebound to MonoScript
                 if (obj is MonoScript)
