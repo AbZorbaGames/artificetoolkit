@@ -125,6 +125,16 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
         public bool IsInspectorLocked() => (bool)_inspectorLockedPropertyInfo.GetValue(InspectorWindow);
 
+        /// <remarks>This is for 3rd party use for now. Do not remove even though it is unused. </remarks>
+        public void SetSearchedComponentPrompt(string searchedComponentPrompt)
+        {
+            if (IsInspectorLocked())
+                return;
+            _searchedComponentPrompt = searchedComponentPrompt;
+            Update();
+            _searchComponentsToolbar.SetValueWithoutNotify(_searchedComponentPrompt);
+        }
+        
         #endregion
 
         #region Filtering Logic (Separation of Concern)
