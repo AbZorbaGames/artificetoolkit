@@ -1,5 +1,5 @@
 # Change Log:
-## 1.6.27
+## 1.7.0
 - Enhancement: Added `CategoryButtons` on `InspectorHeader`. It can be enabled/disabled from the `Artifice Wizard`.
 
 ## 1.6.26
