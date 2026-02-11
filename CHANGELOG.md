@@ -1,4 +1,7 @@
 # Change Log:
+## 1.6.27
+- Enhancement: Added `CategoryButtons` on `InspectorHeader`. It can be enabled/disabled from the `Artifice Wizard`.
+
 ## 1.6.26
 - Fix: Added `IArtifice_ArrayAppliedAttribute` on `SafeTooltip` and corrected namespace of its custom attribute drawer.
 - Fix: Fixed namespace of `Artifice_CustomAttributeDrawer_SafeTooltipAttribute`
