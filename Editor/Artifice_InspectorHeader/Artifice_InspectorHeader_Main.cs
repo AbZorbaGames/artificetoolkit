@@ -11,6 +11,18 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
     {
         #region FIELDS
 
+        public static bool IsEnabled
+        {
+            get => EditorPrefs.GetBool("InspectorHeader EnabledState");
+            set => EditorPrefs.SetBool("InspectorHeader EnabledState", value);
+        }
+        
+        public static bool CategoryButtonsEnabled
+        {
+            get => EditorPrefs.GetBool("InspectorHeader CategoryButtonsEnabled");
+            set => EditorPrefs.SetBool("InspectorHeader CategoryButtonsEnabled", value);
+        }
+        
         private static readonly List<Artifice_InspectorHeader_Dock> Docks = new();
 
         private static readonly Type InspectorWindowType =
@@ -19,13 +31,6 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         private static readonly FieldInfo AllInspectorsFieldInfo =
             InspectorWindowType.GetField("m_AllInspectors", BindingFlags.NonPublic | BindingFlags.Static);
 
-        private const string MenuPath = "Artifice Toolkit/";
-        private const string MenuInspectorHeaderOn = MenuPath + "\u2610 Toggle Inspector Header/On";
-        private const string MenuInspectorHeaderOff = MenuPath + "\u2610 Toggle Inspector Header/Off";
-        private const int MenuItemPriority = 12;
-        private const string EditorPrefKeyForToolEnabledState = "InspectorHeader EnabledState";
-        private static bool _isEnabled;
-
         #endregion
 
         public static List<Artifice_InspectorHeader_Dock> GetDocks() => Docks;
@@ -33,9 +38,9 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         [InitializeOnLoadMethod]
         private static void Init()
         {
-            _isEnabled = EditorPrefs.GetBool(EditorPrefKeyForToolEnabledState, false);
-            if (_isEnabled == false)
+            if (IsEnabled == false)
                 return;
+            
             EditorApplication.delayCall -= OnInit;
             EditorApplication.delayCall += OnInit;
         }
@@ -78,8 +83,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             EditorApplication.update -= OnEditorUpdate;
             Selection.selectionChanged -= OnSelectionChanged;
         }
-
-
+        
         private static void RefreshInspectorWindows()
         {
             var inspectorWindows = (IList)AllInspectorsFieldInfo.GetValue(InspectorWindowType);
@@ -129,31 +133,16 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
         #region Utilities
 
-        private static void EnableTool()
+        public static void Set_IsEnabled(bool enabled)
         {
-            _isEnabled = true;
-            EditorPrefs.SetBool(EditorPrefKeyForToolEnabledState, _isEnabled);
-            OnInit();
-        }
-
-        private static void DisableTool()
-        {
-            _isEnabled = false;
-            EditorPrefs.SetBool(EditorPrefKeyForToolEnabledState, _isEnabled);
-            DeInit();
-        }
-
-        public static bool IsEnabled()
-        {
-            return _isEnabled;
-        }
-
-        public static void SetEnabled(bool option)
-        {
-            if(option)
-                EnableTool();
+            IsEnabled = enabled;
+            
+            if(IsEnabled)
+                OnInit();
             else
-                DisableTool();
+                DeInit();
+            
+            Artifice_Utilities.TriggerNextFrameReselection();
         }
         
         #endregion

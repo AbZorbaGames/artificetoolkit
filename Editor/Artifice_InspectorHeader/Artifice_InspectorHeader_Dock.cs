@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -12,19 +13,15 @@ using Object = UnityEngine.Object;
 
 namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 {
-    /// <summary> Handles a single Dock. This is the component that is inserted at the top of the Inspector view.
-    /// Multiple Docks can be present if more than one Inspector windows are open (1 Dock per inspector). </summary>
     public class Artifice_InspectorHeader_Dock
     {
-        #region FIELDS
+        #region Fields & Constants
 
         public readonly EditorWindow InspectorWindow;
 
         private const string InspectorListClassName = "unity-inspector-editors-list";
         private const string InspectorNoMultiEditClassName = "unity-inspector-no-multi-edit-warning";
         private const string ComponentViewerName = "ComponentViewer";
-        private const string AllButtonIconId = "ViewToolOrbit On";
-        private const string FilterButtonIconId = "d_align_horizontally_right_active";
 
         private Object _inspectingObject;
         private readonly PropertyInfo _inspectorLockedPropertyInfo;
@@ -32,33 +29,26 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         private bool _isProjectPrefab;
         private bool _isProjectModel;
 
-        private List<int> _filteredComponentIDs;
+        // Logic State
+        private readonly HashSet<int> _filteredComponentIDs = new();
         private readonly Dictionary<int, Component> _indexToComponentDictionary = new();
         private readonly HashSet<string> _noMultiEditVisualElementsHashset = new();
+        private string _searchedComponentPrompt = string.Empty;
 
+        // UI References
         private VisualElement _rootVisualElement;
         private VisualElement _inspectorHeader;
         private VisualElement _filterComponentsContainer;
         private VisualElement _filterComponentsButton;
         private ToolbarSearchField _searchComponentsToolbar;
+        private VisualElement _filterAllButton;
         private readonly List<VisualElement> _filterComponentButtons = new();
-        private string _searchedComponentPrompt = string.Empty;
+        private readonly List<VisualElement> _categoryButtons = new();
 
         private readonly Texture _allButtonIconTexture;
         private readonly Texture _filterButtonIconTexture;
 
         #endregion
-
-        #region PUBLIC METHODS
-
-        public void SetSearchedComponentPrompt(string searchedComponentPrompt)
-        {
-            if (IsInspectorLocked())
-                return;
-            _searchedComponentPrompt = searchedComponentPrompt;
-            Update();
-            _searchComponentsToolbar.SetValueWithoutNotify(_searchedComponentPrompt);
-        }
 
         public Artifice_InspectorHeader_Dock(EditorWindow window, Object obj)
         {
@@ -66,63 +56,28 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             _inspectorLockedPropertyInfo =
                 window.GetType().GetProperty("isLocked", BindingFlags.Public | BindingFlags.Instance);
             _inspectorWasLocked = IsInspectorLocked();
-            _allButtonIconTexture = EditorGUIUtility.IconContent(AllButtonIconId).image;
-            _filterButtonIconTexture = EditorGUIUtility.IconContent(FilterButtonIconId).image;
+
+            _allButtonIconTexture = EditorGUIUtility.IconContent("ViewToolOrbit On").image;
+            _filterButtonIconTexture = EditorGUIUtility.IconContent("d_align_horizontally_right_active").image;
+
             SetDockSelectionToObject(obj);
         }
 
-        public void SetDockSelectionToObject(Object obj)
-        {
-            // Reset inspector header if needed
-            if (
-                _inspectingObject == null ||
-                _inspectingObject != obj && IsInspectorLocked() == false
-            )
-            {
-                _inspectorHeader?.Clear();
-                _inspectorHeader = null;
-                _searchedComponentPrompt = string.Empty;
-                _searchComponentsToolbar?.SetValueWithoutNotify(string.Empty);
-            }
-
-            _inspectingObject = obj;
-            if (_inspectingObject is not GameObject)
-                return;
-
-            if (!_inspectingObject)
-            {
-                _isProjectPrefab = false;
-                _isProjectModel = false;
-                return;
-            }
-
-            RefreshNoMultiInspectVisualsSet();
-
-            _filteredComponentIDs = new List<int>();
-            var isAsset = AssetDatabase.Contains(_inspectingObject);
-            var prefabType = PrefabUtility.GetPrefabAssetType(_inspectingObject);
-            _isProjectPrefab = isAsset && prefabType is PrefabAssetType.Regular or PrefabAssetType.Variant;
-            _isProjectModel = isAsset && prefabType is PrefabAssetType.Model;
-        }
+        #region Public API
 
         public void Update()
         {
-            if (!InspectingObjectIsValid())
-                return;
+            if (!InspectingObjectIsValid()) return;
 
-            // This contains all visual elements that represent the objects components as children.
             _rootVisualElement ??= InspectorWindow.rootVisualElement.Q(null, InspectorListClassName);
-
-            if (_rootVisualElement == null)
-                return;
+            if (_rootVisualElement == null) return;
 
             if (InspectorJustUnlocked() && Selection.activeObject != _inspectingObject)
                 SetDockSelectionToObject(Selection.activeObject);
 
-            // Build and cache inspector header
-            _inspectorHeader ??= BuildUI();
+            if (_inspectorHeader == null)
+                _inspectorHeader = BuildUI();
 
-            // If inspector header has no parent, insert to root visual element.
             if (_inspectorHeader.parent == null)
             {
                 if (!ShouldShowComponentViewerGui() && _rootVisualElement.childCount > GetComponentViewerIndex())
@@ -132,87 +87,166 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             UpdateComponentVisibility();
         }
 
+        public void SetDockSelectionToObject(Object obj)
+        {
+            if (_inspectingObject == null || (_inspectingObject != obj && !IsInspectorLocked()))
+            {
+                ResetUIState();
+            }
+
+            _inspectingObject = obj;
+            if (_inspectingObject is not GameObject) return;
+
+            RefreshNoMultiInspectVisualsSet();
+
+            var isAsset = AssetDatabase.Contains(_inspectingObject);
+            var prefabType = PrefabUtility.GetPrefabAssetType(_inspectingObject);
+            _isProjectPrefab = isAsset && prefabType is PrefabAssetType.Regular or PrefabAssetType.Variant;
+            _isProjectModel = isAsset && prefabType is PrefabAssetType.Model;
+        }
+
         public void RemoveGUI()
         {
             if (!InspectingObjectIsValid())
+
                 return;
 
+
             if (ShouldShowComponentViewerGui())
+
                 _rootVisualElement?.RemoveAt(GetComponentViewerIndex());
+
             _inspectorHeader?.Clear();
+
             _searchedComponentPrompt = string.Empty;
+
             InspectorWindow.Repaint();
         }
 
-        public bool IsInspectorLocked()
+        public bool IsInspectorLocked() => (bool)_inspectorLockedPropertyInfo.GetValue(InspectorWindow);
+
+        #endregion
+
+        #region Filtering Logic (Separation of Concern)
+
+        private void ToggleComponentFilter(int instanceID, bool exclusive)
         {
-            return (bool)_inspectorLockedPropertyInfo.GetValue(InspectorWindow);
+            if (exclusive)
+            {
+                _filteredComponentIDs.Clear();
+                _filteredComponentIDs.Add(instanceID);
+            }
+            else
+            {
+                if (_filteredComponentIDs.Contains(instanceID))
+                    _filteredComponentIDs.Remove(instanceID);
+                else
+                    _filteredComponentIDs.Add(instanceID);
+            }
+
+            RefreshUIState_FilterComponents();
+            RefreshUIStates_CategoryButtons();
+            UpdateComponentVisibility();
+        }
+
+        private void FilterByType(Type targetType, bool exclusive)
+        {
+            // 1. Identify all components matching this type
+            var matchingIDs = _indexToComponentDictionary.Values
+                .Where(c => (targetType == typeof(MonoBehaviour)) ? c is MonoBehaviour : c.GetType() == targetType)
+                .Select(c => c.GetInstanceID())
+                .ToList();
+
+            if (matchingIDs.Count == 0)
+                return;
+
+            if (exclusive)
+            {
+                // Check if we are already exclusively filtering exactly these IDs
+                var isAlreadyExclusive = _filteredComponentIDs.Count == matchingIDs.Count &&
+                                         _filteredComponentIDs.All(id => matchingIDs.Contains(id));
+
+                _filteredComponentIDs.Clear();
+
+                // Toggle: If it was already exclusive, clear it. If not, set it.
+                if (!isAlreadyExclusive)
+                {
+                    foreach (var id in matchingIDs)
+                        _filteredComponentIDs.Add(id);
+                }
+            }
+            else
+            {
+                // Additive Toggle: If the first item of this type is already in, 
+                // we assume the user wants to remove the group.
+                var isAlreadyFiltered = _filteredComponentIDs.Contains(matchingIDs[0]);
+
+                foreach (var id in matchingIDs)
+                {
+                    if (isAlreadyFiltered)
+                        _filteredComponentIDs.Remove(id);
+                    else
+                        _filteredComponentIDs.Add(id);
+                }
+            }
+
+            RefreshUIState_FilterComponents();
+            RefreshUIStates_CategoryButtons();
+            UpdateComponentVisibility();
+        }
+
+        private void ClearAllFilters()
+        {
+            _filteredComponentIDs.Clear();
+            RefreshUIState_FilterComponents();
+            RefreshUIStates_CategoryButtons();
+            UpdateComponentVisibility();
         }
 
         #endregion
 
-        #region Build UI
+        #region UI Construction
 
         private VisualElement BuildUI()
         {
             _indexToComponentDictionary.Clear();
             var components = GetAllVisibleComponents();
-
             for (var i = 0; i < components.Count; i++)
                 _indexToComponentDictionary.Add(i, components[i]);
-         
-            // Create main container.
-            var mainContainer = new VisualElement();
-            mainContainer.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
-            mainContainer.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
+
+            var root = new VisualElement();
+            root.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
+            root.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
+
+            root.Add(BuildUI_QuickToolsRow());
+            root.Add(BuildUI_FilterPanel());
             
-            // Add parts of the main container.
-            mainContainer.Add(BuildUI_QuickToolsLine());
-            mainContainer.Add(BuildUI_FilterComponentsList());
+            if(Artifice_InspectorHeader_Main.CategoryButtonsEnabled)
+                root.Add(BuildUI_FastCategoryRow());
 
-            return mainContainer;
+            return root;
         }
 
-        private VisualElement BuildUI_QuickToolsLine()
+        private VisualElement BuildUI_QuickToolsRow()
         {
-            var container = new VisualElement();
-            container.AddToClassList("main-line");
+            var row = new VisualElement();
+            row.AddToClassList("quick-tools-container");
 
-            container.Add(BuildUI_InspectorHeaderButtons());
-            container.Add(BuildUI_SearchBar());
+            // Buttons
+            var btnContainer = new VisualElement();
+            btnContainer.AddToClassList("enhancer-options-container");
 
-            return container;
-        }
-        
-        private VisualElement BuildUI_InspectorHeaderButtons()
-        {
-            var container = new VisualElement();
-            container.AddToClassList("enhancer-options-container");
-
-            var components = _indexToComponentDictionary.Values.ToList();
-
-            var collapseAllButton =
-                new Artifice_VisualElement_LabeledButton("Collapse All", () => { SetExpandState(components, false); });
-            container.Add(collapseAllButton);
-
-            var expandAllButton =
-                new Artifice_VisualElement_LabeledButton("Expand All", () => { SetExpandState(components, true); });
-            container.Add(expandAllButton);
+            var comps = _indexToComponentDictionary.Values.ToList();
+            btnContainer.Add(
+                new Artifice_VisualElement_LabeledButton("Collapse All", () => SetExpandState(comps, false)));
+            btnContainer.Add(new Artifice_VisualElement_LabeledButton("Expand All", () => SetExpandState(comps, true)));
 
             _filterComponentsButton = new Artifice_VisualElement_LabeledButton("Filter",
-                () => { _filterComponentsContainer.ToggleInClassList("visibility-toggle"); });
-            _filterComponentsButton.Insert(0, new Image()
-            {
-                image = _filterButtonIconTexture
-            });
-            container.Add(_filterComponentsButton);
+                () => _filterComponentsContainer.ToggleInClassList("visibility-toggle"));
+            _filterComponentsButton.Insert(0, new Image { image = _filterButtonIconTexture });
+            btnContainer.Add(_filterComponentsButton);
 
-            return container;
-        }
-
-        private VisualElement BuildUI_SearchBar()
-        {
-            // Create Search Field
+            // Search
             _searchComponentsToolbar = new ToolbarSearchField();
             _searchComponentsToolbar.AddToClassList("search-bar-container");
             _searchComponentsToolbar.RegisterValueChangedCallback(evt =>
@@ -221,285 +255,260 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                 UpdateComponentVisibility();
             });
 
-            return _searchComponentsToolbar;
+            row.Add(btnContainer);
+            row.Add(_searchComponentsToolbar);
+            return row;
         }
 
-        private VisualElement BuildUI_FilterComponentsList()
+        private VisualElement BuildUI_FilterPanel()
         {
-            var components = GetAllVisibleComponents();
-
             _filterComponentsContainer = new VisualElement();
             _filterComponentsContainer.AddToClassList("visibility-toggle");
             _filterComponentsContainer.AddToClassList("filter-components-container");
 
-            // Add searchbar
-            var searchbarField = new ToolbarSearchField();
-            searchbarField.RegisterValueChangedCallback(evt =>
+            // Inner Search
+            var innerSearch = new ToolbarSearchField();
+            innerSearch.RegisterValueChangedCallback(OnFilterSearchChanged);
+            _filterComponentsContainer.Add(innerSearch);
+
+            // "All" Button
+            _filterAllButton = BuildUI_FilterButton("All", null);
+            _filterAllButton.Insert(0, new Image { image = _allButtonIconTexture });
+            _filterAllButton.RegisterCallback<MouseDownEvent>(_ => ClearAllFilters());
+            _filterComponentsContainer.Add(_filterAllButton);
+
+            // List
+            var scroll = new ScrollView { mouseWheelScrollSize = 9 };
+            scroll.AddToClassList("filter-components-scrollView");
+
+            foreach (var comp in _indexToComponentDictionary.Values)
             {
-                var searchText = evt.newValue;
-
-                foreach (var filterComponentButton in _filterComponentButtons)
-                {
-                    var label = filterComponentButton.Q<Label>();
-                    var type = label.text;
-
-                    // Search check
-                    if (string.IsNullOrEmpty(searchText) ||
-                        type.Contains(searchText, StringComparison.InvariantCultureIgnoreCase))
-                        filterComponentButton.RemoveFromClassList("hide");
-                    else
-                        filterComponentButton.AddToClassList("hide");
-                }
-            });
-            _filterComponentsContainer.Add(searchbarField);
-
-            // Add All button
-            var filterAllComponentButton = BuildUI_FilterComponentButton("All", null);
-            filterAllComponentButton.AddToClassList("filter-component-button-selected");
-            filterAllComponentButton.Insert(0, new Image()
-            {
-                image = _allButtonIconTexture
-            });
-            _filterComponentsContainer.Add(filterAllComponentButton);
-
-            // Create scroll view with snap scroll handling. 
-            var scrollView = new ScrollView { mouseWheelScrollSize = 9 };
-            scrollView.AddToClassList("filter-components-scrollView");
-            scrollView.RegisterCallback<WheelEvent>(evt => { evt.StopPropagation(); });
-            _filterComponentsContainer.Add(scrollView);
-
-            // Register callback to all button
-            filterAllComponentButton.RegisterCallback<MouseDownEvent>(_ =>
-            {
-                _filterComponentsButton.RemoveFromClassList("filter-component-button-selected");
-                filterAllComponentButton.AddToClassList("filter-component-button-selected");
-                foreach (var selectedComponent in _filterComponentButtons)
-                    selectedComponent.RemoveFromClassList("filter-component-button-selected");
-
-                _filteredComponentIDs.Clear();
-                UpdateComponentVisibility();
-            });
-
-            // Add components as buttons
-            foreach (var component in components)
-            {
-                var filterComponentButton = BuildUI_FilterComponentButton(component.GetType().Name, component);
-                _filterComponentButtons.Add(filterComponentButton);
-                scrollView.Add(filterComponentButton);
-
-                // Add click callback to button
-                filterComponentButton.RegisterCallback<MouseDownEvent>(evt =>
-                {
-                    if (evt.button == 0) // Add or remove selection among others.
-                    {
-                        if (_filteredComponentIDs.Contains(component.GetInstanceID()))
-                        {
-                            _filteredComponentIDs.Remove(component.GetInstanceID());
-                            filterComponentButton.RemoveFromClassList("filter-component-button-selected");
-                        }
-                        else
-                        {
-                            _filteredComponentIDs.Add(component.GetInstanceID());
-                            filterComponentButton.AddToClassList("filter-component-button-selected");
-                        }
-                    }
-                    else if (evt.button == 1) // Deselect previous, and select right-clicked element.
-                    {
-                        _filteredComponentIDs.Clear();
-                        foreach (var selectedComponent in _filterComponentButtons)
-                            selectedComponent.RemoveFromClassList("filter-component-button-selected");
-
-                        _filteredComponentIDs.Add(component.GetInstanceID());
-                        filterComponentButton.AddToClassList("filter-component-button-selected");
-                    }
-
-                    // Update style class of all button
-                    if (_filteredComponentIDs.Count == 0)
-                    {
-                        filterAllComponentButton.AddToClassList("filter-component-button-selected");
-                        _filterComponentsButton.RemoveFromClassList("filter-component-button-selected");
-                    }
-                    else
-                    {
-                        filterAllComponentButton.RemoveFromClassList("filter-component-button-selected");
-                        _filterComponentsButton.AddToClassList("filter-component-button-selected");
-                    }
-
-                    UpdateComponentVisibility();
-                });
+                var btn = BuildUI_FilterButton(comp.GetType().Name, comp);
+                btn.RegisterCallback<MouseDownEvent>(
+                    evt => ToggleComponentFilter(comp.GetInstanceID(), evt.button == 1));
+                _filterComponentButtons.Add(btn);
+                scroll.Add(btn);
             }
 
+            _filterComponentsContainer.Add(scroll);
+            RefreshUIState_FilterComponents();
             return _filterComponentsContainer;
         }
 
-        private VisualElement BuildUI_FilterComponentButton(string title, Component component)
+        private VisualElement BuildUI_FastCategoryRow()
         {
-            var filterComponentButton = new VisualElement();
-            filterComponentButton.AddToClassList("filter-component-button");
+            var container = new VisualElement();
+            container.AddToClassList("fast-category-type-list");
 
-            if (component != null)
+            var types = _indexToComponentDictionary.Values
+                .Select(c => c is MonoBehaviour ? typeof(MonoBehaviour) : c.GetType())
+                .Distinct();
+
+            foreach (var type in types)
             {
-                var content = EditorGUIUtility.ObjectContent(component, component.GetType());
-                var image = new Image
-                {
-                    image = content?.image
-                };
-                filterComponentButton.Add(image);
+                var btn = BuildUI_CategoryButton(type);
+                btn.userData = type; // Store the type here
+                btn.RegisterCallback<MouseDownEvent>(evt => { FilterByType(type, evt.button == 1); });
+                _categoryButtons.Add(btn);
+                container.Add(btn);
             }
 
-            var label = new Label(title);
-            filterComponentButton.Add(label);
-
-            return filterComponentButton;
+            return container;
         }
 
         #endregion
 
-        #region COMPONENT VISIBILITY CONTROL
+        #region Helper Methods
 
         private void UpdateComponentVisibility()
         {
             var startIndex = GetComponentViewerIndex() + 1;
-            var skippedComponentsCount = 0;
-
-            var isSearchUsed = string.IsNullOrWhiteSpace(_searchedComponentPrompt) == false;
-            var isFilterUsed = _filteredComponentIDs.Count > 0;
+            var skipped = 0;
+            var hasFilter = _filteredComponentIDs.Count > 0;
+            var hasSearch = !string.IsNullOrWhiteSpace(_searchedComponentPrompt);
 
             for (var i = startIndex; i < _rootVisualElement.childCount; i++)
             {
                 if (_noMultiEditVisualElementsHashset.Contains(_rootVisualElement[i].name))
                 {
-                    skippedComponentsCount++;
+                    skipped++;
                     continue;
                 }
 
-                var compIndex = i - startIndex - skippedComponentsCount;
-                if (_indexToComponentDictionary.TryGetValue(compIndex, out var component))
+                var compIndex = i - startIndex - skipped;
+                if (_indexToComponentDictionary.TryGetValue(compIndex, out var comp))
                 {
-                    var shouldShow = !(isFilterUsed &&
-                                       _filteredComponentIDs.Contains(component.GetInstanceID()) == false);
+                    var visible = true;
+                    if (hasFilter && !_filteredComponentIDs.Contains(comp.GetInstanceID())) visible = false;
+                    if (visible && hasSearch && !comp.GetType().Name
+                            .Contains(_searchedComponentPrompt, StringComparison.OrdinalIgnoreCase)) visible = false;
 
-                    if (shouldShow && isSearchUsed && !component.GetType().Name.Contains(_searchedComponentPrompt,
-                            StringComparison.InvariantCultureIgnoreCase))
-                        shouldShow = false;
-
-                    // Final resolution of should show.
-                    _rootVisualElement[i].style.display = shouldShow ? DisplayStyle.Flex : DisplayStyle.None;
+                    _rootVisualElement[i].style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
                 }
             }
+        }
+
+        private void RefreshUIState_FilterComponents()
+        {
+            var hasFilters = _filteredComponentIDs.Count > 0;
+
+            // Update "All" button
+            _filterAllButton.EnableInClassList("filter-component-button-selected", !hasFilters);
+            _filterComponentsButton.EnableInClassList("filter-component-button-selected", hasFilters);
+
+            // Update individual buttons based on IDs
+            foreach (var btn in _filterComponentButtons)
+            {
+                var comp = btn.userData as Component;
+                if (comp == null) continue;
+                btn.EnableInClassList("filter-component-button-selected",
+                    _filteredComponentIDs.Contains(comp.GetInstanceID()));
+            }
+        }
+
+        private void RefreshUIStates_CategoryButtons()
+        {
+            foreach (var btn in _categoryButtons)
+            {
+                if (btn.userData is not Type btnType) 
+                    continue;
+                
+                // 1. Get all components currently in the inspector that match this button's type
+                var matchingComponents = _indexToComponentDictionary.Values
+                    .Where(component => (btnType == typeof(MonoBehaviour)) ? component is MonoBehaviour : component.GetType() == btnType)
+                    .ToList();
+
+                if (matchingComponents.Count == 0)
+                {
+                    btn.EnableInClassList("fast-category-type-button-selected", false);
+                    continue;
+                }
+
+                var isTypeFiltered = matchingComponents.All(c => _filteredComponentIDs.Contains(c.GetInstanceID()));
+                
+                btn.EnableInClassList("fast-category-type-button-selected", isTypeFiltered);
+            }
+        }
+
+        private void OnFilterSearchChanged(ChangeEvent<string> evt)
+        {
+            foreach (var btn in _filterComponentButtons)
+            {
+                var label = btn.Q<Label>();
+                var match = string.IsNullOrEmpty(evt.newValue) ||
+                            label.text.Contains(evt.newValue, StringComparison.OrdinalIgnoreCase);
+                btn.EnableInClassList("hide", !match);
+            }
+        }
+
+        private VisualElement BuildUI_FilterButton(string title, Component comp)
+        {
+            var btn = new VisualElement();
+            btn.AddToClassList("filter-component-button");
+            btn.userData = comp;
+
+            if (comp != null)
+            {
+                var icon = EditorGUIUtility.ObjectContent(comp, comp.GetType()).image;
+                btn.Add(new Image { image = icon });
+            }
+
+            btn.Add(new Label(title));
+            return btn;
+        }
+
+        private VisualElement BuildUI_CategoryButton(Type type)
+        {
+            var btn = new VisualElement { tooltip = $"Filter for {type.Name}" };
+            btn.AddToClassList("fast-category-type-button");
+
+            var icon = (type == typeof(MonoBehaviour))
+                ? Artifice_SCR_CommonResourcesHolder.instance.ScriptIcon.texture
+                : (Texture2D)EditorGUIUtility.ObjectContent(null, type).image;
+
+            if (icon) btn.Add(new Image { image = icon });
+            return btn;
+        }
+
+        private void ResetUIState()
+        {
+            _inspectorHeader?.Clear();
+            _inspectorHeader = null;
+            _searchedComponentPrompt = string.Empty;
+            _filteredComponentIDs.Clear();
+            _filterComponentButtons.Clear();
+            _categoryButtons.Clear();
+            _searchComponentsToolbar?.SetValueWithoutNotify(string.Empty);
+        }
+
+        private int GetComponentViewerIndex() => _isProjectPrefab ? 2 : 1;
+
+        private bool InspectingObjectIsValid() =>
+            _inspectingObject && _inspectingObject is GameObject && !_isProjectModel;
+
+        private bool InspectorJustUnlocked()
+        {
+            var current = IsInspectorLocked();
+            var changed = _inspectorWasLocked && !current;
+            _inspectorWasLocked = current;
+            return changed;
         }
 
         private void RefreshNoMultiInspectVisualsSet()
         {
             _noMultiEditVisualElementsHashset.Clear();
-            if (Selection.gameObjects.Length <= 1 || _rootVisualElement == null)
-                return;
+            if (Selection.gameObjects.Length <= 1 || _rootVisualElement == null) return;
 
-            var noMultiEditIndex = _rootVisualElement.childCount;
+            var splitIndex = -1;
             for (var i = 0; i < _rootVisualElement.childCount; i++)
             {
                 if (_rootVisualElement[i].ClassListContains(InspectorNoMultiEditClassName))
                 {
-                    noMultiEditIndex = i;
+                    splitIndex = i;
                     break;
                 }
             }
 
-            for (var i = noMultiEditIndex + 1; i < _rootVisualElement.childCount; i++)
+            if (splitIndex == -1) return;
+            for (var i = splitIndex + 1; i < _rootVisualElement.childCount; i++)
                 _noMultiEditVisualElementsHashset.Add(_rootVisualElement[i].name);
-        }
-
-        #endregion
-
-        #region UTILITIES
-
-        private bool ShouldShowComponentViewerGui()
-        {
-            var insertIndex = GetComponentViewerIndex();
-
-            if (insertIndex >= _rootVisualElement.childCount)
-                return false;
-
-            var potentialComponentViewer = _rootVisualElement.hierarchy.ElementAt(insertIndex);
-            return potentialComponentViewer is { name: ComponentViewerName };
-        }
-
-        private int GetComponentViewerIndex()
-        {
-            // Prefabs in project have an additional visual element on top.
-            return _isProjectPrefab ? 2 : 1;
-        }
-
-        private bool InspectorJustUnlocked()
-        {
-            var currentlyLocked = IsInspectorLocked();
-            var res = _inspectorWasLocked && !currentlyLocked;
-            _inspectorWasLocked = currentlyLocked;
-            return res;
         }
 
         private List<Component> GetAllVisibleComponents()
         {
-            if (!InspectingObjectIsValid())
-                return null;
+            if (!InspectingObjectIsValid()) return new List<Component>();
+            var target = _inspectingObject as GameObject;
 
-            var selectedGameObject = _inspectingObject as GameObject;
-            if (Selection.gameObjects.Length == 1)
-                return GetAllVisibleComponents(selectedGameObject);
+            var baseList = GetVisibleFromGameObject(target);
+            if (Selection.gameObjects.Length <= 1 || IsInspectorLocked()) return baseList;
 
-            // Get all visible components that each selected object shares
-            var components = GetAllVisibleComponents(selectedGameObject);
-            if (IsInspectorLocked())
-                return components;
-
-            foreach (var otherGameObject in Selection.gameObjects)
+            // Intersection of components for multi-selection
+            foreach (var other in Selection.gameObjects)
             {
-                if (otherGameObject == selectedGameObject) continue;
-
-                var otherComps = GetAllVisibleComponents(otherGameObject);
-                // Going backwards to prevent the "change list size at iteration" thingy
-                for (var i = components.Count - 1; i >= 0; i--)
-                    if (!ComponentListContainsType(otherComps, components[i].GetType()))
-                        components.RemoveAt(i);
+                if (other == target) continue;
+                var otherList = GetVisibleFromGameObject(other);
+                baseList.RemoveAll(c => !otherList.Any(oc => oc.GetType() == c.GetType()));
             }
 
-            return components;
+            return baseList;
         }
 
-        private List<Component> GetAllVisibleComponents(GameObject gameObject)
+        private List<Component> GetVisibleFromGameObject(GameObject go) =>
+            go.GetComponents<Component>()
+                .Where(c => c && !c.hideFlags.HasFlag(HideFlags.HideInInspector))
+                .ToList();
+
+        private void SetExpandState(List<Component> comps, bool expand)
         {
-            var comps = gameObject.GetComponents<Component>();
-            var res = new List<Component>(comps.Length);
-
-            foreach (var comp in comps)
-                if (comp && !comp.hideFlags.HasFlag(HideFlags.HideInInspector))
-                    res.Add(comp);
-
-            return res;
-        }
-
-        private bool ComponentListContainsType(List<Component> list, Type componentType)
-        {
-            foreach (var component in list)
-                if (component.GetType() == componentType)
-                    return true;
-
-            return false;
-        }
-
-        private bool InspectingObjectIsValid() =>
-            _inspectingObject && _inspectingObject is GameObject && !_isProjectModel;
-
-        #endregion
-
-        #region BUTTON CALLBACKS
-
-        private void SetExpandState(List<Component> comps, bool expandAll)
-        {
-            foreach (var component in comps)
-                InternalEditorUtility.SetIsInspectorExpanded(component, expandAll);
-
+            foreach (var c in comps) InternalEditorUtility.SetIsInspectorExpanded(c, expand);
             ActiveEditorTracker.sharedTracker.ForceRebuild();
+        }
+
+        private bool ShouldShowComponentViewerGui()
+        {
+            var idx = GetComponentViewerIndex();
+            if (idx >= _rootVisualElement.childCount) return false;
+            return _rootVisualElement[idx]?.name == ComponentViewerName;
         }
 
         #endregion
