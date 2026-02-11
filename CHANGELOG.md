@@ -1,4 +1,8 @@
 # Change Log:
+## 1.6.26
+- Fix: Added `IArtifice_ArrayAppliedAttribute` on `SafeTooltip` and corrected namespace of its custom attribute drawer.
+- Fix: Fixed namespace of `Artifice_CustomAttributeDrawer_SafeTooltipAttribute`
+
 ## 1.6.25
 - Fix: Minor refactor to naming of Abstract List View method to resolve unity warning.
 - Enhancement: Refactored `Artifice_ValidatorModule_ScriptableObject_NullReferenceChecker` to work with all types of corrupted ScriptableObject asset.
