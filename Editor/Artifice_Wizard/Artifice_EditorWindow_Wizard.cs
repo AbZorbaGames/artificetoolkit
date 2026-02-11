@@ -52,13 +52,13 @@ namespace ArtificeToolkit.Editor
             // === Inspector Header ===
             scrollView.Add(CreateToggleSection(
                 "Inspector Header Enhancement",
-                Artifice_InspectorHeader_Main.IsEnabled(),
+                Artifice_InspectorHeader_Main.IsEnabled,
                 "Adds beautiful header banner in the inspector with mandatory features like \'Search\' and script filter.\n\n" +
                 "Features:\n" +
                 "• Search to filter by script name\n" +
                 "• Isolate by filtering specific scripts at a time\n" +
                 "• Collapse/Expand all Components for better clarity.",
-                Artifice_InspectorHeader_Main.SetEnabled
+                Artifice_InspectorHeader_Main.Set_IsEnabled
             ));
 
             // Optional: Add more features here in the future
@@ -122,6 +122,18 @@ namespace ArtificeToolkit.Editor
             mScriptVisibilityToggle.RegisterValueChangedCallback(value =>
             {
                 Artifice_Utilities.MScriptVisibility = value.newValue;
+                Artifice_Utilities.TriggerNextFrameReselection();
+            });
+            
+            // mScript Visibility
+            var inspectorHeaderCategoryButtons = new Toggle("Inspector Header Category Buttons");
+            mScriptVisibilityToggle.AddToClassList("additional-features-toggle");
+            container.Add(inspectorHeaderCategoryButtons);
+
+            inspectorHeaderCategoryButtons.value = Artifice_InspectorHeader_Main.CategoryButtonsEnabled;
+            inspectorHeaderCategoryButtons.RegisterValueChangedCallback(value =>
+            {
+                Artifice_InspectorHeader_Main.CategoryButtonsEnabled = value.newValue;
                 Artifice_Utilities.TriggerNextFrameReselection();
             });
             

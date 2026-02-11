@@ -632,14 +632,13 @@ public abstract class TraitBase
   <img src="./Documentation/artifice_ignorelist.png" alt="PNG Example"/>
 </div>
 
-8. The ArtificeToolkit now providers the InspectorHeader, a simple utility header to help manage crowded inspectors by providing a searchbar, filtering and collapse/expand all components. It can be toggled on and off through Menu > ArtificeToolkit > Toggle Inspector Header.
+8. The ArtificeToolkit now providers the InspectorHeader, a simple utility header to help manage crowded inspectors by providing a searchbar, filtering and collapse/expand all components. It can be toggled on and off through `Menu > ArtificeToolkit > Settings Wizard`. On the additional settings, you can also enable or disable the `CategoryButtons` which make it easier to filter from various types of scripts.
 <div style="display: flex; justify-content: center;">
   <img src="./Documentation/artifice_inspectorheader.gif" alt="GIF Example"/>
 </div>
 
 9. You can create attributes which may or may not need to be evaluated by the validator. The most intuitive example is the EnableIf attribute. When something is not enabled, the validator should not be showing nested validation logs meant for the property and its children. <br><br>To do this for your own custom attributes, use the IArtifice_RequiresCheckForValidationInclusion interface on the attribute and implement IArtifice_ShouldIncludeInValidation in its corresponding custom attribute drawer. You can see a live example of this with EnableIfAttribute and the Artifice_CustomAttributeDrawer_EnableIfAttribute.
-10. ArtificeToolkit introduces SerializedHashSet, a hash set that serializes as a list in the Inspector, combining efficient lookups with full editor visibility.
-
+10. ArtificeToolkit introduces SerializedHashSet, a hash set that serializes as a list in the Inspector, combining efficient lookups with full editor visibility. 
 
 
 <!-- ARTIFICE VALIDATOR -->
