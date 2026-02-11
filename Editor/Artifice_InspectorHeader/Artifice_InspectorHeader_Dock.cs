@@ -419,7 +419,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
         private VisualElement BuildUI_CategoryButton(Type type)
         {
-            var btn = new VisualElement { tooltip = $"Filter for {type.Name}" };
+            var btn = new VisualElement { tooltip = $"{type.Name}\n  Left Click: Add to selections\n  Right Click: Reset selections and add." };
             btn.AddToClassList("fast-category-type-button");
 
             var icon = (type == typeof(MonoBehaviour))
