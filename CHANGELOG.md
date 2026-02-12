@@ -1,4 +1,7 @@
 # Change Log:
+## 1.8.0
+- Enhancement: Added `InlineObject` and `InlineProperty` attributes.
+
 ## 1.7.1
 - Fix: Reverted `SetSearchedComponentPrompt` public method of `Artifice_InspectorHeader_Dock` to allow 3rd party usage of search.
 
