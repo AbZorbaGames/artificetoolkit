@@ -1,4 +1,3 @@
-using System;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -6,7 +5,6 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Object = UnityEngine.Object;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_InlinePreviewAttribute
 {
@@ -95,7 +93,9 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             // If null return
             if (target == null)
             {
-                _expandedContainer.Add(new Label("Value is null.")); // Style with fading gray
+                var nullLabel = new Label("Value is not set.");
+                nullLabel.AddToClassList("null-label");
+                _expandedContainer.Add(nullLabel);
                 return;
             }
 
@@ -110,6 +110,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 // Use artifice inspector GUI
                 var serializedObject = new SerializedObject(target);
                 _expandedContainer.Add(_artificeDrawer.CreateInspectorGUI(serializedObject));
+                _artificeDrawer.SetArtificeIndicatorVisibility(false);
             }
             else
             {

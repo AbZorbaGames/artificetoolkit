@@ -42,6 +42,9 @@ namespace ArtificeToolkit.Editor
         // Delegate declaration for serialized property filter method.
         public delegate bool SerializedPropertyFilter(SerializedProperty property);
         private SerializedPropertyFilter _serializedPropertyFilter = property => true;
+
+        // References to children visual elements
+        private VisualElement _artificeInspectorIndicator;
         
         #endregion
 
@@ -104,8 +107,12 @@ namespace ArtificeToolkit.Editor
             
             // Add artifice indicator if artifice has been used.
             var targetObject = serializedObject.targetObject;
-            if (targetObject != null && !targetObject.GetType().IsSubclassOf(typeof(EditorWindow)) && _doesRequireVisualElementsCache.Any(pair => pair.Value))
-                artificeInspector.Add(CreateArtificeIndicatorGUI(serializedObject));
+            if (targetObject != null && !targetObject.GetType().IsSubclassOf(typeof(EditorWindow)) &&
+                _doesRequireVisualElementsCache.Any(pair => pair.Value))
+            {
+                _artificeInspectorIndicator = CreateArtificeIndicatorGUI(serializedObject);
+                artificeInspector.Add(_artificeInspectorIndicator);
+            }
             
             // Apply any modified property
             serializedObject.ApplyModifiedProperties();
@@ -606,6 +613,12 @@ namespace ArtificeToolkit.Editor
         public void SetSerializedPropertyFilter(SerializedPropertyFilter filter)
         {
             _serializedPropertyFilter = filter;
+        }
+
+        public void SetArtificeIndicatorVisibility(bool isVisible)
+        {
+            if(_artificeInspectorIndicator != null)
+                _artificeInspectorIndicator.visible = isVisible;
         }
         
         /// <summary> Checks property and its visible children. If any use custom attributes, this method returns true. False otherwise. </summary>

@@ -20,6 +20,10 @@
     background-color: rgba(56, 56, 56, 0);
 }
 
+.expanded-view-container{
+    justify-content: center;
+}
+
 .expand-toggle{
     flex-shrink: 0;
     margin-left: 5px;
@@ -41,4 +45,9 @@
     border-width: 0;
 
     padding: 0;
+}
+
+.null-label{
+    color: rgba(255, 255, 255, 0.43);
+    margin-top: 4px;
 }
