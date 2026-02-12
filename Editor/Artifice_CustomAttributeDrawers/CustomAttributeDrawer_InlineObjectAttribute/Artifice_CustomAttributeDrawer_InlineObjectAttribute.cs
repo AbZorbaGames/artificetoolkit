@@ -1,3 +1,5 @@
+using ArtificeToolkit.Editor;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -6,10 +8,10 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_InlinePreviewAttribute
+namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_InlineObjectAttribute
 {
-    [Artifice_CustomAttributeDrawer(typeof(InlinePreviewAttribute))]
-    public class Artifice_CustomAttributeDrawer_InlinePreviewAttribute : Artifice_CustomAttributeDrawer
+    [Artifice_CustomAttributeDrawer(typeof(InlineObjectAttribute))]
+    public class Artifice_CustomAttributeDrawer_InlineObjectAttribute : Artifice_CustomAttributeDrawer
     {
         private VisualElement _wrapper;
         private VisualElement _header;
@@ -45,10 +47,10 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             _state = false;
 
             _wrapper = new();
-            _wrapper.name = "Inline Preview Wrapper";
+            _wrapper.name = "Inline Object Wrapper";
             _wrapper.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
-            _wrapper.AddToClassList("inline-preview-container");
-            _wrapper.AddToClassList("inline-preview-close");
+            _wrapper.AddToClassList("inline-object-container");
+            _wrapper.AddToClassList("inline-object-close");
 
             _header = new VisualElement();
             _header.AddToClassList("align-horizontal");
@@ -175,11 +177,11 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 case true:
                     _toggle.Text = "Shrink";
 
-                    _header.RemoveFromClassList("inline-preview-header-disabled");
-                    _header.AddToClassList("inline-preview-header-enabled");
+                    _header.RemoveFromClassList("inline-object-header-disabled");
+                    _header.AddToClassList("inline-object-header-enabled");
 
-                    _wrapper.RemoveFromClassList("inline-preview-close");
-                    _wrapper.AddToClassList("inline-preview-open");
+                    _wrapper.RemoveFromClassList("inline-object-close");
+                    _wrapper.AddToClassList("inline-object-open");
 
                     DrawExpandedView(_property);
 
@@ -187,13 +189,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 case false:
                     _toggle.Text = "Expand";
 
-                    _wrapper.RemoveFromClassList("inline-preview-open");
+                    _wrapper.RemoveFromClassList("inline-object-open");
 
-                    _header.RemoveFromClassList("inline-preview-header-open");
-                    _header.AddToClassList("inline-preview-header-disabled");
+                    _header.RemoveFromClassList("inline-object-header-open");
+                    _header.AddToClassList("inline-object-header-disabled");
 
-                    _wrapper.RemoveFromClassList("inline-preview-open");
-                    _wrapper.AddToClassList("inline-preview-close");
+                    _wrapper.RemoveFromClassList("inline-object-open");
+                    _wrapper.AddToClassList("inline-object-close");
 
                     _expandedContainer.Clear();
 

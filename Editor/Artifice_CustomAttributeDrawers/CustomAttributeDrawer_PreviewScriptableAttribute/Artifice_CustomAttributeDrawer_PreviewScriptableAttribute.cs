@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_PreviewScriptableAttribute
 {
-    [Obsolete("Use `InlinePreviewAttribute` instead.")]
+    [Obsolete("Use `InlineObjectAttribute` instead.")]
     [Artifice_CustomAttributeDrawer(typeof(PreviewScriptableAttribute))]
     public class Artifice_CustomAttributeDrawer_PreviewScriptableAttribute : Artifice_CustomAttributeDrawer, IArtifice_Persistence
     {
