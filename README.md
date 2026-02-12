@@ -99,6 +99,8 @@ These attributes can and should be used frequently. They will at a bare minimum 
 
 ## Miscellaneous
 - [ArtificeIgnore](#artificeignore)
+- [InlineObject](#inlineobject)
+- [InlineProperty](#inlineproperty)
 - [Space](#space)
 - [Range](#range)
 - [HideLabel](#hidelabel)
@@ -495,10 +497,34 @@ public class Sword: Weapon
 
 
 <!-- Miscellaneous -->
-### Artifice Ignore
+### ArtificeIgnore
 Some classes may not use any custom attribute but are slow on rendering since ArtificeToolkit still needs to check for attributes. In this case, you can apply the `[ArtificeIgnore]` attribute to the MonoBehaviour or ScriptableObject class to have it be rendered with the default IMGUI UI.
 
 **NOTE**: Some classes may come from third-party providers and may not be able to apply the `[ArtificeIgnore]`. In this case, you can add it to the artifice ignore list from the context actions of the inspector. This is a locally stored setting.
+
+### InlineObject
+
+The `InlineObject` attribute allows you to render any `UnityEngine.Object` reference directly in the Inspector (e.g., `MonoBehaviour`, `Material`, `Texture`, etc.).
+
+<p align="center">
+  <img src="./Documentation/artifice_inlineobject.gif"/>
+</p>
+
+---
+
+### InlineProperty
+
+The `InlineProperty` attribute renders a property with visible children (such as a `struct` or class) directly in the Inspector, bypassing the default foldout behavior.
+
+It supports three styling modes:
+
+- **WithTitle** – Displays a styled container with a header title (similar to `BoxGroup`).
+- **WithoutTitle** – Displays a styled container without a header title.
+- **WithoutTitleBorderless** – Renders child properties without a header or border.
+
+<p align="center">
+  <img src="./Documentation/artifice_inlineproperty.png"/>
+</p>
 
 ### Space
 The Space attribute can receive up to four parameters reflecting the margin in pixels you want your element to have from top, bottom, left, right directions.

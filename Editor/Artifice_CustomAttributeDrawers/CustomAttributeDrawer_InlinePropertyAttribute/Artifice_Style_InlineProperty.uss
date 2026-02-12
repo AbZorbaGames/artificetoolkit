@@ -1,0 +1,27 @@
+.inline-property-main-container{
+    margin: 2px;
+
+    border-width: 1px;
+    border-color: black;
+    border-radius: 3px;
+}
+
+.inline-property-header-container{
+    border-bottom-width: 1px;
+    border-color: black;
+    border-radius: 3px;
+    background-color: #2D2D2D;
+}
+
+.inline-property-header{
+    padding: 5px;
+}
+
+.inline-property-children-container{
+    padding: 3px;
+    background-color: #3F3F3F;
+}
+
+.inline-property-borderless{
+    border-width: 0px;
+}

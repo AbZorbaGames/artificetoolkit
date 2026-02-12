@@ -1,0 +1,53 @@
+.inline-object-container .unity-property-field__label{
+    max-width: 145px;
+    min-width: 0;
+}
+
+.inline-object-open{
+    transition: 0.5s;
+    background-color: #3f3f3f;
+
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    padding-right: 5px;
+
+    border-width: 1px;
+    border-color: black;
+}
+.inline-object-close{
+    transition: 0.5s;
+    background-color: rgba(56, 56, 56, 0);
+}
+
+.expanded-view-container{
+    justify-content: center;
+}
+
+.expand-toggle{
+    flex-shrink: 0;
+    margin-left: 5px;
+    border-width: 1px;
+    border-color: black;
+}
+
+.inline-object-header-enabled{
+    transition: 0.5s;
+    background-color: #2a2a2a;
+    border-width: 1px;
+    border-color: black;
+
+    padding: 5px;
+}
+.inline-object-header-disabled{
+    transition: 0.5s;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+
+    padding: 0;
+}
+
+.null-label{
+    color: rgba(255, 255, 255, 0.43);
+    margin-top: 4px;
+}
