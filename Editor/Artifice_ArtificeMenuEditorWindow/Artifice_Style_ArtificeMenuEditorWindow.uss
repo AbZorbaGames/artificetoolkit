@@ -1,0 +1,18 @@
+.menu-editor-container{
+    
+}
+
+.menu-editor-split-pane{
+    display: flex;
+    flex-direction: row;
+}
+
+.menu-panel-container{
+    padding: 3px;
+    border-right-width: 1px;
+    border-color: black;
+}
+
+.content-container{
+    padding: 3px;
+}
