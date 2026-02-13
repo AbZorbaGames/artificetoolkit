@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using ArtificeToolkit.Attributes;
 using UnityEditor;
+using UnityEngine;
 
 namespace Editor.Artifice_ArtificeMenuEditorWindow
 {
@@ -11,15 +13,15 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             GetWindow<TestMenuEditorWindow>().Show();
         }
         
-        protected override List<ArtificeMenuNode> BuildMenuTree()
+        protected override List<ArtificeTreeNode> BuildMenuTree()
         {
-            var list = new List<ArtificeMenuNode>();
+            var list = new List<ArtificeTreeNode>();
             
-            var menuItem1 = new ArtificeMenuNode("Item 1", new Page1());
-            menuItem1.AddChild(new ArtificeMenuNode("subItem1", new Page2()));
-            menuItem1.AddChild(new ArtificeMenuNode("subItem2", new Page1()));
+            var menuItem1 = new ArtificeTreeNode("Item 1", CreateInstance<Page1>());
+            menuItem1.AddChild(new ArtificeTreeNode("subItem1", CreateInstance<Page2>()));
+            menuItem1.AddChild(new ArtificeTreeNode("subItem2", CreateInstance<Page1>()));
             
-            var menuItem2 = new ArtificeMenuNode("Item 2", new Page2());
+            var menuItem2 = new ArtificeTreeNode("Item 2", CreateInstance<Page2>());
             
             list.Add(menuItem1);
             list.Add(menuItem2);
@@ -27,16 +29,29 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             return list;
         }
 
-        private class Page1
+        private class Page1 : ScriptableObject
         {
+            [BoxGroup]
             public int x;
+            
+            [BoxGroup]
             public int y;
+
+            public Vector3 vector;
+            
+            [Button]
+            private void  PerformCalculations()
+            {
+                
+            }
         }
 
-        private class Page2
+        private class Page2 : ScriptableObject
         {
             public string x;
             public string y;
         }
     }   
 }
+
+

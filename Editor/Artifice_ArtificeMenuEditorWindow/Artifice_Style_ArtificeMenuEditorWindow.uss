@@ -8,11 +8,59 @@
 }
 
 .menu-panel-container{
-    padding: 3px;
     border-right-width: 1px;
     border-color: black;
 }
 
 .content-container{
+    background-color: #313131;
     padding: 3px;
+}
+
+
+/* Artifice Menu Item */
+.menu-item{
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-color: black;
+}
+
+.menu-item--selected{
+    background-color: #1b497c;
+}
+
+.menu-item-header-container{
+    height: 30px;
+    
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: 100%;
+    
+    /*padding: 5px;*/
+}
+
+.menu-item-header-container:hover {
+    background-color: #2a63a2;
+}
+
+.menu-item-header-label{
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    -unity-text-align: middle-left;
+}
+
+.menu-item-collapse-button {
+    position: absolute;
+    right: 5px;
+    top: 25%;
+    background-color: white;
+    width: 15px;
+    height: 15px;
+}
+
+
+.menu-item-children-container{
+    
 }
