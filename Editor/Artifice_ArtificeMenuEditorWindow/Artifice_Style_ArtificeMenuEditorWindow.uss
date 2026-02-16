@@ -1,5 +1,6 @@
 .menu-editor-container{
-    
+    height: 100%;
+    width: 100%;
 }
 
 .menu-editor-split-pane{
@@ -13,6 +14,8 @@
 }
 
 .content-container{
+    width: 100%;
+    height: 100%;
     background-color: #313131;
     padding: 3px;
 }

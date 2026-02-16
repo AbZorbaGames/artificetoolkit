@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ArtificeToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -10,325 +11,262 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 {
     public class VisualElement_ArtificeMenuItem : VisualElement
     {
-        #region FIELDS
-
         public readonly UnityEvent<ArtificeMenuTreeNode> OnClick = new();
+        public ArtificeMenuTreeNode Node { get; }
+        private VisualElement_ArtificeMenuItem Parent { get; set; }
 
         private readonly VisualElement _headerContainer;
-        private readonly VisualElement _headerLabel;
-        private readonly Image _headerImage;
-        private readonly Image _collapseImage;
-
         private readonly VisualElement _childrenContainer;
-
-        public ArtificeMenuTreeNode Node { get; }
-        public VisualElement_ArtificeMenuItem Parent => _parent; // TODO make private if not needed public.
-
-        private VisualElement_ArtificeMenuItem _parent;
-
-        #endregion
+        private Image _collapseImage;
 
         public VisualElement_ArtificeMenuItem(ArtificeMenuTreeNode node)
         {
             Node = node;
             AddToClassList("menu-item");
 
-            // Create header 
-            _headerContainer = new VisualElement();
-            _headerContainer.AddToClassList("menu-item-header-container");
-            _headerContainer.RegisterCallback<MouseDownEvent>(_ => { OnClick?.Invoke(node); });
+            _headerContainer = CreateHeader(node);
+            _childrenContainer = CreateChildrenContainer();
+
             hierarchy.Add(_headerContainer);
+            hierarchy.Add(_childrenContainer);
+        }
+
+        private VisualElement CreateHeader(ArtificeMenuTreeNode node)
+        {
+            var container = new VisualElement();
+            container.AddToClassList("menu-item-header-container");
+            container.RegisterCallback<MouseDownEvent>(_ => OnClick?.Invoke(node));
 
             if (node.ScriptableObject != null)
-                _headerContainer.AddToClassList("menu-item-header-container-allowed-hover");
+                container.AddToClassList("menu-item-header-container-allowed-hover");
 
-            // Header collapse icon
             if (node.Get_Children().Count > 0 || node.ScriptableObject == null)
             {
-                var arrowImage = EditorGUIUtility.IconContent("d_icon dropdown@2x").image;
-
-                _collapseImage = new Image
-                {
-                    image = arrowImage
-                };
-
+                _collapseImage = new Image { image = EditorGUIUtility.IconContent("d_icon dropdown@2x").image };
                 _collapseImage.AddToClassList("menu-item-collapse-button");
                 _collapseImage.RegisterCallback<MouseDownEvent>(evt =>
                 {
                     evt.StopImmediatePropagation();
                     ToggleExpanded();
                 });
-                _headerContainer.Add(_collapseImage);
+                container.Add(_collapseImage);
             }
 
-            // Header Icon
             if (node.Sprite != null)
             {
-                _headerImage = new Image();
-                _headerImage.AddToClassList("menu-item-header-icon");
-                _headerImage.image = node.Sprite.texture;
-                _headerContainer.Add(_headerImage);
+                var icon = new Image { image = node.Sprite.texture };
+                icon.AddToClassList("menu-item-header-icon");
+                container.Add(icon);
             }
 
-            // Header label
-            _headerLabel = new Label(node.Title);
-            _headerLabel.AddToClassList("menu-item-header-label");
-            _headerContainer.Add(_headerLabel);
+            var label = new Label(node.Title);
+            label.AddToClassList("menu-item-header-label");
+            container.Add(label);
+            return container;
+        }
 
-            // Create child container
-            _childrenContainer = new VisualElement();
-            _childrenContainer.AddToClassList("menu-item-children-container");
-            _childrenContainer.AddToClassList("hide");
-            hierarchy.Add(_childrenContainer);
+        private VisualElement CreateChildrenContainer()
+        {
+            var container = new VisualElement();
+            container.AddToClassList("menu-item-children-container");
+            container.AddToClassList("hide");
+            return container;
         }
 
         public void AddChild(VisualElement_ArtificeMenuItem menuItem)
         {
             _childrenContainer.Add(menuItem);
-            menuItem._parent = this;
+            menuItem.SetParent(this);
         }
 
-        public void Set_IsSelected(bool selected)
+        public void SetSelected(bool selected)
         {
             _headerContainer.EnableInClassList("menu-item--selected", selected);
-
-            // Since I am selected, expand all parent elements
-            if (selected)
-            {
-                var iterator = Parent;
-                while (iterator != null)
-                {
-                    iterator.ToggleExpanded(true);
-                    iterator = iterator.Parent;
-                }
-            }
+            if (selected) ExpandPath();
         }
 
-        public void Set_Parent(VisualElement_ArtificeMenuItem menuItem)
+        private void ExpandPath()
         {
-            _parent = menuItem;
-
-            var depth = Get_Depth();
-            _headerContainer.style.paddingLeft = 10 + 10 * depth;
-        }
-
-        #region Utilities
-
-        public void ToggleExpanded()
-        {
-            ToggleExpanded(_childrenContainer.ClassListContains("hide"));
-        }
-
-        public void ToggleExpanded(bool isExpanded)
-        {
-            _childrenContainer.EnableInClassList("hide", !isExpanded);
-            _collapseImage.EnableInClassList("menu-item-collapse-button--expanded", isExpanded);
-        }
-
-        private int Get_Depth()
-        {
-            var depth = 0;
-
-            var iterator = _parent;
+            var iterator = Parent;
             while (iterator != null)
             {
-                iterator = iterator._parent;
-                depth++;
+                iterator.ToggleExpanded(true);
+                iterator = iterator.Parent;
             }
-
-            return depth;
         }
 
-        #endregion
+        public void SetParent(VisualElement_ArtificeMenuItem parent)
+        {
+            Parent = parent;
+            _headerContainer.style.paddingLeft = 10 + (10 * GetDepth());
+        }
+
+        public void ToggleExpanded(bool? forceState = null)
+        {
+            bool expand = forceState ?? _childrenContainer.ClassListContains("hide");
+            _childrenContainer.EnableInClassList("hide", !expand);
+            _collapseImage?.EnableInClassList("menu-item-collapse-button--expanded", expand);
+        }
+
+        private int GetDepth() => Parent == null ? 0 : 1 + Parent.GetDepth();
     }
+
 
     public abstract class ArtificeMenuEditorWindow : EditorWindow, IHasCustomMenu, IArtifice_Persistence
     {
-        #region FIELDS
-
-        private VisualElement _mainContainer;
-
         private VisualElement _menuPanel;
         private VisualElement _content;
-
         private ArtificeDrawer _artificeDrawer;
-        private VisualElement_ArtificeMenuItem _selectedMenuItem = null;
+        private VisualElement_ArtificeMenuItem _selectedMenuItem;
         private readonly Dictionary<ArtificeMenuTreeNode, VisualElement_ArtificeMenuItem> _nodeMap = new();
 
-        #endregion
-
-        /* Mono */
-        private void CreateGUI()
-        {
-            OnRefresh();
-        }
+        protected void CreateGUI() => OnRefresh();
 
         private void OnRefresh()
         {
-            _artificeDrawer = new();
-            _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
+            Initialize();
+            SetupLayout();
+            BuildAndPopulateTree();
+            LoadPersistedData();
+        }
 
+        private void Initialize()
+        {
+            _artificeDrawer = new ArtificeDrawer();
+            _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
+            _nodeMap.Clear();
+        }
+
+        private void SetupLayout()
+        {
             rootVisualElement.Clear();
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeMenuEditorWindow)));
             rootVisualElement.AddToClassList("menu-editor-container");
-            rootVisualElement.Add(_mainContainer);
 
             var splitView = new TwoPaneSplitView(0, 200, TwoPaneSplitViewOrientation.Horizontal);
-            splitView.AddToClassList("menu-editor-split-pane");
             rootVisualElement.Add(splitView);
 
             _menuPanel = new ScrollView(ScrollViewMode.Vertical);
             _menuPanel.AddToClassList("menu-panel-container");
-            splitView.Add(_menuPanel);
-
+            
             _content = new ScrollView(ScrollViewMode.Vertical);
             _content.AddToClassList("content-container");
+            
+
+            splitView.Add(_menuPanel);
             splitView.Add(_content);
+        }
 
-            // Asks from inherited class the menu tree.
+        private void BuildAndPopulateTree()
+        {
             var nodes = BuildMenuTree();
-
-            // Draw menu item.
             var parentMap = new Dictionary<ArtificeMenuTreeNode, VisualElement_ArtificeMenuItem>();
             var queue = new Queue<ArtificeMenuTreeNode>(nodes);
+
             while (queue.Count > 0)
             {
-                var current = queue.Dequeue();
+                var node = queue.Dequeue();
+                var menuItem = new VisualElement_ArtificeMenuItem(node);
+                _nodeMap[node] = menuItem;
 
-                // Create menu item 
-                var menuItem = new VisualElement_ArtificeMenuItem(current);
-                _nodeMap[current] = menuItem;
-
-                if (parentMap.TryGetValue(current, out var parentElement))
-                {
-                    parentElement.AddChild(menuItem);
-                    menuItem.Set_Parent(parentElement);
-                }
+                if (parentMap.TryGetValue(node, out var parentUI))
+                    parentUI.AddChild(menuItem);
                 else
                     _menuPanel.Add(menuItem);
 
-                // On Click
-                menuItem.OnClick.AddListener(node => { SetSelected(menuItem); });
+                menuItem.OnClick.AddListener(_ => SetSelected(menuItem));
 
-                // Set children of element.
-                foreach (var child in current.Get_Children())
+                foreach (var child in node.Get_Children())
                 {
                     parentMap[child] = menuItem;
                     queue.Enqueue(child);
                 }
             }
-
-            LoadPersistedData();
         }
-
-        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
 
         private void SetSelected(VisualElement_ArtificeMenuItem menuItem)
         {
-            // If already selected, skip
-            if (menuItem == _selectedMenuItem)
-                return;
-            
-            // If object is null, skip
+            if (menuItem == _selectedMenuItem) return;
+
             if (menuItem.Node.ScriptableObject == null)
             {
                 menuItem.ToggleExpanded();
                 return;
             }
 
-            _selectedMenuItem?.Set_IsSelected(false);
+            _selectedMenuItem?.SetSelected(false);
             _selectedMenuItem = menuItem;
-            _selectedMenuItem.Set_IsSelected(true);
-            _content.Clear();
-            
-            var scriptableObject = menuItem.Node.ScriptableObject;
-            
-            var type = scriptableObject.GetType();
-            if (type.IsSubclassOf(typeof(EditorWindow)))
-            {
-                if (type.IsSubclassOf(typeof(ArtificeEditorWindow)))
-                {
-                    var serializedObject = new SerializedObject(scriptableObject);
-                    _content.Add(_artificeDrawer.CreateInspectorGUI(serializedObject));
-                }
-                // Plain editor window
-                else
-                {
-                    var editorWindow = scriptableObject as EditorWindow;
-                    
-                    // Use reflection to call the private/protected 'OnGUI' method
-                    var onGuiMethod = type.GetMethod("OnGUI", 
-                        System.Reflection.BindingFlags.Instance | 
-                        System.Reflection.BindingFlags.NonPublic | 
-                        System.Reflection.BindingFlags.Public);
-                    
-                    var createGuiMethod = type.GetMethod("CreateGUI", 
-                        System.Reflection.BindingFlags.Instance | 
-                        System.Reflection.BindingFlags.NonPublic | 
-                        System.Reflection.BindingFlags.Public);
+            _selectedMenuItem.SetSelected(true);
 
-                    if (onGuiMethod != null)
-                    {
-                        // We create a container that redirects the drawing to the window instance
-                        var container = new IMGUIContainer(() =>
-                        {
-                            onGuiMethod?.Invoke(editorWindow, null);
-                        });
-                        _content.Add(container);
-                    }
-                    else if (createGuiMethod != null)
-                    {
-                        createGuiMethod?.Invoke(editorWindow, null);
-                        _content.Add(editorWindow.rootVisualElement);
-                    }
-                    else
-                    {
-                        var label = new Label(
-                            $"No OnGUI or CreateGUI methods found in EditorWindow {menuItem.Node.ScriptableObject.name}");
-                        label.AddToClassList("content-container-error-prompt");
-                        _content.Add(label);
-                    }
-                }
-            }
-
+            RenderContent(menuItem.Node.ScriptableObject);
             SavePersistedData();
         }
 
-        public void AddItemsToMenu(GenericMenu menu)
+        private void RenderContent(ScriptableObject target)
         {
-            menu.AddItem(new GUIContent("Refresh"), false, OnRefresh);
+            _content.Clear();
+
+            if (target is EditorWindow window)
+            {
+                RenderEditorWindowContent(window);
+            }
+            else
+            {
+                _content.Add(_artificeDrawer.CreateInspectorGUI(new SerializedObject(target)));
+            }
         }
 
-        #region IArtifice_Persistence
+        private void RenderEditorWindowContent(EditorWindow window)
+        {
+            var type = window.GetType();
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+
+            var onGui = type.GetMethod("OnGUI", flags);
+            if (onGui != null)
+            {
+                _content.Add(new IMGUIContainer(() => onGui.Invoke(window, null)));
+                return;
+            }
+
+            var createGui = type.GetMethod("CreateGUI", flags) ?? type.DeclaringType?.GetMethod("CreateGUI", flags);
+            if (createGui != null)
+            {
+                if (window.rootVisualElement.childCount == 0)
+                    createGui.Invoke(window, null);
+
+                _content.Add(window.rootVisualElement);
+            }
+            else
+            {
+                _content.Add(new Label($"No UI found for {window.name}"));
+            }
+        }
+
+        public void AddItemsToMenu(GenericMenu menu) => menu.AddItem(new GUIContent("Refresh"), false, OnRefresh);
+
+        #region Persistence
 
         public abstract string ViewPersistenceKey { get; set; }
 
         public void SavePersistedData()
         {
-            Artifice_SCR_PersistedData.instance.SaveData(ViewPersistenceKey, "selectedNode",
-                _selectedMenuItem.Node.Title);
+            if (_selectedMenuItem != null)
+                Artifice_SCR_PersistedData.instance.SaveData(ViewPersistenceKey, "selectedNode",
+                    _selectedMenuItem.Node.Title);
         }
 
         public void LoadPersistedData()
         {
-            var selectedNodeTitle = Artifice_SCR_PersistedData.instance.LoadData(ViewPersistenceKey, "selectedNode");
+            var savedTitle = Artifice_SCR_PersistedData.instance.LoadData(ViewPersistenceKey, "selectedNode");
+            var target = _nodeMap.Values.FirstOrDefault(m => m.Node.Title == savedTitle) ??
+                         _nodeMap.Values.FirstOrDefault();
 
-            // If none saved.
-            if (string.IsNullOrEmpty(selectedNodeTitle))
-            {
-                SetSelected(_nodeMap.First().Value);
-                return;
-            }
-
-            // Set saved as selected
-            foreach (var pair in _nodeMap)
-            {
-                if (pair.Key.Title == selectedNodeTitle)
-                    SetSelected(pair.Value);
-            }
+            if (target != null) SetSelected(target);
         }
 
         #endregion
+
+        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
     }
 }
