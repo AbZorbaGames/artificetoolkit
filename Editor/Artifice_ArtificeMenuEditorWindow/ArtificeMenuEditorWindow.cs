@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ArtificeToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 namespace Editor.Artifice_ArtificeMenuEditorWindow
@@ -13,9 +11,9 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
     public abstract class ArtificeMenuEditorWindow : EditorWindow, IHasCustomMenu, IArtifice_Persistence
     {
         #region FIELDS
-        
+
         public abstract string ViewPersistenceKey { get; set; }
-        
+
         private VisualElement _menuPanel;
         private VisualElement _content;
         private ArtificeDrawer _artificeDrawer;
@@ -23,20 +21,21 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
         private readonly Dictionary<ArtificeMenuTreeNode, Artifice_VisualElement_ArtificeMenuItem> _nodeMap = new();
 
         private readonly List<ScriptableObject> _soInstances = new();
-        
+
         #endregion
 
         /* Mono */
         protected void CreateGUI() => OnRefresh();
 
         /* Mono */
-        private void OnDestroy()
+        private void OnDisable()
         {
             ClearInstances();
         }
 
         private void OnRefresh()
         {
+            ClearInstances();
             Initialize();
             SetupLayout();
             BuildAndPopulateTree();
@@ -62,10 +61,10 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
             _menuPanel = new ScrollView(ScrollViewMode.Vertical);
             _menuPanel.AddToClassList("menu-panel-container");
-            
+
             _content = new ScrollView(ScrollViewMode.Vertical);
             _content.AddToClassList("content-container");
-            
+
 
             splitView.Add(_menuPanel);
             splitView.Add(_content);
@@ -170,16 +169,16 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
         private void ClearInstances()
         {
-            foreach(var instance in _soInstances)
+            foreach (var instance in _soInstances)
                 DestroyImmediate(instance);
-            
-            _artificeDrawer.Dispose();
+
+            _artificeDrawer?.Dispose();
         }
-        
+
         #endregion
-        
+
         #region Persistence
-        
+
         public void SavePersistedData()
         {
             if (_selectedMenuItem != null)
