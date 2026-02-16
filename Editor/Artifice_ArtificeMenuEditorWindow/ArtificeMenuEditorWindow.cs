@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArtificeToolkit.Editor;
+using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,8 +16,10 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
         public readonly UnityEvent<ArtificeMenuTreeNode> OnClick = new();
 
         private readonly VisualElement _headerContainer;
-        private readonly Image _headerIcon;
         private readonly VisualElement _headerLabel;
+        private readonly Image _headerImage;
+        private readonly Image _collapseImage;
+        
         private readonly VisualElement _childrenContainer;
 
         public ArtificeMenuTreeNode Node { get; }
@@ -43,10 +46,10 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             // Header Icon
             if (node.Sprite != null)
             {
-                _headerIcon = new Image();
-                _headerIcon.AddToClassList("menu-item-header-icon");
-                _headerIcon.image = node.Sprite.texture;
-                _headerContainer.Add(_headerIcon);
+                _headerImage = new Image();
+                _headerImage.AddToClassList("menu-item-header-icon");
+                _headerImage.image = node.Sprite.texture;
+                _headerContainer.Add(_headerImage);
             }
             
             // Header label
@@ -56,14 +59,20 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
             if (node.Get_Children().Count > 0)
             {
-                var collapseButton = new VisualElement();
-                collapseButton.AddToClassList("menu-item-collapse-button");
-                collapseButton.RegisterCallback<MouseDownEvent>(_ =>
+                var arrowImage = EditorGUIUtility.IconContent("d_icon dropdown@2x").image;
+                
+                _collapseImage = new Image
                 {
-                    _.StopImmediatePropagation();
+                    image = arrowImage
+                };
+
+                _collapseImage.AddToClassList("menu-item-collapse-button");
+                _collapseImage.RegisterCallback<MouseDownEvent>(evt =>
+                {
+                    evt.StopImmediatePropagation();
                     ToggleExpanded();
                 });
-                _headerContainer.Add(collapseButton);
+                _headerContainer.Add(_collapseImage);
             }
             
             // Create child container
@@ -107,12 +116,13 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
         
         public void ToggleExpanded()
         {
-            _childrenContainer.ToggleInClassList("hide");
+            ToggleExpanded(_childrenContainer.ClassListContains("hide"));
         }
         
-        public void ToggleExpanded(bool option)
+        public void ToggleExpanded(bool isExpanded)
         {
-            _childrenContainer.EnableInClassList("hide", !option);
+            _childrenContainer.EnableInClassList("hide", !isExpanded);
+            _collapseImage.EnableInClassList("menu-item-collapse-button--expanded", isExpanded);
         }
         
         private int Get_Depth()

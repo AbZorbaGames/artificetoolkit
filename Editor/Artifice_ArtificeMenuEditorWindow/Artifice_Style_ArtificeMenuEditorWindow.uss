@@ -60,14 +60,23 @@
 }
 
 .menu-item-collapse-button {
+    transition: 0.4s;
     position: absolute;
     right: 5px;
-    top: 25%;
-    background-color: white;
-    width: 15px;
-    height: 15px;
+    height: 24px;
+
+    top: 50%;
+    /*translate: 0 -50%;*/
+    margin-top: -12px;
+
+    rotate: 90deg;
 }
 
+
+.menu-item-collapse-button--expanded{
+    transition: 0.4s;
+    rotate: 0deg;
+}
 
 .menu-item-children-container{
     
