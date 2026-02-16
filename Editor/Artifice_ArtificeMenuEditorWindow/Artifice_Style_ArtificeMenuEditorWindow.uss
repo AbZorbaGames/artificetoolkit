@@ -17,12 +17,13 @@
     padding: 3px;
 }
 
+.content-container-error-prompt{
+    
+}
+
 
 /* Artifice Menu Item */
 .menu-item{
-    border-left-width: 1px;
-    border-bottom-width: 1px;
-    border-color: black;
 }
 
 .menu-item--selected{
@@ -48,8 +49,8 @@
 }
 
 .menu-item-header-icon{
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     align-self: center;
 }
 
@@ -61,17 +62,9 @@
 
 .menu-item-collapse-button {
     transition: 0.4s;
-    position: absolute;
-    right: 5px;
-    height: 24px;
-
-    top: 50%;
-    /*translate: 0 -50%;*/
-    margin-top: -12px;
-
-    rotate: 90deg;
+    width: 20px;
+    rotate: -90deg;
 }
-
 
 .menu-item-collapse-button--expanded{
     transition: 0.4s;
