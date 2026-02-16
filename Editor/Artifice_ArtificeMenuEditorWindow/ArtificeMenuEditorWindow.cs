@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using ArtificeToolkit.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -8,58 +8,25 @@ using UnityEngine.UIElements;
 
 namespace Editor.Artifice_ArtificeMenuEditorWindow
 {
-    [Serializable]
-    public class ArtificeTreeNode
-    {
-        #region FIELDS
-
-        public readonly string Title;
-        public readonly ScriptableObject ScriptableObject;
-        private readonly List<ArtificeTreeNode> _children;
-
-        #endregion
-
-        public ArtificeTreeNode(string title, ScriptableObject scriptableObject)
-        {
-            Title = title;
-            ScriptableObject = scriptableObject;
-            _children = new List<ArtificeTreeNode>();
-        }
-
-        public ICollection<ArtificeTreeNode> Get_Children()
-        {
-            return _children;
-        }
-
-        public void AddChild(ArtificeTreeNode node)
-        {
-            _children.Add(node);
-        }
-
-        public void RemoveChild(ArtificeTreeNode node)
-        {
-            _children.Remove(node);
-        }
-    }
-
     public class VisualElement_ArtificeMenuItem : VisualElement
     {
         #region FIELDS
 
-        public readonly UnityEvent<ArtificeTreeNode> OnClick = new();
+        public readonly UnityEvent<ArtificeMenuTreeNode> OnClick = new();
 
         private readonly VisualElement _headerContainer;
+        private readonly Image _headerIcon;
         private readonly VisualElement _headerLabel;
         private readonly VisualElement _childrenContainer;
 
-        public ArtificeTreeNode Node { get; private set; }
-        public VisualElement_ArtificeMenuItem Parent => _parent;
+        public ArtificeMenuTreeNode Node { get; }
+        public VisualElement_ArtificeMenuItem Parent => _parent; // TODO make private if not needed public.
         
         private VisualElement_ArtificeMenuItem _parent;
 
         #endregion
 
-        public VisualElement_ArtificeMenuItem(ArtificeTreeNode node)
+        public VisualElement_ArtificeMenuItem(ArtificeMenuTreeNode node)
         {
             Node = node;
             AddToClassList("menu-item");
@@ -67,11 +34,24 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             // Create header 
             _headerContainer = new VisualElement();
             _headerContainer.AddToClassList("menu-item-header-container");
+            _headerContainer.RegisterCallback<MouseDownEvent>(_ => { OnClick?.Invoke(node); });
             hierarchy.Add(_headerContainer);
             
+            if(node.ScriptableObject != null)
+                _headerContainer.AddToClassList("menu-item-header-container-allowed-hover");
+            
+            // Header Icon
+            if (node.Sprite != null)
+            {
+                _headerIcon = new Image();
+                _headerIcon.AddToClassList("menu-item-header-icon");
+                _headerIcon.image = node.Sprite.texture;
+                _headerContainer.Add(_headerIcon);
+            }
+            
+            // Header label
             _headerLabel = new Label(node.Title);
             _headerLabel.AddToClassList("menu-item-header-label");
-            _headerLabel.RegisterCallback<MouseDownEvent>(_ => { OnClick?.Invoke(node); });
             _headerContainer.Add(_headerLabel);
 
             if (node.Get_Children().Count > 0)
@@ -80,6 +60,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
                 collapseButton.AddToClassList("menu-item-collapse-button");
                 collapseButton.RegisterCallback<MouseDownEvent>(_ =>
                 {
+                    _.StopImmediatePropagation();
                     ToggleExpanded();
                 });
                 _headerContainer.Add(collapseButton);
@@ -101,6 +82,17 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
         public void Set_IsSelected(bool selected)
         {
             _headerContainer.EnableInClassList("menu-item--selected", selected);
+            
+            // Since I am selected, expand all parent elements
+            if (selected)
+            {
+                var iterator = Parent;
+                while (iterator != null)
+                {
+                    iterator.ToggleExpanded(true);
+                    iterator = iterator.Parent;
+                }
+            }
         }
 
         public void Set_Parent(VisualElement_ArtificeMenuItem menuItem)
@@ -108,14 +100,19 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             _parent = menuItem;
 
             var depth = Get_Depth();
-            _headerLabel.style.marginLeft = 10 + 10 * depth;
+            _headerContainer.style.paddingLeft = 10 + 10 * depth;
         }
         
         #region Utilities
         
-        private void ToggleExpanded()
+        public void ToggleExpanded()
         {
             _childrenContainer.ToggleInClassList("hide");
+        }
+        
+        public void ToggleExpanded(bool option)
+        {
+            _childrenContainer.EnableInClassList("hide", !option);
         }
         
         private int Get_Depth()
@@ -135,7 +132,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
         #endregion
     }
 
-    public abstract class ArtificeMenuEditorWindow : EditorWindow
+    public abstract class ArtificeMenuEditorWindow : EditorWindow, IHasCustomMenu, IArtifice_Persistence
     {
         #region FIELDS
 
@@ -143,32 +140,15 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
         private VisualElement _menuPanel;
         private VisualElement _content;
-        
+
         private ArtificeDrawer _artificeDrawer;
-        private Dictionary<ArtificeTreeNode, VisualElement_ArtificeMenuItem> _nodeMap = new();
         private VisualElement_ArtificeMenuItem _selectedMenuItem = null;
-        
+        private readonly Dictionary<ArtificeMenuTreeNode, VisualElement_ArtificeMenuItem> _nodeMap = new();
+
         #endregion
-
-        private void Awake()
-        {
-            Debug.Log("Awake");
-        }
-
-        private void OnEnable()
-        {
-            Debug.Log("On Enable");
-        }
-
-        private void OnDisable()
-        {
-            Debug.Log("On Disable");
-        }
-
+        
         private void CreateGUI()
         {
-            Debug.Log("Create GUI");
-            
             _artificeDrawer = new();
             _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
 
@@ -181,47 +161,41 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             var splitView = new TwoPaneSplitView(0, 200, TwoPaneSplitViewOrientation.Horizontal);
             splitView.AddToClassList("menu-editor-split-pane");
             rootVisualElement.Add(splitView);
-            
-            _menuPanel = new VisualElement();
+
+            _menuPanel = new ScrollView(ScrollViewMode.Vertical);
             _menuPanel.AddToClassList("menu-panel-container");
             splitView.Add(_menuPanel);
-            
-            _content = new VisualElement();
+
+            _content = new ScrollView(ScrollViewMode.Vertical);
             _content.AddToClassList("content-container");
             splitView.Add(_content);
-            
+
             // Asks from inherited class the menu tree.
             var nodes = BuildMenuTree();
-
+            
             // Draw menu item.
-            var parentMap = new Dictionary<ArtificeTreeNode, VisualElement_ArtificeMenuItem>();
-            var queue = new Queue<ArtificeTreeNode>(nodes);
+            var parentMap = new Dictionary<ArtificeMenuTreeNode, VisualElement_ArtificeMenuItem>();
+            var queue = new Queue<ArtificeMenuTreeNode>(nodes);
             while (queue.Count > 0)
             {
                 var current = queue.Dequeue();
 
                 // Create menu item 
                 var menuItem = new VisualElement_ArtificeMenuItem(current);
-                if (_selectedMenuItem == null)
-                {
-                    _selectedMenuItem = menuItem;
-                    SetContent(menuItem);
-                }
+                _nodeMap[current] = menuItem;
 
                 if (parentMap.TryGetValue(current, out var parentElement))
                 {
-                    parentElement.AddChild(menuItem);            
+                    parentElement.AddChild(menuItem);
                     menuItem.Set_Parent(parentElement);
                 }
                 else
                     _menuPanel.Add(menuItem);
 
                 // On Click
-                menuItem.OnClick.AddListener(node =>
-                {
-                    SetContent(menuItem);
-                });
+                menuItem.OnClick.AddListener(node => { SetSelected(menuItem); });
 
+                // Set children of element.
                 foreach (var child in current.Get_Children())
                 {
                     parentMap[child] = menuItem;
@@ -229,21 +203,68 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
                 }
             }
             
-            // Preselect the first one or cached one!?
-            
+            LoadPersistedData();
         }
 
-        protected abstract List<ArtificeTreeNode> BuildMenuTree();
+        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
 
-        private void SetContent(VisualElement_ArtificeMenuItem menuItem)
+        private void SetSelected(VisualElement_ArtificeMenuItem menuItem)
         {
+            if (menuItem.Node.ScriptableObject == null)
+            {
+                menuItem.ToggleExpanded();
+                return;
+            }
+            
             _selectedMenuItem?.Set_IsSelected(false);
             _selectedMenuItem = menuItem;
             _selectedMenuItem.Set_IsSelected(true);
-            
+
             _content.Clear();
             var serializedObject = new SerializedObject(menuItem.Node.ScriptableObject);
             _content.Add(_artificeDrawer.CreateInspectorGUI(serializedObject));
+            
+            SavePersistedData();
         }
+
+        public void AddItemsToMenu(GenericMenu menu)
+        {
+            menu.AddItem(new GUIContent("Refresh"), false, OnRefresh);
+        }
+
+        private void OnRefresh()
+        {
+            Debug.Log("Refreshing data...");
+        }
+
+        #region IArtifice_Persistence
+        
+        public abstract string ViewPersistenceKey { get; set; }
+        public void SavePersistedData()
+        {
+            Artifice_SCR_PersistedData.instance.SaveData(ViewPersistenceKey, "selectedNode", _selectedMenuItem.Node.Title);
+        }
+
+        public void LoadPersistedData()
+        {
+            var selectedNodeTitle = Artifice_SCR_PersistedData.instance.LoadData(ViewPersistenceKey, "selectedNode");
+            
+            // If none saved.
+            if (string.IsNullOrEmpty(selectedNodeTitle))
+            {
+                SetSelected(_nodeMap.First().Value);
+                return;
+            }
+            
+            // Set saved as selected
+            foreach (var pair in _nodeMap)
+            {
+                if (pair.Key.Title == selectedNodeTitle)
+                    SetSelected(pair.Value);
+            }
+        }
+        
+        #endregion
     }
 }
+

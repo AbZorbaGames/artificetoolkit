@@ -26,28 +26,36 @@
 }
 
 .menu-item--selected{
-    background-color: #1b497c;
+    transition: 0.4s;
+    background-color: #2c2c2c;
 }
 
 .menu-item-header-container{
     height: 30px;
+    padding-left: 10px;
     
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    width: 100%;
+    align-content: center;
     
-    /*padding: 5px;*/
+    width: 100%;
 }
 
 .menu-item-header-container:hover {
-    background-color: #2a63a2;
+    transition: 0.4s;
+    background-color: #1f1f1f;
+}
+
+.menu-item-header-icon{
+    width: 22px;
+    height: 22px;
+    align-self: center;
 }
 
 .menu-item-header-label{
-    width: 100%;
+    margin-left: 3px;
     height: 100%;
-    margin: auto;
     -unity-text-align: middle-left;
 }
 
