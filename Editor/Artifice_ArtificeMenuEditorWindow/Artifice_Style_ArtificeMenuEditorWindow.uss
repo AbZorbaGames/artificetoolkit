@@ -13,6 +13,11 @@
     border-color: black;
 }
 
+.menu-panel-search-bar{
+    width: 90%;
+    align-self: center;
+}
+
 .content-container{
     width: 100%;
     height: 100%;
@@ -20,8 +25,18 @@
     padding: 3px;
 }
 
-.content-container-error-prompt{
-    
+.content-container-error-prompt {
+    color: rgba(255, 255, 255, 0.4); /* Grayed out effect */
+    font-size: 14px;
+    -unity-font-style: italic;
+
+    -unity-text-align: middle-center;
+    flex-grow: 1;
+
+    padding: 20px;
+    margin-top: 10%; /* Positions it slightly upper-middle */
+
+    white-space: normal;
 }
 
 

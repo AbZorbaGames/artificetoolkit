@@ -8,7 +8,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
     {
         public readonly UnityEvent<ArtificeMenuTreeNode> OnClick = new();
         public ArtificeMenuTreeNode Node { get; }
-        private Artifice_VisualElement_ArtificeMenuItem Parent { get; set; }
+        public Artifice_VisualElement_ArtificeMenuItem Parent { get; private set; }
 
         private readonly VisualElement _headerContainer;
         private readonly VisualElement _childrenContainer;

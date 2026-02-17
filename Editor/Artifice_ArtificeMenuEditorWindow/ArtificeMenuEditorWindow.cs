@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using ArtificeToolkit.Editor;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,6 +17,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
         private VisualElement _menuPanel;
         private VisualElement _content;
+        private ToolbarSearchField _searchField;
         private ArtificeDrawer _artificeDrawer;
         private Artifice_VisualElement_ArtificeMenuItem _selectedMenuItem;
         private readonly Dictionary<ArtificeMenuTreeNode, Artifice_VisualElement_ArtificeMenuItem> _nodeMap = new();
@@ -33,7 +35,8 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             ClearInstances();
         }
 
-        private void OnRefresh()
+        /// <summary> Refreshes the whole window creation. Use this if you have updated AssetDatabase that you need to render. </summary>
+        protected void OnRefresh()
         {
             ClearInstances();
             Initialize();
@@ -44,8 +47,6 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
         private void Initialize()
         {
-            _artificeDrawer = new ArtificeDrawer();
-            _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
             _nodeMap.Clear();
         }
 
@@ -59,17 +60,17 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             var splitView = new TwoPaneSplitView(0, 200, TwoPaneSplitViewOrientation.Horizontal);
             rootVisualElement.Add(splitView);
 
-            _menuPanel = new ScrollView(ScrollViewMode.Vertical);
-            _menuPanel.AddToClassList("menu-panel-container");
+            // Build Side Panel
+            var sidePanel = BuildUI_SidePanel();
 
+            // Build Content
             _content = new ScrollView(ScrollViewMode.Vertical);
             _content.AddToClassList("content-container");
 
-
-            splitView.Add(_menuPanel);
+            splitView.Add(sidePanel);
             splitView.Add(_content);
         }
-
+        
         private void BuildAndPopulateTree()
         {
             var nodes = BuildMenuTree();
@@ -97,10 +98,89 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             }
         }
 
+        private VisualElement BuildUI_SidePanel()
+        {
+            var sidePanel = new VisualElement();
+            sidePanel.AddToClassList("menu-panel-container");
+            sidePanel.Add(BuildUI_MenuSearchBar());
+
+            _menuPanel = new ScrollView(ScrollViewMode.Vertical);
+            sidePanel.Add(_menuPanel);
+
+            return sidePanel;
+        }
+        
+        private VisualElement BuildUI_MenuSearchBar()
+        {
+            // Create the search field
+            var searchField = new ToolbarSearchField();
+            searchField.AddToClassList("menu-panel-search-bar");
+            searchField.RegisterValueChangedCallback(evt => FilterMenu(evt.newValue));
+
+            return searchField;
+        }
+
+        private void FilterMenu(string query)
+        {
+            var lowerQuery = query.ToLower();
+
+            // Get all top-level items (the ones directly in the _menuPanel)
+            foreach (var element in _menuPanel.Children())
+            {
+                if (element is Artifice_VisualElement_ArtificeMenuItem menuItem)
+                {
+                    UpdateElementVisibility(menuItem, lowerQuery);
+                }
+            }
+        }
+
+        private bool UpdateElementVisibility(Artifice_VisualElement_ArtificeMenuItem item, string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                item.style.display = DisplayStyle.Flex;
+                // Reset expansion state to default if needed, or leave as is
+                foreach (var child in item.Query<Artifice_VisualElement_ArtificeMenuItem>().ToList())
+                {
+                    child.style.display = DisplayStyle.Flex;
+                }
+
+                return true;
+            }
+
+            var matchesSelf = item.Node.Title.ToLower().Contains(query);
+            var anyChildMatches = false;
+
+            // Check children recursively
+            foreach (var child in item.Query<Artifice_VisualElement_ArtificeMenuItem>().ToList())
+            {
+                if (child.Parent == item) // Only direct children to avoid double-processing
+                {
+                    if (UpdateElementVisibility(child, query))
+                    {
+                        anyChildMatches = true;
+                    }
+                }
+            }
+
+            var shouldBeVisible = matchesSelf || anyChildMatches;
+            item.style.display = shouldBeVisible ? DisplayStyle.Flex : DisplayStyle.None;
+
+            // Auto-expand if a child matches but the parent doesn't, so the user sees the result
+            if (anyChildMatches)
+            {
+                item.ToggleExpanded(true);
+            }
+
+            return shouldBeVisible;
+        }
+
         private void SetSelected(Artifice_VisualElement_ArtificeMenuItem menuItem)
         {
-            if (menuItem == _selectedMenuItem) return;
+            if (menuItem == _selectedMenuItem)
+                return;
 
+            // If item is not selectable, just toggle its expansion.
             if (menuItem.Node.ScriptableObject == null)
             {
                 menuItem.ToggleExpanded();
@@ -125,6 +205,11 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             }
             else
             {
+                // Dispose and re-initialize artifice drawer. This way, we leave 0 leaks.
+                _artificeDrawer?.Dispose();
+                _artificeDrawer = new ArtificeDrawer();
+                _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
+
                 _content.Add(_artificeDrawer.CreateInspectorGUI(new SerializedObject(target)));
             }
         }
@@ -169,10 +254,13 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
         private void ClearInstances()
         {
+            // Clear all soInstances
             foreach (var instance in _soInstances)
                 DestroyImmediate(instance);
 
+            // Dispose and reset Artifice Drawer Instance
             _artificeDrawer?.Dispose();
+            _artificeDrawer = null;
         }
 
         #endregion
