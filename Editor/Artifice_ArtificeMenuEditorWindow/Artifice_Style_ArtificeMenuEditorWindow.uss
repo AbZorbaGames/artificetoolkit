@@ -1,0 +1,94 @@
+.menu-editor-container{
+    height: 100%;
+    width: 100%;
+}
+
+.menu-editor-split-pane{
+    display: flex;
+    flex-direction: row;
+}
+
+.menu-panel-container{
+    border-right-width: 1px;
+    border-color: black;
+}
+
+.menu-panel-search-bar{
+    width: 90%;
+    align-self: center;
+}
+
+.menu-content-container{
+    width: 100%;
+    height: 100%;
+    background-color: #313131;
+    padding: 3px;
+}
+
+.content-container-error-prompt {
+    color: rgba(255, 255, 255, 0.4); /* Grayed out effect */
+    font-size: 14px;
+    -unity-font-style: italic;
+
+    -unity-text-align: middle-center;
+    flex-grow: 1;
+
+    padding: 20px;
+    margin-top: 10%; /* Positions it slightly upper-middle */
+
+    white-space: normal;
+}
+
+
+/* Artifice Menu Item */
+.menu-item{
+}
+
+.menu-item--selected{
+    transition: 0.4s;
+    background-color: #2c2c2c;
+}
+
+.menu-item-header-container{
+    height: 30px;
+    padding-left: 10px;
+    
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-content: center;
+    
+    width: 100%;
+}
+
+.menu-item-header-container:hover {
+    transition: 0.4s;
+    background-color: #1f1f1f;
+}
+
+.menu-item-header-icon{
+    width: 18px;
+    height: 18px;
+    align-self: center;
+}
+
+.menu-item-header-label{
+    margin-left: 3px;
+    height: 100%;
+    -unity-text-align: middle-left;
+}
+
+.menu-item-collapse-button {
+    transition: 0.4s;
+    width: 20px;
+    rotate: -90deg;
+}
+
+.menu-item-collapse-button--expanded{
+    transition: 0.4s;
+    rotate: 0deg;
+}
+
+.menu-item-children-container{
+    
+}

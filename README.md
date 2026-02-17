@@ -751,7 +751,7 @@ In this example, we create a custom `TitleAttribute` that adds a styled header t
 
 Create the `TitleAttribute` in a **runtime** folder. This attribute takes a string title, which will be used as a label in the Inspector.
 
-```csharp
+```c#
 using System;
 using UnityEngine;
 
@@ -821,6 +821,246 @@ public class ExampleComponent : MonoBehaviour
 }
 
 ```
+
+# ArtificeEditorWindow and ArtificeMenuEditorWindow
+
+ArtificeToolkit provides two base classes for building custom Unity
+editor windows:
+
+-   `ArtificeEditorWindow`
+-   `ArtificeMenuEditorWindow`
+
+Both approaches rely on attribute-driven UI generation, eliminating the
+need for traditional custom editor scripting.
+
+------------------------------------------------------------------------
+
+# ArtificeEditorWindow
+
+`ArtificeEditorWindow` allows you to create a fully functional editor
+window by simply inheriting from the base class and decorating fields
+and methods with Artifice attributes.
+
+No manual `OnGUI`, UI Toolkit setup, or custom inspectors are required.
+
+## Example
+
+``` csharp
+public class SCR_QuickSettings : ArtificeEditorWindow
+{
+    [MenuItem("Test/Quick Settings")]
+    public static void ShowWindow() => GetWindow<SCR_QuickSettings>("Quick Settings");
+    
+    [Header("Time Management")]
+    [SerializeField, UnityEngine.Range(0f, 10f), OnValueChanged(nameof(UpdateState))]
+    private float timeScale = 1f;
+
+    [Header("Rendering & Quality")]
+    [SerializeField, OnValueChanged(nameof(UpdateState))]
+    private bool showFPSCounter;
+
+    [SerializeField, OnValueChanged(nameof(UpdateState))]
+    private bool disableFog;
+
+    [Header("Physics Debug")]
+    [SerializeField, OnValueChanged(nameof(UpdateState))]
+    private bool showPhysicsColliders;
+
+    [SerializeField]
+    private Color debugGizmoColor = Color.green;
+
+    #region Actions
+
+    [HorizontalGroup("Actions")]
+    [Button]
+    private void ResetTimeScale()
+    {
+        timeScale = 1f;
+        UpdateState();
+    }
+
+    [HorizontalGroup("Actions")]
+    [Button]
+    private void ClearConsole()
+    {
+        var logEntries = System.Type.GetType("UnityEditor.LogEntries, UnityEditor.dll");
+        var clearMethod = logEntries?.GetMethod(
+            "Clear",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public
+        );
+        clearMethod?.Invoke(null, null);
+    }
+
+    #endregion
+
+    private void UpdateState()
+    {
+        Time.timeScale = timeScale;
+
+        // Apply additional settings here, for example:
+        // RenderSettings.fog = !disableFog;
+    }
+}
+```
+
+<div style="display: flex; justify-content: center;">
+  <img src="./Documentation/artifice_artificeeditorwindow.png" alt="GIF Example"/>
+</div>
+
+## Behavior
+
+-   The window is created using `GetWindow<T>()`.
+-   Fields are automatically rendered based on attributes.
+-   Methods marked with `[Button]` are rendered as clickable buttons.
+-   Layout attributes such as `[Header]` and `[HorizontalGroup]` control
+    structure.
+-   `[OnValueChanged]` enables reactive state updates.
+
+The result is a fully functional editor window without custom rendering
+code.
+
+------------------------------------------------------------------------
+
+# ArtificeMenuEditorWindow
+
+`ArtificeMenuEditorWindow` is designed for building structured,
+multi-panel editor tools. It provides a tree-based navigation system and
+dynamic content rendering.
+
+It is particularly suited for:
+
+-   Tool collections
+-   Asset management panels
+-   ScriptableObject editing workflows
+-   Multi-section editor environments
+
+## Core Concept
+
+To use it:
+
+1.  Inherit from `ArtificeMenuEditorWindow`.
+2.  Override `BuildMenuTree()`.
+3.  Return a list of `ArtificeMenuTreeNode` objects representing the
+    menu hierarchy.
+
+When a node is selected, its associated object is rendered in the
+content panel.
+
+### Important Notes
+
+- All scriptable object instances that do not live in the AssetDatabase, need to happen with `CreateAndRegister<T>` to keep track and keep the memory clean without leaks.
+- All Unity editor windows inherit from `ScriptableObject`. This means that you can use ALL editor windows (IMGUI, UI
+  Toolkit, or
+  `ArtificeEditorWindow`).
+- `ArtificeMenuEditorWindow` instances can be nested to create
+  multi-panel systems.
+- You can also add icons using the `sprite:` parameter of the `ArtificeMenuTreeNode`.
+
+------------------------------------------------------------------------
+
+## Example
+
+``` csharp
+public class MyToolboxWindow : ArtificeMenuEditorWindow
+{
+    [MenuItem("Test/My Toolbox")]
+    public static void ShowWindow() => GetWindow<MyToolboxWindow>("My Toolbox");
+
+    public override string ViewPersistenceKey { get; set; } = "MyToolbox_PersistenceKey";
+
+    protected override List<ArtificeMenuTreeNode> BuildMenuTree()
+    {
+        var characters = LoadAllCharacters();
+        var items = LoadAllItems();
+        
+        var list = new List<ArtificeMenuTreeNode>
+        {
+            new("Settings", CreateAndRegister<SCR_QuickSettings>()),
+
+            new("Editor", null)
+            {
+                Children =
+                {
+                    // Add additional editor tools here.
+                }
+            },
+
+            new("Entities", null)
+            {
+                Children =
+                {
+                    new ArtificeMenuTreeNode(
+                        "Characters",
+                        null,
+                        null,
+                        characters
+                            .Select(character => new ArtificeMenuTreeNode(character.name, character))
+                            .ToList()
+                    ),
+
+                    new ArtificeMenuTreeNode(
+                        "Items",
+                        null,
+                        null,
+                        items
+                            .Select(item => new ArtificeMenuTreeNode(item.name, item))
+                            .ToList()
+                    ),
+                }
+            }
+        };
+        
+        return list;
+    }
+    
+    private List<SCR_Character> LoadAllCharacters()
+    {
+        var guids = AssetDatabase.FindAssets("t:SCR_Character");
+
+        return guids
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .Select(AssetDatabase.LoadAssetAtPath<SCR_Character>)
+            .Where(asset => asset != null)
+            .ToList();
+    }
+    
+    private List<SCR_Item> LoadAllItems()
+    {
+        var guids = AssetDatabase.FindAssets("t:SCR_Item");
+
+        return guids
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .Select(AssetDatabase.LoadAssetAtPath<SCR_Item>)
+            .Where(asset => asset != null)
+            .ToList();
+    }
+}
+```
+
+<div style="display: flex; justify-content: center;">
+  <img src="./Documentation/artifice_artificemenueditorwindow.gif" alt="GIF Example"/>
+</div>
+
+------------------------------------------------------------------------
+
+# Summary
+
+## Use `ArtificeEditorWindow` when:
+
+-   You need a single-purpose editor window.
+-   The layout is straightforward.
+-   You want minimal setup and zero manual drawing code.
+
+## Use `ArtificeMenuEditorWindow` when:
+
+-   You are building a tool suite.
+-   You need hierarchical navigation.
+-   You are managing multiple asset types.
+-   You want scalable, structured editor tooling.
+
+Both approaches eliminate boilerplate and enable clean, attribute-driven
+editor development.
+
 
 ## Known Issues
 - In Unity 2021.x.x the following warning may appear due to value tracking not working generic types of serialized properties.

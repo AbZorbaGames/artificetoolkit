@@ -12,6 +12,7 @@ namespace ArtificeToolkit.Editor
         
         #endregion
         
+        /* Mono */
         protected virtual void CreateGUI()
         {
             ArtificeDrawer = new ArtificeDrawer();
@@ -23,6 +24,12 @@ namespace ArtificeToolkit.Editor
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeEditorWindow)));
             rootVisualElement.AddToClassList("root-visual-element");
             rootVisualElement.Add(ArtificeDrawer.CreateInspectorGUI(serializedObject));
+        }
+
+        /* Mono */
+        private void OnDestroy()
+        {
+            ArtificeDrawer.Dispose();
         }
     }
 }
