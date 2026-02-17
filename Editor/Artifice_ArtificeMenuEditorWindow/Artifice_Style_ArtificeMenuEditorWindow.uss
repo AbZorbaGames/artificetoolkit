@@ -18,7 +18,7 @@
     align-self: center;
 }
 
-.content-container{
+.menu-content-container{
     width: 100%;
     height: 100%;
     background-color: #313131;

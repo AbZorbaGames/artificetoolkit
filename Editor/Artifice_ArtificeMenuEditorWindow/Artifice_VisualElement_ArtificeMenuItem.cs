@@ -35,7 +35,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
             if (node.ScriptableObject != null)
                 container.AddToClassList("menu-item-header-container-allowed-hover");
 
-            if (node.Get_Children().Count > 0 || node.ScriptableObject == null)
+            if (node.Children.Count > 0 || node.ScriptableObject == null)
             {
                 _collapseImage = new Image { image = EditorGUIUtility.IconContent("d_icon dropdown@2x").image };
                 _collapseImage.AddToClassList("menu-item-collapse-button");

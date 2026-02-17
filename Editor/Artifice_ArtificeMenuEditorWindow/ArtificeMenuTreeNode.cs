@@ -12,31 +12,26 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
         public readonly string Title;
         public readonly ScriptableObject ScriptableObject;
         public readonly Sprite Sprite;
-        private readonly List<ArtificeMenuTreeNode> _children;
+        public readonly List<ArtificeMenuTreeNode> Children;
 
         #endregion
 
-        public ArtificeMenuTreeNode(string title, ScriptableObject scriptableObject, Sprite sprite = null)
+        public ArtificeMenuTreeNode(string title, ScriptableObject scriptableObject, Sprite sprite = null, List<ArtificeMenuTreeNode> children = null)
         {
             Title = title;
             ScriptableObject = scriptableObject;
             Sprite = sprite;
-            _children = new List<ArtificeMenuTreeNode>();
-        }
-
-        public ICollection<ArtificeMenuTreeNode> Get_Children()
-        {
-            return _children;
+            Children = children ?? new List<ArtificeMenuTreeNode>();
         }
 
         public void AddChild(ArtificeMenuTreeNode node)
         {
-            _children.Add(node);
+            Children.Add(node);
         }
 
         public void RemoveChild(ArtificeMenuTreeNode node)
         {
-            _children.Remove(node);
+            Children.Remove(node);
         }
     }
 }

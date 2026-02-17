@@ -65,7 +65,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
             // Build Content
             _content = new ScrollView(ScrollViewMode.Vertical);
-            _content.AddToClassList("content-container");
+            _content.AddToClassList("menu-content-container");
 
             splitView.Add(sidePanel);
             splitView.Add(_content);
@@ -90,7 +90,7 @@ namespace Editor.Artifice_ArtificeMenuEditorWindow
 
                 menuItem.OnClick.AddListener(_ => SetSelected(menuItem));
 
-                foreach (var child in node.Get_Children())
+                foreach (var child in node.Children)
                 {
                     parentMap[child] = menuItem;
                     queue.Enqueue(child);
