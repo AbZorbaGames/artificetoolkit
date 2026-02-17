@@ -1,4 +1,7 @@
 # Change Log:
+## 1.9.0
+- Enhancement: Added `ArtificeMenuEditorWindow`, a powerful way to create dynamic editor window toolboxes.  
+
 ## 1.8.0
 - Enhancement: Added `InlineObject` and `InlineProperty` attributes.
 
