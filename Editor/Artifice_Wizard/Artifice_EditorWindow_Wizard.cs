@@ -115,14 +115,14 @@ namespace ArtificeToolkit.Editor
             container.Add(header);
 
             // mScript Visibility
-            var mScriptVisibilityToggle = new Toggle("m_Script Visibility");
+            var mScriptVisibilityToggle = new Toggle("m_Script hidden");
             mScriptVisibilityToggle.AddToClassList("additional-features-toggle");
             container.Add(mScriptVisibilityToggle);
 
-            mScriptVisibilityToggle.value = Artifice_Utilities.MScriptVisibility;
+            mScriptVisibilityToggle.value = Artifice_Utilities.MScriptShouldHide;
             mScriptVisibilityToggle.RegisterValueChangedCallback(value =>
             {
-                Artifice_Utilities.MScriptVisibility = value.newValue;
+                Artifice_Utilities.MScriptShouldHide = value.newValue;
                 Artifice_Utilities.TriggerNextFrameReselection();
             });
             
