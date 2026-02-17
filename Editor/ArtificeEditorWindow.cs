@@ -29,7 +29,7 @@ namespace ArtificeToolkit.Editor
         /* Mono */
         private void OnDestroy()
         {
-            ArtificeDrawer.Dispose();
+            ArtificeDrawer?.Dispose();
         }
     }
 }

@@ -1,4 +1,8 @@
 # Change Log:
+## 1.9.1
+- Fix: Updated mScript visibility logic to "IsVisible" to "ShouldHide" to respect Unity's default behaviour.
+- Fix: Artifice Wizard was inheriting from `ArtificeEditorWindow` but it was using complete custom logic.
+
 ## 1.9.0
 - Enhancement: Added `ArtificeMenuEditorWindow`, a powerful way to create dynamic editor window toolboxes.  
 

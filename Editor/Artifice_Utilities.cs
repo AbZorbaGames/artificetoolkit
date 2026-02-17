@@ -27,10 +27,10 @@ namespace ArtificeToolkit.Editor
             get => EditorPrefs.GetBool("artificeDrawerEnabled");
             set => EditorPrefs.SetBool("artificeDrawerEnabled", value);
         }
-        public static bool MScriptVisibility
+        public static bool MScriptShouldHide
         {
-            get => EditorPrefs.GetBool("artificeDrawer_mScriptVisibility");
-            set => EditorPrefs.SetBool("artificeDrawer_mScriptVisibility", value);
+            get => EditorPrefs.GetBool("artificeDrawer_mScriptShouldHide");
+            set => EditorPrefs.SetBool("artificeDrawer_mScriptShouldHide", value);
         }
         
         

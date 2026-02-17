@@ -1,12 +1,13 @@
 using System;
 using Artifice.Editor;
 using ArtificeToolkit.Editor.Artifice_InspectorHeader;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor
 {
-    public class Artifice_EditorWindow_Wizard : ArtificeEditorWindow
+    public class Artifice_EditorWindow_Wizard : EditorWindow
     {
         public static void ShowWindow()
         {
@@ -15,7 +16,7 @@ namespace ArtificeToolkit.Editor
             wnd.minSize = new Vector2(420, 500);
         }
 
-        protected override void CreateGUI()
+        private void CreateGUI()
         {
             rootVisualElement.Clear();
 
@@ -114,14 +115,14 @@ namespace ArtificeToolkit.Editor
             container.Add(header);
 
             // mScript Visibility
-            var mScriptVisibilityToggle = new Toggle("m_Script Visibility");
+            var mScriptVisibilityToggle = new Toggle("m_Script hidden");
             mScriptVisibilityToggle.AddToClassList("additional-features-toggle");
             container.Add(mScriptVisibilityToggle);
 
-            mScriptVisibilityToggle.value = Artifice_Utilities.MScriptVisibility;
+            mScriptVisibilityToggle.value = Artifice_Utilities.MScriptShouldHide;
             mScriptVisibilityToggle.RegisterValueChangedCallback(value =>
             {
-                Artifice_Utilities.MScriptVisibility = value.newValue;
+                Artifice_Utilities.MScriptShouldHide = value.newValue;
                 Artifice_Utilities.TriggerNextFrameReselection();
             });
             
