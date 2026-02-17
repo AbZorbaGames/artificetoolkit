@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
 
-namespace Editor.Artifice_ArtificeMenuEditorWindow
+namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 {
     public class Artifice_VisualElement_ArtificeMenuItem : VisualElement
     {

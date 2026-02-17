@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Editor.Artifice_ArtificeMenuEditorWindow
+namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 {
     [Serializable]
     public class ArtificeMenuTreeNode

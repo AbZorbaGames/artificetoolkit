@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ArtificeToolkit.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Editor.Artifice_ArtificeMenuEditorWindow
+namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 {
     public abstract class ArtificeMenuEditorWindow : EditorWindow, IHasCustomMenu, IArtifice_Persistence
     {
