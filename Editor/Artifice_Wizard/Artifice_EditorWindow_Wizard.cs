@@ -1,12 +1,13 @@
 using System;
 using Artifice.Editor;
 using ArtificeToolkit.Editor.Artifice_InspectorHeader;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor
 {
-    public class Artifice_EditorWindow_Wizard : ArtificeEditorWindow
+    public class Artifice_EditorWindow_Wizard : EditorWindow
     {
         public static void ShowWindow()
         {
@@ -15,7 +16,7 @@ namespace ArtificeToolkit.Editor
             wnd.minSize = new Vector2(420, 500);
         }
 
-        protected override void CreateGUI()
+        private void CreateGUI()
         {
             rootVisualElement.Clear();
 
