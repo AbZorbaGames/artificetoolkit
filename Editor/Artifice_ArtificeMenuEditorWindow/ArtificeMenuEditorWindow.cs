@@ -64,6 +64,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 
             // Build Content
             _content = new ScrollView(ScrollViewMode.Vertical);
+            _content.contentContainer.AddToClassList("menu-scroll-view-content");
             _content.AddToClassList("menu-content-container");
 
             splitView.Add(sidePanel);
@@ -209,7 +210,9 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
                 _artificeDrawer = new ArtificeDrawer();
                 _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
 
-                _content.Add(_artificeDrawer.CreateInspectorGUI(new SerializedObject(target)));
+                var inspectorElement = new InspectorElement();
+                inspectorElement.Add(_artificeDrawer.CreateInspectorGUI(new SerializedObject(target)));
+                _content.Add(inspectorElement);
             }
         }
 
@@ -228,9 +231,10 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
             var createGui = type.GetMethod("CreateGUI", flags) ?? type.DeclaringType?.GetMethod("CreateGUI", flags);
             if (createGui != null)
             {
+                window.rootVisualElement.AddToClassList("menu-content-rootVisualElement");
                 if (window.rootVisualElement.childCount == 0)
                     createGui.Invoke(window, null);
-
+                
                 _content.Add(window.rootVisualElement);
             }
             else
