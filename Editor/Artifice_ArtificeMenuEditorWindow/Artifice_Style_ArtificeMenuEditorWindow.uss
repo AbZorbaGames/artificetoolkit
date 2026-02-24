@@ -82,6 +82,7 @@
 .menu-item-header-icon{
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
     align-self: center;
 }
 
@@ -95,6 +96,7 @@
     transition: 0.4s;
     width: 20px;
     rotate: -90deg;
+    flex-shrink: 0;
 }
 
 .menu-item-collapse-button--expanded{

@@ -56,7 +56,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeMenuEditorWindow)));
             rootVisualElement.AddToClassList("menu-editor-container");
 
-            var splitView = new TwoPaneSplitView(0, 200, TwoPaneSplitViewOrientation.Horizontal);
+            var splitView = new TwoPaneSplitView(0, 260, TwoPaneSplitViewOrientation.Horizontal);
             rootVisualElement.Add(splitView);
 
             // Build Side Panel
