@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,8 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 
         #endregion
 
+        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
+        
         /* Mono */
         protected void CreateGUI() => OnRefresh();
 
@@ -287,7 +290,5 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
         }
 
         #endregion
-
-        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
     }
 }

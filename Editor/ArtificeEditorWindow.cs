@@ -1,4 +1,6 @@
 using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 // ReSharper disable InconsistentNaming
 
@@ -20,10 +22,14 @@ namespace ArtificeToolkit.Editor
 
             // Get reference to serializedObject and simply call 
             var serializedObject = new SerializedObject(this);
+            var artificeInspector = ArtificeDrawer.CreateInspectorGUI(serializedObject);
+
+            var inspectorElem = new ScrollView(ScrollViewMode.Vertical);
+            inspectorElem.Add(artificeInspector);
             
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeEditorWindow)));
             rootVisualElement.AddToClassList("root-visual-element");
-            rootVisualElement.Add(ArtificeDrawer.CreateInspectorGUI(serializedObject));
+            rootVisualElement.Add(inspectorElem);
         }
 
         /* Mono */

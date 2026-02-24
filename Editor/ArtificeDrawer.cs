@@ -135,6 +135,7 @@ namespace ArtificeToolkit.Editor
 
             artificeContainer.styleSheets.Add(Artifice_Utilities.GetGlobalStyle()); // This propagates to all children.
             artificeContainer.styleSheets.Add(Artifice_Utilities.GetStyle(GetType())); // Supports
+            artificeContainer.AddToClassList("artifice-inspector");
             
             return artificeContainer;
         }

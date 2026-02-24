@@ -28,6 +28,10 @@
     flex-shrink: 0;
 }
 
+.menu-content-container .menu-content-rootVisualElement{
+    flex-shrink: 0;
+}
+
 .menu-scroll-view-content{
     height: 100%;
     margin-bottom: 10px;
