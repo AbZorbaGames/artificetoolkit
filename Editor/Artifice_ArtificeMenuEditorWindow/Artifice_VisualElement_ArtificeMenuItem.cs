@@ -47,9 +47,9 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
                 container.Add(_collapseImage);
             }
 
-            if (node.Sprite != null)
+            if (node.Texture != null)
             {
-                var icon = new Image { image = node.Sprite.texture };
+                var icon = new Image { image = node.Texture };
                 icon.AddToClassList("menu-item-header-icon");
                 container.Add(icon);
             }
