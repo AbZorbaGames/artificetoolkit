@@ -5,6 +5,7 @@
   - Made changes to style of content container to have min to scroll content height
   - Added no-shrink USS to icons and label of menu items
   - Refactored ArtificeMenuTreeNode to use textures instead of sprites
+- Fix: Reverted use of cached `ArtificeDrawer` reference in `ArtificeInspector`
 
 ## 1.9.1
 - Fix: Updated mScript visibility logic to "IsVisible" to "ShouldHide" to respect Unity's default behaviour.
