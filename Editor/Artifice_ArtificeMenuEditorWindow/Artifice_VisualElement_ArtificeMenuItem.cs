@@ -47,9 +47,9 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
                 container.Add(_collapseImage);
             }
 
-            if (node.Sprite != null)
+            if (node.Texture != null)
             {
-                var icon = new Image { image = node.Sprite.texture };
+                var icon = new Image { image = node.Texture };
                 icon.AddToClassList("menu-item-header-icon");
                 container.Add(icon);
             }
@@ -93,7 +93,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
         public void SetParent(Artifice_VisualElement_ArtificeMenuItem parent)
         {
             Parent = parent;
-            _headerContainer.style.paddingLeft = 10 + (10 * GetDepth());
+            _headerContainer.style.paddingLeft = 15 + (15 * GetDepth());
         }
 
         public void ToggleExpanded(bool? forceState = null)

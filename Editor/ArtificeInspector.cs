@@ -34,12 +34,12 @@ namespace ArtificeToolkit.Editor
             var hasArtificeIgnoreAttribute = type.GetCustomAttribute<ArtificeIgnoreAttribute>() != null;
             var hasMarkedAsArtificeIgnore = HasArtificeIgnore(type);
 
-            // Render with Default inspector or Artifice Inspector based on ignore values
-            var inspector = hasArtificeIgnoreAttribute || hasMarkedAsArtificeIgnore
-                ? base.CreateInspectorGUI()
-                : new ArtificeDrawer().CreateInspectorGUI(serializedObject);
+            var shouldUseDefaultInspector = hasArtificeIgnoreAttribute || hasMarkedAsArtificeIgnore;
+            if (shouldUseDefaultInspector)
+                return base.CreateInspectorGUI();
 
-            return inspector;
+            _drawer = new ArtificeDrawer();
+            return _drawer.CreateInspectorGUI(serializedObject);
         }
 
         /* Mono */

@@ -1,4 +1,12 @@
 # Change Log:
+## 1.9.2
+- Fix: Various fixes around ArtificeMenuEditorWindow
+  - Added InspectorElement to RenderContent for correctly aligned property rendering
+  - Made changes to style of content container to have min to scroll content height
+  - Added no-shrink USS to icons and label of menu items
+  - Refactored ArtificeMenuTreeNode to use textures instead of sprites
+- Fix: Reverted use of cached `ArtificeDrawer` reference in `ArtificeInspector`
+
 ## 1.9.1
 - Fix: Updated mScript visibility logic to "IsVisible" to "ShouldHide" to respect Unity's default behaviour.
 - Fix: Artifice Wizard was inheriting from `ArtificeEditorWindow` but it was using complete custom logic.

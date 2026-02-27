@@ -19,10 +19,27 @@
 }
 
 .menu-content-container{
-    width: 100%;
-    height: 100%;
+    min-height: 95%;
     background-color: #313131;
     padding: 3px;
+}
+
+.menu-content-container .unity-inspector-element{
+    flex-shrink: 0;
+}
+
+.menu-content-container .menu-content-rootVisualElement{
+    flex-shrink: 0;
+}
+
+.menu-scroll-view-content{
+    height: 100%;
+    margin-bottom: 10px;
+    padding-bottom: 15px;
+}
+
+.menu-content-rootVisualElement{
+    height: 100%;
 }
 
 .content-container-error-prompt {
@@ -52,12 +69,12 @@
 .menu-item-header-container{
     height: 30px;
     padding-left: 10px;
-    
+
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-content: center;
-    
+
     width: 100%;
 }
 
@@ -69,6 +86,7 @@
 .menu-item-header-icon{
     width: 18px;
     height: 18px;
+    flex-shrink: 0;
     align-self: center;
 }
 
@@ -82,6 +100,7 @@
     transition: 0.4s;
     width: 20px;
     rotate: -90deg;
+    flex-shrink: 0;
 }
 
 .menu-item-collapse-button--expanded{

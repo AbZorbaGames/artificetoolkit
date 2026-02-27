@@ -25,6 +25,8 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 
         #endregion
 
+        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
+        
         /* Mono */
         protected void CreateGUI() => OnRefresh();
 
@@ -56,7 +58,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
             rootVisualElement.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeMenuEditorWindow)));
             rootVisualElement.AddToClassList("menu-editor-container");
 
-            var splitView = new TwoPaneSplitView(0, 200, TwoPaneSplitViewOrientation.Horizontal);
+            var splitView = new TwoPaneSplitView(0, 260, TwoPaneSplitViewOrientation.Horizontal);
             rootVisualElement.Add(splitView);
 
             // Build Side Panel
@@ -64,6 +66,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 
             // Build Content
             _content = new ScrollView(ScrollViewMode.Vertical);
+            _content.contentContainer.AddToClassList("menu-scroll-view-content");
             _content.AddToClassList("menu-content-container");
 
             splitView.Add(sidePanel);
@@ -209,7 +212,9 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
                 _artificeDrawer = new ArtificeDrawer();
                 _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
 
-                _content.Add(_artificeDrawer.CreateInspectorGUI(new SerializedObject(target)));
+                var inspectorElement = new InspectorElement();
+                inspectorElement.Add(_artificeDrawer.CreateInspectorGUI(new SerializedObject(target)));
+                _content.Add(inspectorElement);
             }
         }
 
@@ -228,9 +233,10 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
             var createGui = type.GetMethod("CreateGUI", flags) ?? type.DeclaringType?.GetMethod("CreateGUI", flags);
             if (createGui != null)
             {
+                window.rootVisualElement.AddToClassList("menu-content-rootVisualElement");
                 if (window.rootVisualElement.childCount == 0)
                     createGui.Invoke(window, null);
-
+                
                 _content.Add(window.rootVisualElement);
             }
             else
@@ -283,7 +289,5 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
         }
 
         #endregion
-
-        protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
     }
 }

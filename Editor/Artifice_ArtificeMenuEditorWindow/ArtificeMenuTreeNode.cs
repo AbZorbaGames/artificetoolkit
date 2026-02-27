@@ -11,16 +11,16 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 
         public readonly string Title;
         public readonly ScriptableObject ScriptableObject;
-        public readonly Sprite Sprite;
+        public readonly Texture Texture;
         public readonly List<ArtificeMenuTreeNode> Children;
 
         #endregion
 
-        public ArtificeMenuTreeNode(string title, ScriptableObject scriptableObject, Sprite sprite = null, List<ArtificeMenuTreeNode> children = null)
+        public ArtificeMenuTreeNode(string title, ScriptableObject scriptableObject, Texture texture = null, List<ArtificeMenuTreeNode> children = null)
         {
             Title = title;
             ScriptableObject = scriptableObject;
-            Sprite = sprite;
+            Texture = texture;
             Children = children ?? new List<ArtificeMenuTreeNode>();
         }
 
