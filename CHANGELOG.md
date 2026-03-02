@@ -1,4 +1,7 @@
 # Change Log:
+## 1.9.3
+- Fix: Added flag to not dispose temporary scriptable objects through `CreateAndRegister` in `ArtificeMenuEditorWindow`.
+
 ## 1.9.2
 - Fix: Various fixes around ArtificeMenuEditorWindow
   - Added InspectorElement to RenderContent for correctly aligned property rendering
