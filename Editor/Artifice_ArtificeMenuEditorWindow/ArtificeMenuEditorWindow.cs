@@ -252,8 +252,13 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
         protected T CreateAndRegister<T>() where T : ScriptableObject
         {
             var instance = CreateInstance(typeof(T)) as T;
+            if (instance != null)
+                instance.hideFlags =
+                    HideFlags.HideInHierarchy |
+                    HideFlags.DontSaveInEditor |
+                    HideFlags.DontUnloadUnusedAsset;
+            
             _soInstances.Add(instance);
-
             return instance;
         }
 
@@ -262,6 +267,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
             // Clear all soInstances
             foreach (var instance in _soInstances)
                 DestroyImmediate(instance);
+            _soInstances.Clear();
 
             // Dispose and reset Artifice Drawer Instance
             _artificeDrawer?.Dispose();
