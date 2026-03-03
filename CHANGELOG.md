@@ -1,4 +1,8 @@
 # Change Log:
+## 1.9.4
+- Fix: Now `InlineObject` and `PreviewScriptable` bind properly to the expanded container fixing the issue of missing composite properties like `Vector3`.
+- Note: `PreviewScriptable` has been marked as Obsolete. Replace with `InlineObject` which supports both `ScriptableObject` and many more `UnityEngine.Object` types.
+
 ## 1.9.3
 - Fix: Added flag to not dispose temporary scriptable objects through `CreateAndRegister` in `ArtificeMenuEditorWindow`.
 
