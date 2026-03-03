@@ -1,5 +1,4 @@
-using ArtificeToolkit.Editor;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -89,7 +88,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             _expandedContainer.Clear();
             _expandedContainer.style.marginLeft = 10 * (property.depth + 1);
-
+            
             var target = property.objectReferenceValue;
 
             // If null return
@@ -102,17 +101,16 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             }
 
             // Check whether we require a native unity editor.
-            var requiresNativeEditor = target is Material or Texture ||
-                                       target is AudioClip ||
-                                       target is Shader ||
-                                       target is ComputeShader;
-
+            var requiresNativeEditor = target is Material or Texture or AudioClip or Shader or ComputeShader;
+            
             if (!requiresNativeEditor)
             {
                 // Use artifice inspector GUI
                 var serializedObject = new SerializedObject(target);
                 _expandedContainer.Add(_artificeDrawer.CreateInspectorGUI(serializedObject));
                 _artificeDrawer.SetArtificeIndicatorVisibility(false);
+                
+                _expandedContainer.Bind(serializedObject);
             }
             else
             {

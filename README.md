@@ -59,7 +59,7 @@ Following are the simplest to use attributes which can have a big impact on visu
 
 - [FoldoutGroup](#foldout-group)
 - [Required](#required)
-- [PreviewScriptable](#previewscriptable)
+- [InlineObject](#inlineobject)
 
 ## Group Attributes
 Group Attributes can be used to bring together various properties in a form of a group. Such groups can also work in a nested manner as shown in the [BoxGroup](#boxgroup) example.
@@ -404,19 +404,8 @@ private void TestMethodWithParameters(string parameter)
 
 ![button-example](./Documentation/artifice_button.gif)
 
-
-### PreviewSprite
-PreviewSprite works only on the Sprite and Texture2D serialized properties. It renders an enlarged image of the selected value.
-
-```c#
-[SerializeField, PreviewSprite] 
-private Sprite characterPortrait;
-```
-
-![previewsprite-example](./Documentation/artifice_previewsprite.png)
-
-### PreviewScriptable
-This is one of the most magical attributes in the Artifice Toolkit. It allows you to dynamically instantiate a scriptable object inspector inside of another inspector. This can even work in a nested manner, previewing scriptable objects inside of other scriptable objects etc.
+### InlineObject
+This is one of the most magical attributes in the Artifice Toolkit. It allows you to dynamically instantiate a `UnityEngine.Object` type (ex. `ScriptableObject`) inspector inside of another inspector. This can even work in a nested manner, previewing scriptable objects inside of other scriptable objects etc.
 
 ```c#
 [CreateAssetMenu(menuName = "ScriptableObject/Character")]
@@ -432,11 +421,27 @@ public class SCR_Character : ScriptableObject
     public string lastName;
 }
 
-[SerializeField, PreviewScriptable]
+[SerializeField, InlineObject]
 private List<SCR_Character> mainCharacter;
 ```
 
-![preview-scriptable-example](./Documentation/artifice_previewscriptable.gif)
+![inline-object-example](./Documentation/artifice_previewscriptable.gif)
+
+The `InlineObject` attribute allows you to render any `UnityEngine.Object` reference directly in the Inspector (e.g., `MonoBehaviour`, `Material`, `Texture`, etc.).
+
+<p align="center">
+  <img src="./Documentation/artifice_inlineobject.gif"/>
+</p>
+
+### PreviewSprite
+PreviewSprite works only on the Sprite and Texture2D serialized properties. It renders an enlarged image of the selected value.
+
+```c#
+[SerializeField, PreviewSprite] 
+private Sprite characterPortrait;
+```
+
+![previewsprite-example](./Documentation/artifice_previewsprite.png)
 
 ---
 
@@ -501,14 +506,6 @@ public class Sword: Weapon
 Some classes may not use any custom attribute but are slow on rendering since ArtificeToolkit still needs to check for attributes. In this case, you can apply the `[ArtificeIgnore]` attribute to the MonoBehaviour or ScriptableObject class to have it be rendered with the default IMGUI UI.
 
 **NOTE**: Some classes may come from third-party providers and may not be able to apply the `[ArtificeIgnore]`. In this case, you can add it to the artifice ignore list from the context actions of the inspector. This is a locally stored setting.
-
-### InlineObject
-
-The `InlineObject` attribute allows you to render any `UnityEngine.Object` reference directly in the Inspector (e.g., `MonoBehaviour`, `Material`, `Texture`, etc.).
-
-<p align="center">
-  <img src="./Documentation/artifice_inlineobject.gif"/>
-</p>
 
 ---
 

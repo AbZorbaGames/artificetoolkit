@@ -87,6 +87,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 if (childProperty.name == "m_Script")
                     continue;
                 _expandedContainer.Add(drawer.CreatePropertyGUI(childProperty));
+                _expandedContainer.Bind(serializedObject);
             }
         }
 
