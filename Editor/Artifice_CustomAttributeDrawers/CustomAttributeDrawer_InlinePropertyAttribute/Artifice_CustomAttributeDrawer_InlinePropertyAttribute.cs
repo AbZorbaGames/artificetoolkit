@@ -1,3 +1,4 @@
+using System;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -9,10 +10,16 @@ using UnityEngine.UIElements;
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_InlinePropertyAttribute
 {
     [Artifice_CustomAttributeDrawer(typeof(InlinePropertyAttribute))]
-    public class Artifice_CustomAttributeDrawer_InlinePropertyAttribute : Artifice_CustomAttributeDrawer
+    public class Artifice_CustomAttributeDrawer_InlinePropertyAttribute : Artifice_CustomAttributeDrawer, IDisposable
     {
+        #region FIELDS
+        
         public override bool IsReplacingPropertyField { get; } = true;
+        
+        private readonly ArtificeDrawer _artificeDrawer = new();
 
+        #endregion
+        
         public override VisualElement OnPropertyGUI(SerializedProperty property)
         {
             if (property.hasVisibleChildren == false)
@@ -62,11 +69,12 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             var container = new VisualElement();
             container.AddToClassList("inline-property-children-container");
             
-            var artificeDrawer = new ArtificeDrawer();
-
             // Create content
             foreach (var childProperty in property.GetVisibleChildren())
-                container.Add(artificeDrawer.CreatePropertyGUI(childProperty));
+                container.Add(_artificeDrawer.CreatePropertyGUI(childProperty));
+            
+            // Create methods
+            container.Add(_artificeDrawer.CreateMethodsGUI(property));
             
             return container;
         }
