@@ -3,16 +3,11 @@ namespace ArtificeToolkit.Attributes
     /// <summary> Controls the width of Label Fields </summary>
     public class LabelWidthAttribute : CustomAttribute
     {
-        public readonly int Width;
+        public readonly int WidthPixels;
 
-        private LabelWidthAttribute()
+        public LabelWidthAttribute(int widthPixels)
         {
-            
-        }
-
-        public LabelWidthAttribute(int width) : this()
-        {
-            Width = width;
+            WidthPixels = widthPixels;
         }
     }
 }
