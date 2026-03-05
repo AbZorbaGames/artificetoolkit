@@ -1,144 +1,124 @@
-using System;
-using Artifice.Editor;
-using ArtificeToolkit.Editor.Artifice_InspectorHeader;
+using System.Collections.Generic;
+using System.Linq;
+using ArtificeToolkit.Artifice_Example;
+using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow;
+using ArtificeToolkit.Examples;
+using CustomAttributes;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-namespace ArtificeToolkit.Editor
+namespace ArtificeToolkit.Editor.Artifice_Wizard
 {
-    public class Artifice_EditorWindow_Wizard : EditorWindow
+    public class Artifice_EditorWindow_Wizard : ArtificeMenuEditorWindow
     {
+        #region FIELDS
+
+        public override string ViewPersistenceKey { get; set; } = "Artifice_EditorWindow_Wizard";
+
+        #endregion
+
         public static void ShowWindow()
         {
-            var wnd = GetWindow<Artifice_EditorWindow_Wizard>();
-            wnd.titleContent = new GUIContent("Artifice Wizard"); // optional icon
-            wnd.minSize = new Vector2(420, 500);
+            var win = GetWindow<Artifice_EditorWindow_Wizard>();
+            win.titleContent = new GUIContent("Artifice Wizard");
+            win.minSize = new Vector2(750, 700);
         }
 
-        private void CreateGUI()
+        protected override List<ArtificeMenuTreeNode> BuildMenuTree()
         {
-            rootVisualElement.Clear();
+            var list = new List<ArtificeMenuTreeNode>
+            {
+                new("Home", CreateAndRegister<Artifice_EditorWindow_HomeSettings>()),
+                new("Examples", null)
+                {
+                    Children =
+                    {
+                        CreateNode_Characters(),
+                        CreateNode_Items()
+                    }
+                },
+                new("Ignore List", CreateAndRegister<Artifice_EditorWindow_IgnoreList>())
+            };
 
-            // Load styles
-            var styleSheet = Artifice_Utilities.GetStyle(GetType());
-            if (styleSheet != null) rootVisualElement.styleSheets.Add(styleSheet);
-            rootVisualElement.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
-
-            var scrollView = new ScrollView(ScrollViewMode.Vertical);
-            scrollView.AddToClassList("main-container");
-            rootVisualElement.Add(scrollView);
-
-            // Title
-            var titleLabel = new Label("Artifice Toolkit");
-            titleLabel.AddToClassList("main-title");
-            scrollView.Add(titleLabel);
-
-            var subtitle = new Label("Configure core features of the Artifice Toolkit");
-            subtitle.AddToClassList("sub-title");
-            scrollView.Add(subtitle);
-
-            // === Main Artifice Enable ===
-            scrollView.Add(CreateToggleSection(
-                "Enable Artifice Drawer",
-                Artifice_Utilities.ArtificeDrawerEnabled,
-                "Turns the entire inspector drawing system of Artifice Toolkit, allowing the usage of custom attributes.\n\n" +
-                "When disabled:\n" +
-                "• All the CustomAttributes (Title, BoxGroup, Required, etc.) stop working\n" +
-                "• Performance is slightly improved in large projects inspectors\n" +
-                "• You can safely keep Artifice in the project without affecting inspectors, if you want the package for its other features.",
-                Artifice_Utilities.ToggleArtificeDrawer
-            ));
-
-            // === Inspector Header ===
-            scrollView.Add(CreateToggleSection(
-                "Inspector Header Enhancement",
-                Artifice_InspectorHeader_Main.IsEnabled,
-                "Adds beautiful header banner in the inspector with mandatory features like \'Search\' and script filter.\n\n" +
-                "Features:\n" +
-                "• Search to filter by script name\n" +
-                "• Isolate by filtering specific scripts at a time\n" +
-                "• Collapse/Expand all Components for better clarity.",
-                Artifice_InspectorHeader_Main.Set_IsEnabled
-            ));
-
-            // Optional: Add more features here in the future
-            // Example:
-            // scrollView.Add(CreateToggleSection("Validator Toolbar", ..., ...));
-            scrollView.Add(CreateToggleSection(
-                "Validator Toolbar",
-                Artifice_Toolbar_Validator.IsEnabled,
-                "Add on your top left toolbar, a quick and easy way to open/close your validator and see an overview of your validations.",
-                Artifice_Toolbar_Validator.Set_IsEnabled
-            ));
-            
-            scrollView.Add(CreateAdditionalFeaturesList());
+            return list;
         }
 
-        private VisualElement CreateToggleSection(string title, bool currentValue, string tooltip, Action<bool> onValueChanged)
+        private ArtificeMenuTreeNode CreateNode_Characters()
         {
-            var container = new VisualElement();
-            container.AddToClassList("toggle-section");
-            container.style.marginBottom = 22;
-            container.tooltip = tooltip;
+            var node = new ArtificeMenuTreeNode("Characters", null);
+            
+            var characters = LoadAllCharacters();
+            foreach (var character in characters)
+                node.AddChild(new ArtificeMenuTreeNode(character.characterName, character));
 
-            var titleLabel = new Label(title);
-            titleLabel.AddToClassList("toggle-section-title");
-            container.Add(titleLabel);
-
-            var toggle = new Toggle();
-            toggle.value = currentValue;
-            toggle.AddToClassList("toggle-style");
-
-            toggle.RegisterValueChangedCallback(evt =>
-            {
-                onValueChanged(evt.newValue);
-            });
-
-            container.Add(toggle);
-
-            // Optional description/help box
-            var helpLabel = new Label(tooltip.Split('\n')[0]); // First line as summary
-            helpLabel.AddToClassList("toggle-help-summary");
-            container.Add(helpLabel);
-
-            return container;
+            node.AddChild(new ArtificeMenuTreeNode("Create New", CreateAndRegister<Page_CreateNewScriptableObject>()));
+            
+            return node;
         }
 
-        private VisualElement CreateAdditionalFeaturesList()
+        private ArtificeMenuTreeNode CreateNode_Items()
         {
-            var container = new ScrollView(ScrollViewMode.Vertical);
-            container.AddToClassList("additional-features-container");
-
-            var header = new Label("Additional Options");
-            header.AddToClassList("additional-features-header");
-            container.Add(header);
-
-            // mScript Visibility
-            var mScriptVisibilityToggle = new Toggle("m_Script hidden");
-            mScriptVisibilityToggle.AddToClassList("additional-features-toggle");
-            container.Add(mScriptVisibilityToggle);
-
-            mScriptVisibilityToggle.value = Artifice_Utilities.MScriptShouldHide;
-            mScriptVisibilityToggle.RegisterValueChangedCallback(value =>
-            {
-                Artifice_Utilities.MScriptShouldHide = value.newValue;
-                Artifice_Utilities.TriggerNextFrameReselection();
-            });
+            var node = new ArtificeMenuTreeNode("Items", null);
             
-            // mScript Visibility
-            var inspectorHeaderCategoryButtons = new Toggle("Inspector Header Category Buttons");
-            mScriptVisibilityToggle.AddToClassList("additional-features-toggle");
-            container.Add(inspectorHeaderCategoryButtons);
+            var items = LoadAllItems();
+            foreach (var item in items)
+                node.AddChild(new ArtificeMenuTreeNode(item.name, item));
 
-            inspectorHeaderCategoryButtons.value = Artifice_InspectorHeader_Main.CategoryButtonsEnabled;
-            inspectorHeaderCategoryButtons.RegisterValueChangedCallback(value =>
+            return node;
+        }
+        
+        #region Utilities
+        
+        private List<Artifice_SCR_Character> LoadAllCharacters()
+        {
+            var searchFolders = new[]
             {
-                Artifice_InspectorHeader_Main.CategoryButtonsEnabled = value.newValue;
-                Artifice_Utilities.TriggerNextFrameReselection();
-            });
-            
-            return container;
+                "Packages/com.abzorba.artificetoolkit/Runtime/Artifice_Example"
+            };
+
+            var guids = AssetDatabase.FindAssets("t:Artifice_SCR_Character", searchFolders);
+
+            var characters = guids
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<Artifice_SCR_Character>)
+                .Where(asset => asset != null)
+                .ToList();
+
+            return characters;
+        }
+
+        private List<Artifice_SCR_Item> LoadAllItems()
+        {
+            var searchFolders = new[]
+            {
+                "Packages/com.abzorba.artificetoolkit/Runtime/Artifice_Example"
+            };
+
+            var guids = AssetDatabase.FindAssets("t:Artifice_SCR_Item", searchFolders);
+
+            var items = guids
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<Artifice_SCR_Item>)
+                .Where(asset => asset != null)
+                .ToList();
+
+            return items;
+        }
+        
+        #endregion
+        
+        /* Sub Pages */
+        private class Page_CreateNewScriptableObject : ScriptableObject
+        {
+            [SerializeField, InlineObject]
+            public Artifice_SCR_Character character;
+
+            [Button]
+            public void Create()
+            {
+                
+            }
         }
     }
 }
