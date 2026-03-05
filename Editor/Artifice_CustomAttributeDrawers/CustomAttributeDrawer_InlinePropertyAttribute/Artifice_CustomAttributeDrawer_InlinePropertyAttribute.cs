@@ -1,5 +1,5 @@
 using System;
-using ArtificeToolkit.Attributess;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using UnityEditor;

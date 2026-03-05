@@ -1,4 +1,4 @@
-using ArtificeToolkit.Attributess;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
