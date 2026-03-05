@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using ArtificeToolkit.Attributes;
-using ArtificeToolkit.CustomAttributes;
-using CustomAttributes;
+using ArtificeToolkit.Attributess;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ArtificeToolkit.Examples
 {

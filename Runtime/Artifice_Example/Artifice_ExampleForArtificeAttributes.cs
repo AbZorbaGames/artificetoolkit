@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ArtificeToolkit.Attributes;
-using CustomAttributes;
+using ArtificeToolkit.Attributess;
 using UnityEngine;
 
 namespace ArtificeToolkit.Examples

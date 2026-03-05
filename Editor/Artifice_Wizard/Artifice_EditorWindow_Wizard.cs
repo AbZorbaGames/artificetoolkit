@@ -1,12 +1,13 @@
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Attributess;
 using ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow;
 using ArtificeToolkit.Examples;
-using CustomAttributes;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_Wizard
 {
@@ -30,6 +31,7 @@ namespace ArtificeToolkit.Editor.Artifice_Wizard
             var list = new List<ArtificeMenuTreeNode>
             {
                 new("Home", CreateAndRegister<Artifice_EditorWindow_HomeSettings>()),
+                new("Changelogs", CreateAndRegister<Page_Changelog>()),
                 new("Examples", null)
                 {
                     Children =
@@ -125,6 +127,46 @@ namespace ArtificeToolkit.Editor.Artifice_Wizard
 
                 _isCreated = false;
                 character = CreateInstance<Artifice_SCR_Character>();
+            }
+        }
+        
+        private class Page_Changelog : EditorWindow
+        {
+            private string _changelogText;
+            private Vector2 _scroll;
+
+            private const string ChangeLogPath =
+                "Packages/com.abzorba.artificetoolkit/CHANGELOG.md";
+
+            private void OnEnable()
+            {
+                LoadChangelog();
+            }
+
+            private void LoadChangelog()
+            {
+                var fullPath = Path.GetFullPath(ChangeLogPath);
+
+                if (File.Exists(fullPath))
+                {
+                    _changelogText = File.ReadAllText(fullPath);
+                }
+                else
+                {
+                    _changelogText = "CHANGELOG.md not found.";
+                }
+            }
+
+            private void CreateGUI()
+            {
+                var container = new ScrollView(ScrollViewMode.Vertical);
+                container.style.width = new StyleLength(Length.Percent(100));
+                container.style.height = new StyleLength(Length.Percent(100));
+                container.style.marginBottom = 30;
+                
+                container.Add(new Label(_changelogText));
+                
+                rootVisualElement.Add(container);
             }
         }
     }

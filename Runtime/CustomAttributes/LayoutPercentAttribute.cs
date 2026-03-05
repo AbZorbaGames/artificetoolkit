@@ -1,6 +1,6 @@
 using ArtificeToolkit.Attributes;
 
-namespace ArtificeToolkit.CustomAttributes
+namespace ArtificeToolkit.Attributess
 {
     public class LayoutPercentAttribute : CustomAttribute
     {
