@@ -1,13 +1,16 @@
 # Change Log:
 ## 2.0.0
-Artifice has now entered its 2.0.0 version, which means it is breaking for previous versions.
+Artifice has now entered its 2.0.0 version, which means it is breaking for previous versions. The breaking changes are minor and are almost exlcusive to namespace naming conventions so they are easy to fix. Sorry for the inconvenience.
+
 - Fix: Corrected wrong namespaces assigned in various places. There is now a single `ArtificeToolkit.Attributes`. Previously there were two namespaces for the same group of attributes.
-- Enhancement: Updated the Artifice Wizard to be an `ArtificeMenuEditorWindow` for better structure and to serve as an example for people who want to learn more about this feature.
-- Enhancement: Added `LayoutPercent` and `LayoutPixels` attributes which allow control over the width and height of their wrapped/child elements.
-- Enhancement: Added an option to `InlineObject` to always be expandable through the constructor.
 - Fix: Labels now appear as expected within `HorizontalGroup` and `VerticalGroup`, allowing for better structures.
 - Fix: The `Button` attribute now works as expected within the `InlineProperty` attribute.
-- 
+- Enhancement: Updated the Artifice Wizard to be an `ArtificeMenuEditorWindow` for better structure and to serve as an example for people who want to learn more about this feature.
+- Enhancement: Refactored the artifice example using Scriptable Objects to showcase the power of the `ArtificeMenuEditorWindow`.
+- Enhancement: Added `LayoutPercent` and `LayoutPixels` attributes which allow control over the width and height of their wrapped/child elements.
+- Enhancement: Added an option to `InlineObject` to always be expandable through the constructor.
+
+
 ## 1.9.4
 - Fix: Now `InlineObject` and `PreviewScriptable` bind properly to the expanded container fixing the issue of missing composite properties like `Vector3`.
 - Note: `PreviewScriptable` has been marked as Obsolete. Replace with `InlineObject` which supports both `ScriptableObject` and many more `UnityEngine.Object` types.
