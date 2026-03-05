@@ -24,7 +24,11 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
             // Create label
             var label = new Label(property.displayName);
-            label.AddToClassList("label");
+            label.AddToClassList("unity-text-element");
+            label.AddToClassList("unity-label");
+            label.AddToClassList("unity-base-field__label");
+            label.AddToClassList("unity-base-text-field__label");
+            label.AddToClassList("unity-property-field__label");
             container.Add(label);
             
             // Create slider, bind and return

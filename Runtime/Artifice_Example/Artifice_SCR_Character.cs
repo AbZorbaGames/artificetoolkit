@@ -4,20 +4,23 @@ using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Attributess;
 using UnityEngine;
 
+
 namespace ArtificeToolkit.Examples
 {
+    using Range = ArtificeToolkit.Attributes.RangeAttribute;
+    
     [CreateAssetMenu(menuName = "ScriptableObjects/ArtificeToolkit/Examples/Character", fileName = "New Character")]
     public class Artifice_SCR_Character : ScriptableObject
     {
         [Serializable]
         public class AbilityScores
         {
-            [UnityEngine.Range(0, 20)] public int strength = 10;
-            [UnityEngine.Range(0, 20)] public int dexterity = 10;
-            [UnityEngine.Range(0, 20)] public int constitution = 10;
-            [UnityEngine.Range(0, 20)] public int wisdom = 10;
-            [UnityEngine.Range(0, 20)] public int intelligence = 10;
-            [UnityEngine.Range(0, 20)] public int charisma = 10;
+            [Range(0, 20)] public int strength = 10;
+            [Range(0, 20)] public int dexterity = 10;
+            [Range(0, 20)] public int constitution = 10;
+            [Range(0, 20)] public int wisdom = 10;
+            [Range(0, 20)] public int intelligence = 10;
+            [Range(0, 20)] public int charisma = 10;
 
             [Button]
             public void ResetStats()
