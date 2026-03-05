@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f67e2acd73177a64d86ab64b338b9413, type: 3}
   m_Name: ExampleCharacter_Luther
   m_EditorClassIdentifier: abzorba.artificetoolkit.runtime::ArtificeToolkit.Examples.Artifice_SCR_Character
-  playerIcon: {fileID: 0}
+  playerIcon: {fileID: 2800000, guid: cfb358352d47f984c97e3da078d11401, type: 3}
   characterName: Luther Smith
   abilityScores:
     strength: 11

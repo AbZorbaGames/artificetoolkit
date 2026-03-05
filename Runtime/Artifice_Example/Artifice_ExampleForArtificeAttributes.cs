@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ArtificeToolkit.Attributes;
+using CustomAttributes;
 using UnityEngine;
 
 namespace ArtificeToolkit.Examples
@@ -8,6 +9,7 @@ namespace ArtificeToolkit.Examples
     public class Artifice_ExampleForArtificeAttributes : MonoBehaviour
     {
         [InfoBox("Example Script for Artifice Toolkit. Feel free to explore the script.", InfoBoxAttribute.InfoMessageType.Info)]
+        [InlineObject]
         public List<Artifice_SCR_Character> characters;
     }
 }

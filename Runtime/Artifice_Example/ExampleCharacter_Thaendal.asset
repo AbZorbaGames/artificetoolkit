@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f67e2acd73177a64d86ab64b338b9413, type: 3}
   m_Name: ExampleCharacter_Thaendal
   m_EditorClassIdentifier: abzorba.artificetoolkit.runtime::ArtificeToolkit.Examples.Artifice_SCR_Character
-  playerIcon: {fileID: 0}
+  playerIcon: {fileID: 2800000, guid: 0cb49659794a8124191232dac9d13a69, type: 3}
   characterName: Thaendal
   abilityScores:
     strength: 14

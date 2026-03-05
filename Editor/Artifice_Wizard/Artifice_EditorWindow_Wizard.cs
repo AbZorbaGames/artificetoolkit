@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using ArtificeToolkit.Artifice_Example;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow;
 using ArtificeToolkit.Examples;
@@ -35,10 +35,8 @@ namespace ArtificeToolkit.Editor.Artifice_Wizard
                     Children =
                     {
                         CreateNode_Characters(),
-                        CreateNode_Items()
                     }
-                },
-                new("Ignore List", CreateAndRegister<Artifice_EditorWindow_IgnoreList>())
+                }
             };
 
             return list;
@@ -46,30 +44,23 @@ namespace ArtificeToolkit.Editor.Artifice_Wizard
 
         private ArtificeMenuTreeNode CreateNode_Characters()
         {
-            var node = new ArtificeMenuTreeNode("Characters", null);
+            var charactersIconContent = EditorGUIUtility.IconContent("Cloth Icon");
+            var node = new ArtificeMenuTreeNode("Characters", null, charactersIconContent.image);
             
             var characters = LoadAllCharacters();
             foreach (var character in characters)
-                node.AddChild(new ArtificeMenuTreeNode(character.characterName, character));
+            {
+                node.AddChild(new ArtificeMenuTreeNode(character.characterName, character, character.playerIcon));
+            }
 
-            node.AddChild(new ArtificeMenuTreeNode("Create New", CreateAndRegister<Page_CreateNewScriptableObject>()));
-            
-            return node;
-        }
-
-        private ArtificeMenuTreeNode CreateNode_Items()
-        {
-            var node = new ArtificeMenuTreeNode("Items", null);
-            
-            var items = LoadAllItems();
-            foreach (var item in items)
-                node.AddChild(new ArtificeMenuTreeNode(item.name, item));
+            var newContent = EditorGUIUtility.IconContent("CreateAddNew@2x");
+            node.AddChild(new ArtificeMenuTreeNode("Create New", CreateAndRegister<Page_CreateNewScriptableObject>(), newContent.image));
 
             return node;
         }
         
         #region Utilities
-        
+
         private List<Artifice_SCR_Character> LoadAllCharacters()
         {
             var searchFolders = new[]
@@ -88,36 +79,52 @@ namespace ArtificeToolkit.Editor.Artifice_Wizard
             return characters;
         }
 
-        private List<Artifice_SCR_Item> LoadAllItems()
-        {
-            var searchFolders = new[]
-            {
-                "Packages/com.abzorba.artificetoolkit/Runtime/Artifice_Example"
-            };
-
-            var guids = AssetDatabase.FindAssets("t:Artifice_SCR_Item", searchFolders);
-
-            var items = guids
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<Artifice_SCR_Item>)
-                .Where(asset => asset != null)
-                .ToList();
-
-            return items;
-        }
-        
         #endregion
-        
+
         /* Sub Pages */
         private class Page_CreateNewScriptableObject : ScriptableObject
         {
-            [SerializeField, InlineObject]
+            [InfoBox("After creating, you will have to `Refresh` from the context menu panel to see the newly created asset.")]
+            [SerializeField, InlineObject(false), ReadOnly]
             public Artifice_SCR_Character character;
+
+            private bool _isCreated;
+
+            private void OnEnable()
+            {
+                // Create new SCR
+                character = CreateInstance<Artifice_SCR_Character>();
+            }
+
+            private void OnDisable()
+            {
+                if (_isCreated)
+                    DestroyImmediate(character);
+            }
 
             [Button]
             public void Create()
             {
-                
+                _isCreated = true;
+
+                const string folder = "Packages/com.abzorba.artificetoolkit/Runtime/Artifice_Example";
+
+                // Ensure filename is valid
+                var fileName = string.IsNullOrEmpty(character.characterName)
+                    ? "ExampleCharacter_New Character"
+                    : $"ExampleCharacter_{character.characterName}";
+
+                var path = $"{folder}/{fileName}.asset";
+                path = AssetDatabase.GenerateUniqueAssetPath(path);
+
+                AssetDatabase.CreateAsset(character, path);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+
+                EditorGUIUtility.PingObject(character);
+
+                _isCreated = false;
+                character = CreateInstance<Artifice_SCR_Character>();
             }
         }
     }

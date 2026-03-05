@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,9 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
     {
         #region FIELDS
 
-        public abstract string ViewPersistenceKey { get; set; }
+        [field: NonSerialized]
+        public virtual string ViewPersistenceKey { get; set; }
+        protected virtual bool ShouldUsePersistence { get; set; } = false; 
 
         private VisualElement _menuPanel;
         private VisualElement _content;
@@ -20,7 +23,6 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
         private ArtificeDrawer _artificeDrawer;
         private Artifice_VisualElement_ArtificeMenuItem _selectedMenuItem;
         private readonly Dictionary<ArtificeMenuTreeNode, Artifice_VisualElement_ArtificeMenuItem> _nodeMap = new();
-
         private readonly List<ScriptableObject> _soInstances = new();
 
         #endregion
@@ -28,7 +30,14 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
         protected abstract List<ArtificeMenuTreeNode> BuildMenuTree();
         
         /* Mono */
-        protected void CreateGUI() => OnRefresh();
+        protected void CreateGUI()
+        {
+            // Set default value to ViewPersistenceKey if not already set.
+            if (string.IsNullOrEmpty(ViewPersistenceKey))
+                ViewPersistenceKey = name;
+            
+            OnRefresh();
+        }
 
         /* Mono */
         private void OnDisable()
@@ -43,7 +52,11 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
             Initialize();
             SetupLayout();
             BuildAndPopulateTree();
-            LoadPersistedData();
+            
+            if(ShouldUsePersistence)
+                LoadPersistedData();
+            else
+                SetSelected(_nodeMap.Values.FirstOrDefault());
         }
 
         private void Initialize()
