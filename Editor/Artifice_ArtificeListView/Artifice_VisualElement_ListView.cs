@@ -1,5 +1,5 @@
 using System.Linq;
-using ArtificeToolkit.Attributess;
+using ArtificeToolkit.Attributes;
 using UnityEditor;
 using UnityEngine.UIElements;
 

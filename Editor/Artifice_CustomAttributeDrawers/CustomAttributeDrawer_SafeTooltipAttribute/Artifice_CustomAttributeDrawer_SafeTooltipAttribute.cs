@@ -1,4 +1,4 @@
-using ArtificeToolkit.Attributess;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using UnityEditor;
 using UnityEngine.UIElements;

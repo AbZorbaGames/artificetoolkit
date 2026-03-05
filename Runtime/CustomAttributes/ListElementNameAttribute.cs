@@ -1,6 +1,6 @@
 using ArtificeToolkit.Attributes;
 
-namespace ArtificeToolkit.Attributess
+namespace ArtificeToolkit.Attributes
 {
     public class ListElementNameAttribute : CustomAttribute, IArtifice_ArrayAppliedAttribute
     {

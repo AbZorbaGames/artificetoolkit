@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ArtificeToolkit.Attributes;
-using ArtificeToolkit.Attributess;
 using ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow;
 using ArtificeToolkit.Examples;
 using UnityEditor;

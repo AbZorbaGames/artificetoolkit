@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ArtificeToolkit.Attributess;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using JetBrains.Annotations;
