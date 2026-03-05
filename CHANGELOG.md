@@ -5,6 +5,7 @@ Artifice has now entered its 2.0.0 version, which means it is breaking for previ
 - Fix: Corrected wrong namespaces assigned in various places. There is now a single `ArtificeToolkit.Attributes`. Previously there were two namespaces for the same group of attributes.
 - Fix: Labels now appear as expected within `HorizontalGroup` and `VerticalGroup`, allowing for better structures.
 - Fix: The `Button` attribute now works as expected within the `InlineProperty` attribute.
+- Fix: Now the `ViewPersistenceKey` is not mandatory for `ArtificeMenuEditorWindow`. If not set, the window will always default back to the first page when opening.
 - Enhancement: Updated the Artifice Wizard to be an `ArtificeMenuEditorWindow` for better structure and to serve as an example for people who want to learn more about this feature.
 - Enhancement: Refactored the artifice example using Scriptable Objects to showcase the power of the `ArtificeMenuEditorWindow`.
 - Enhancement: Added `LayoutPercent` and `LayoutPixels` attributes which allow control over the width and height of their wrapped/child elements.

@@ -13,12 +13,6 @@ namespace ArtificeToolkit.Editor.Artifice_Wizard
 {
     public class Artifice_EditorWindow_Wizard : ArtificeMenuEditorWindow
     {
-        #region FIELDS
-
-        public override string ViewPersistenceKey { get; set; } = "Artifice_EditorWindow_Wizard";
-
-        #endregion
-
         public static void ShowWindow()
         {
             var win = GetWindow<Artifice_EditorWindow_Wizard>();
