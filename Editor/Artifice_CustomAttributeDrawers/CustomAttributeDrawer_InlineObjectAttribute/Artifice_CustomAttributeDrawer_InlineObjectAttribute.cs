@@ -1,7 +1,6 @@
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
-using CustomAttributes;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -38,6 +37,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
                 return container;
             }
+
+            var attribute = (InlineObjectAttribute)Attribute;
             
             _artificeDrawer = new ArtificeDrawer();
             _artificeDrawer.SetSerializedPropertyFilter(p => p.name != "m_Script");
@@ -59,7 +60,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             root.style.width = Length.Percent(100);
             _header.Add(root);
 
-            // Add expanded icon
+            // Add expanded icon only if style is shrinkable.
             _toggle = new Artifice_VisualElement_ToggleButton(
                 "Expand",
                 Artifice_SCR_CommonResourcesHolder.instance.MagnifyingGlassIcon,
@@ -68,7 +69,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             _toggle.AddToClassList("expand-toggle");
             _toggle.OnButtonPressed += UpdateExpandedView;
             _header.Add(_toggle);
-
+            
             // Add expanded container
             _expandedContainer = new VisualElement();
             _expandedContainer.AddToClassList("expanded-view-container");
@@ -77,6 +78,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             // Add tracking to check changes of object references to update.
             _wrapper.TrackPropertyValue(property, OnPropertyValueChanged);
 
+            // If shrinkable is set to false, hide the toggle and always set expanded view to true.
+            if (attribute.IsShrinkable == false)
+            {
+                _toggle.AddToClassList("hide");
+                UpdateExpandedView(true);
+            }
+            
             LoadPersistedData();
             SubscribeForCleanUp();
 

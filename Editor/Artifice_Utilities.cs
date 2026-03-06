@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
+using ArtificeToolkit.Editor.Artifice_Wizard;
 using ArtificeToolkit.Editor.Resources;
 using Newtonsoft.Json;
 using Unity.EditorCoroutines.Editor;
@@ -32,7 +33,6 @@ namespace ArtificeToolkit.Editor
             get => EditorPrefs.GetBool("artificeDrawer_mScriptShouldHide");
             set => EditorPrefs.SetBool("artificeDrawer_mScriptShouldHide", value);
         }
-        
         
         private StylesHolder _soStylesHolder;
         private Dictionary<Type, Type> _drawerTypesMap;

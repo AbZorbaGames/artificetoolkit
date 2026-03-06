@@ -1,5 +1,5 @@
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
-using CustomAttributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;

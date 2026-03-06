@@ -488,7 +488,7 @@ namespace ArtificeToolkit.Editor
         
         /// <summary> Returns a <see cref="VisualElement"/> with buttons which invoke the methods marked with the <see cref="ButtonAttribute"/>. </summary>
         /// <remarks> Unfortunately, there is not unified structure for SerializedObject and SerializedProperty. A template is used here to avoid deduplicate method overloads. </remarks>
-        private VisualElement CreateMethodsGUI<T>(T serializedData) where T : class
+        public VisualElement CreateMethodsGUI<T>(T serializedData) where T : class
         {
             // Obtain the target type depending on the serializedData type.
             var targetType = serializedData switch

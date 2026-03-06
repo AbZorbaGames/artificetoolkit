@@ -16,8 +16,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             
             foreach (var label in labelFields)
             {
-                label.style.maxWidth = attribute.Width;
-                label.style.minWidth = attribute.Width;
+                label.style.maxWidth = attribute.WidthPixels;
+                label.style.minWidth = attribute.WidthPixels;
             }            
         }
     }

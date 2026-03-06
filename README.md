@@ -17,13 +17,15 @@ To demonstrate its usage and effectiveness, see the following MonoBehaviour scri
 
 
 ## What is included in the ArtificeToolkit?
-The Artifice Toolkit offers three powerful tools:
+The Artifice Toolkit offers various powerful tools:
 
 1. [Artifice Inspector](#artifice-inspector-and-custom-attributes): Alter the appearance of your editor's inspector with simple C# custom attributes. This is editor scripting without the editor scripting knowledge being required!
 
 2. [Artifice Validator](#artifice-validator): Attach validator attributes to your serialized properties to always make sure certain rules are being followed. Do not waste time on absent minded mistakes ever again.
 
 3. [Artifice Drawer](#artifice-drawer): The ArtificeDrawer is what renders everything in the ArtificeToolkit. Invoke the drawer in your Editor Scripts with a SerializedObject or SerializedProperty and you will receive the rendered result of it. This essentially makes the ArtificeDrawer a first-class citizen inspector.
+   
+4. [Artifice Editor Window](#artificeeditorwindow): Write your own Editor windows with custom layouts, functionality, and more, just as if you were writing an Inspector using custom attributes. Be sure to also check out the [Artifice Menu Editor Window](#artificemenueditorwindow).
 
 ## Unity Version Support
 The ArtificeToolkit has been primarily tested and optimized for Unity 2022, ensuring stable and consistent performance. It is also compatible with Unity 2023, where it has been thoroughly tested to maintain functionality. While the toolkit works with Unity 2021, users may encounter occasional warnings; these will be addressed in upcoming updates to improve compatibility with older versions.

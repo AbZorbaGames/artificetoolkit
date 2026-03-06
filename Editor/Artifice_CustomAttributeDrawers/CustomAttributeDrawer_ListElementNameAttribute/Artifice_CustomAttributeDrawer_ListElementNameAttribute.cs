@@ -1,6 +1,6 @@
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
-using CustomAttributes;
 using UnityEditor;
 using UnityEngine.UIElements;
 

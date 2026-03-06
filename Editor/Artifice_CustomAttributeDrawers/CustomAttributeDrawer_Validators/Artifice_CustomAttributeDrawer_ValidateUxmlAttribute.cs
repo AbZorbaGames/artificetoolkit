@@ -1,6 +1,6 @@
 using System.Xml;
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
-using CustomAttributes;
 using UnityEditor;
 using UnityEngine;
 

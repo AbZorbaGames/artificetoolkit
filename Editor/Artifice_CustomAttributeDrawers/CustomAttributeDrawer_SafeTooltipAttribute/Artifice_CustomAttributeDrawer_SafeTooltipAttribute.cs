@@ -1,5 +1,5 @@
+using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
-using CustomAttributes;
 using UnityEditor;
 using UnityEngine.UIElements;
 

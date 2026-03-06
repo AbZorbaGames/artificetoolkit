@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.VisualElements;
-using CustomAttributes;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
