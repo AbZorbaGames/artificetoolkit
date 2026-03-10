@@ -58,6 +58,8 @@ namespace ArtificeToolkit.Editor
             Logs.Clear();
         }
 
+        /// <summary> Called at every run, setting a new configuration for the run. </summary>
+        /// <remarks> This would be better to be added at ValidateCoroutine but would require major version update. Skip for now. </remarks>
         public void Set_Configuration(Configuration configuration)
         {
             ModuleConfiguration = configuration;
