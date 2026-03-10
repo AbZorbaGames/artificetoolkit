@@ -1,4 +1,8 @@
 # Change Log:
+## 2.1.0
+- Fix: Now validator window fetches all the logs upon opening.
+- Enhancement: Refactored the settings of the validator so that each validation module can have its own overriden configurations. A list of asset folders can be set, and validations which follow the code guidelines will only iterate over these subfolders.
+
 ## 2.0.0
 Artifice has now entered its 2.0.0 version, which means it is breaking for previous versions. The breaking changes are minor and are almost exlcusive to namespace naming conventions so they are easy to fix. Sorry for the inconvenience.
 
