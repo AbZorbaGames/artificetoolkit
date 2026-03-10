@@ -33,7 +33,8 @@ namespace ArtificeToolkit.Editor
         public override IEnumerator ValidateCoroutine(List<GameObject> _)
         {
             // Create an iteration stack to run through all serialized properties (even nested ones)
-            Queue<SerializedProperty> queue = GetSerializedPropertyQueue(Artifice_ValidatorExtensions.FindScriptableObjects());
+            var assetPathsToInclude = ModuleConfiguration.assetPathsToInclude;
+            var queue = GetSerializedPropertyQueue(Artifice_ValidatorExtensions.FindScriptableObjects(assetPathsToInclude));
             
             // Create a set to cache already visited serialized properties
             HashSet<SerializedProperty> visitedProperties = new();
