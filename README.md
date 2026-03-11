@@ -674,6 +674,8 @@ The best way to solve bugs, is to avoid creating them. Assertions are one of the
 
 The Validator works with attributes which inherit from the ValidatorAttribute class. Such attributes have an additional implementation explaining what they are supposed to be asserting. The most common use case the [Required](#required) attribute, to make sure the property has been assigned with a reference.
 
+Browsing the validator settings, you can find a configuration for each Validator Module which can be optionally set to override the default Validator configurations. This is useful for expensive validations that may be required to run on only specific subfolders of the assets. 
+
 ## Validator in CI or Build scripts
 The Artifice_Validator provides the `RunSynchronousValidation` method which returns a List of `ValidatorLog`. This method, will open all scenes contained within the Validator Config file and run the main Validation coroutine on them to gather and return potential logs. 
 

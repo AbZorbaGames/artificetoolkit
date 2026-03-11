@@ -27,8 +27,8 @@ MonoBehaviour:
     arcana: 0
     deception: 0
   items:
-  - amount: -30
+  - amount: 1
     weaponType: 2
-  - amount: 0
+  - amount: 2
     weaponType: 2
   isUsingPortrait: 1

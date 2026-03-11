@@ -14,8 +14,6 @@ namespace ArtificeToolkit.Editor
         public override string DisplayName { get; protected set; } = "[ScriptableObject] Null Script Checker";
         public override bool DisplayOnFiltersList { get; protected set; } = true;
         public override bool OnFullScanOnly { get; protected set; } = false;
-
-        private readonly string[] _foldersToSearch = { "Assets" }; // Only search under Assets which is over user's control.
         
         public override IEnumerator ValidateCoroutine(List<GameObject> rootGameObjects)
         {
@@ -89,11 +87,18 @@ namespace ArtificeToolkit.Editor
         
         private bool IsUnderSearchFolders(string path)
         {
-            foreach (var folder in _foldersToSearch)
+            var assetPathsToInclude = ModuleConfiguration.assetPathsToInclude;
+
+            // Include all
+            if (assetPathsToInclude.Count == 0)
+                return true;
+            
+            foreach (var folder in assetPathsToInclude)
             {
                 if (path.StartsWith(folder + "/", StringComparison.Ordinal))
                     return true;
             }
+            
             return false;
         }
     }

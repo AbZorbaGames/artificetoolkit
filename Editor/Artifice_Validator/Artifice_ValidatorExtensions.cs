@@ -169,5 +169,26 @@ namespace ArtificeToolkit.Editor
 
             return result;
         }
+        
+        public static List<ScriptableObject> FindScriptableObjects(List<string> searchInFolders)
+        {
+            if (searchInFolders.Count == 0)
+                return FindScriptableObjects();
+            
+            var searchString = $"t:{typeof(ScriptableObject).FullName}";
+            
+            var guidAssets = AssetDatabase.FindAssets(searchString, searchInFolders.ToArray());
+            List<ScriptableObject> result = new(guidAssets.Length);
+
+            foreach (var guid in guidAssets)
+            {
+                var assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(assetPath);
+                if (asset != null)
+                    result.Add(asset);
+            }
+
+            return result;
+        }
     }
 }

@@ -1,9 +1,8 @@
 using System;
+using System.Collections.Generic;
 using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Runtime.SerializedDictionary;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UIElements;
 
 // ReSharper disable InconsistentNaming
 
@@ -33,14 +32,19 @@ namespace ArtificeToolkit.Editor
         [field: SerializeField, BoxGroup("Batching"), EnableIf(nameof(useCustomBatchingValue), true)]
         public int customBatchingValue;
         
-        
         [field: SerializeField] 
         public SerializedDictionary<string, bool> scenesMap = new();
-        [field: SerializeField] 
-        public SerializedDictionary<string, bool> validatorTypesMap = new();
-        [field: SerializeField] 
-        public SerializedDictionary<LogType, bool> logTypesMap = new();
+        
         [field: SerializeField] 
         public SerializedDictionary<string, bool> assetPathsMap = new();
+        
+        [field: SerializeField, HideInArtifice] // Changed through Editor Window only
+        public SerializedDictionary<LogType, bool> logTypesMap = new();
+        
+        [field: SerializeField, HideInArtifice] // Changed through Editor Window only
+        public SerializedDictionary<string, bool> validatorTypesMap = new();
+
+        [field: SerializeField]
+        public List<Artifice_ValidatorModule.Configuration> validatorModuleConfigurations = new();
     }
 }

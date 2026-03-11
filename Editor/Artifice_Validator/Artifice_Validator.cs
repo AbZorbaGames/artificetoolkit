@@ -180,8 +180,8 @@ namespace ArtificeToolkit.Editor
         #region FIELD
 
         // Public events to notify on refresh and log counter refresh.
-        public UnityEvent OnLogsRefreshEvent = new();
-        public UnityEvent OnLogCounterRefreshedEvent = new();
+        public readonly UnityEvent OnLogsRefreshEvent = new();
+        public readonly UnityEvent OnLogCounterRefreshedEvent = new();
 
         // Config, Logs and LogCounters
         private Artifice_SCR_ValidatorConfig _config;
@@ -233,8 +233,9 @@ namespace ArtificeToolkit.Editor
                 if (!Directory.Exists(ConfigFolderPath))
                     Directory.CreateDirectory(ConfigFolderPath);
 
-                _config = (Artifice_SCR_ValidatorConfig)ScriptableObject.CreateInstance(
-                    typeof(Artifice_SCR_ValidatorConfig));
+                _config = (Artifice_SCR_ValidatorConfig)ScriptableObject.CreateInstance(typeof(Artifice_SCR_ValidatorConfig));
+                _config.assetPathsMap["Assets"] = true;
+                
                 AssetDatabase.CreateAsset(_config, ConfigFolderPath + "/Default Validator Config.asset");
                 EditorPrefs.SetString(ConfigPathKey, ConfigFolderPath + "/Default Validator Config.asset");
             }
@@ -247,9 +248,8 @@ namespace ArtificeToolkit.Editor
             {
                 var scene = SceneManager.GetSceneAt(i);
                 _logCounters.scenesMap[scene.name] = 0;
-                _config.scenesMap.TryAdd(scene.name, true);
             }
-
+            
             // In case a new scene was added, mark as dirty 
             EditorUtility.SetDirty(_config);
 
@@ -277,6 +277,20 @@ namespace ArtificeToolkit.Editor
 
                 _validatorModules.Add((Artifice_ValidatorModule)Activator.CreateInstance(type));
                 _logCounters.validatorTypesMap[type.Name] = 0;
+
+                // Create configuration if entry does not already exist, using default values.
+                if (_config.validatorModuleConfigurations.Any(c => c.typeName == type.Name) == false)
+                {
+                    var configuration = new Artifice_ValidatorModule.Configuration
+                    {
+                        typeName = type.Name,
+                        isOverridingDefaultConfiguration = false,
+                        isAutorun = true,
+                        useCustomBatchingValue = false,
+                        batchingPriority = Artifice_SCR_ValidatorConfig.BatchingPriority.Medium
+                    };    
+                    _config.validatorModuleConfigurations.Add(configuration);
+                }
             }
 
             // Add Update callback to editor application update.
@@ -353,13 +367,12 @@ namespace ArtificeToolkit.Editor
             _isRefreshing = true;
 
             var currentBatchCount = 0;
-            var batchSize = _config.useCustomBatchingValue ? _config.customBatchingValue : (int)_config.batchingPriority;
-            if (fullScan)
-                batchSize = (int)Artifice_SCR_ValidatorConfig.BatchingPriority.Absolute;
 
             if (_logs == null)
                 throw new ArgumentException($"[{GetType()}] FilteredLogs not initialized properly.");
 
+            var defaultModuleConfig = CreateDefaultModuleConfiguration();
+            
             // Gather all root gameObjects.
             var rootGameObjects = GetAllRootGameObjects();
 
@@ -369,22 +382,37 @@ namespace ArtificeToolkit.Editor
             {
                 var module = _validatorModules[i];
                 module.Reset();
-                
+             
                 // Skip validation if disabled in configs.
                 if (_config.validatorTypesMap.TryGetValue(module.GetType().Name, out var value))
                     if(value == false)
                         continue;
                 
+                // Find and Set module's configuration
+                var moduleConfig = Get_ModuleConfiguration(module);
+                var appliedModuleConfig = moduleConfig.isOverridingDefaultConfiguration ? moduleConfig : defaultModuleConfig;
+                module.Set_Configuration(appliedModuleConfig);
+                
+                // If not a full scan, check if we must skip
+                if (!fullScan)
+                {
+                    if (module.OnFullScanOnly)
+                        continue;
 
-                // Unless blocking search. skip on demand only modules
-                if (module.OnFullScanOnly && fullScan == false)
-                    continue;
-
+                    if (!appliedModuleConfig.isAutorun)
+                        continue;
+                }
+                
                 // If blocking, progress bar
                 if (fullScan)
                     EditorUtility.DisplayProgressBar("Artifice Validator Scan", $"Running {module.GetType().Name}",
-                        (float)(i + 1) / (float)(_validatorModules.Count + 1));
+                        (float)(i + 1) / (_validatorModules.Count + 1));
 
+                // Calculate batch size
+                var batchSize = appliedModuleConfig.useCustomBatchingValue ? appliedModuleConfig.customBatchingValue : (int)appliedModuleConfig.batchingPriority;
+                if (fullScan)
+                    batchSize = (int)Artifice_SCR_ValidatorConfig.BatchingPriority.Absolute;
+                
                 // Validate and add logs
                 var coroutine = module.ValidateCoroutine(rootGameObjects);
                 while (coroutine.MoveNext())
@@ -479,6 +507,32 @@ namespace ArtificeToolkit.Editor
             return rootGameObjects;
         }
 
+        private Artifice_ValidatorModule.Configuration CreateDefaultModuleConfiguration()
+        {
+            var assetPathsToInclude = _config.assetPathsMap
+                .Where(pair => pair.Value == true)
+                .Select(pair => pair.Key)
+                .ToList();
+
+            return new Artifice_ValidatorModule.Configuration()
+            {
+                typeName = "Default",
+                isOverridingDefaultConfiguration = false,
+                isAutorun = _config.autorun,
+                batchingPriority = _config.batchingPriority,
+                useCustomBatchingValue = _config.useCustomBatchingValue,
+                customBatchingValue = _config.customBatchingValue,
+                assetPathsToInclude = assetPathsToInclude
+            };
+        }
+        
+        private Artifice_ValidatorModule.Configuration Get_ModuleConfiguration(Artifice_ValidatorModule module)
+        {
+            // Cache this in dictionary upon initialization.
+            var moduleConfig = _config.validatorModuleConfigurations.Find(c => c.typeName == module.GetType().Name);
+            return moduleConfig;
+        }
+        
         #endregion
     }
 }

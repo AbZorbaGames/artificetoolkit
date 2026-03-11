@@ -241,6 +241,8 @@ namespace ArtificeToolkit.Editor
             
             // Build Error logs and add
             splitPane.Add(BuildLogsUI());
+            
+            RefreshFilteredLogs();
         }
         
         private VisualElement BuildHeaderUI()
@@ -310,139 +312,6 @@ namespace ArtificeToolkit.Editor
                 infoToggle.Text = logCounters.comments.ToString();
                 warningToggle.Text = logCounters.warnings.ToString();
                 errorToggle.Text = logCounters.errors.ToString();
-            });
-            
-            return container;
-        }
-        
-        private VisualElement BuildTrackedScenesUI() // Has been removed from the UI for now, but keep it for now in case we want to simply refactor the visuals in the future.
-        {
-            var container = new VisualElement();
-            container.AddToClassList("tracked-list-container");
-            
-            // Add list title
-            container.Add(BuildTrackedListTitleUI("Scenes"));
-            
-            // Add list view
-            var scenes = _config.scenesMap.Keys.ToList(); 
-            var listView = new ListView(
-                scenes,
-                26,
-                () => new ToggleListItem(),
-                (elem, i) =>
-                {
-                    var itemElem = (ToggleListItem)elem;
-                    itemElem.Set(   
-                        _config.scenesMap[scenes[i]],
-                        Artifice_SCR_CommonResourcesHolder.instance.UnityIcon,
-                        scenes[i]
-                    );
-            
-                    // Refresh is never called unless the window is rebuild, so I can consider binding to be permanent
-                    itemElem.Toggle.RegisterValueChangedCallback(evt =>
-                    {
-                        _config.scenesMap[scenes[i]] = evt.newValue;
-                        RefreshFilteredLogs();
-                    });
-
-                    // Subscribe to increase count
-                    Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
-                    {
-                        var logCounters = Artifice_Validator.Instance.Get_LogCounters();
-                        if (logCounters.scenesMap.ContainsKey(scenes[i]))
-                            itemElem.CountLabel.text = logCounters.scenesMap[scenes[i]].ToString();
-                        else
-                            itemElem.CountLabel.text = "0";
-                    });
-                }
-            );
-            
-            container.Add(listView);
-            
-            return container;
-        }
-        
-        private VisualElement BuildTrackedAssetFoldersUI() // Has been removed from the UI for now, but keep it for now in case we want to simply refactor the visuals in the future.
-        {
-            var container = new VisualElement();
-            container.AddToClassList("tracked-list-container");
-            container.AddToClassList("space-bottom");
-            
-            // Add list title
-            var header = BuildTrackedListTitleUI("Assets");
-            container.Add(header);
-            
-            // Add list view
-            var assetPaths = _config.assetPathsMap.Keys.ToList();
-            ListView listView = null;
-            listView = new ListView(
-                assetPaths,
-                26,
-                () => new ToggleListItem(),
-                (elem, i) =>
-                {
-                    var itemElem = (ToggleListItem)elem;
-                    itemElem.Set(
-                        _config.assetPathsMap[assetPaths[i]],
-                        Artifice_SCR_CommonResourcesHolder.instance.FolderIcon,
-                        assetPaths[i]
-                    );
-                    
-                    // Subscribe change, to refresh filters
-                    itemElem.Toggle.RegisterValueChangedCallback(evt =>
-                    {
-                        // Get reference to validator
-                        _config.assetPathsMap[assetPaths[i]] = evt.newValue;
-                        RefreshFilteredLogs();
-                    });
-                    
-                    // Subscribe for right click, to allow removing
-                    itemElem.RegisterCallback<MouseDownEvent>(evt =>
-                    {
-                        if (evt.button == 1)
-                        {
-                            var genericMenu = new GenericMenu();
-                            genericMenu.AddItem(new GUIContent("Remove path"), false, () => AssetPaths_RemoveItem(listView, assetPaths[i]));
-                            genericMenu.ShowAsContext();
-                        }
-                    });
-                }
-            );
-            container.Add(listView);
-
-            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
-            {
-                var children = listView.Query(className: "unity-list-view__item").ToList();
-                for (var i = 0; i < children.Count; i++)
-                {
-                    var child = (ToggleListItem)children[i];
-                    var assetPath = child.Get_Text();
-                    if (string.IsNullOrEmpty(assetPath))
-                        continue;
-                    
-                    child.CountLabel.text = Artifice_Validator.Instance.Get_LogCounters().assetPathsMap[assetPath].ToString();
-                }
-            });
-            
-            // Add context menu options
-            var validatorWeakReference = new WeakReference<Artifice_EditorWindow_Validator>(this);
-            header.RegisterCallback<MouseDownEvent>(evt =>
-            {
-                if (evt.button == 1)
-                {
-                    var genericMenu = new GenericMenu();
-                    genericMenu.AddItem(new GUIContent("Add Asset Path"), false, () =>
-                    {
-                        var path = EditorUtility.OpenFolderPanel("Select Folder", "Assets", "");
-                        var relativePath = Artifice_Utilities.ConvertGlobalToRelativePath(path);
-                        if (string.IsNullOrEmpty(relativePath))
-                            return;
-                        
-                        if(validatorWeakReference.TryGetTarget(out var validator))
-                            validator.AssetPaths_AddItem(listView, relativePath);
-                    });
-                    genericMenu.ShowAsContext();
-                }
             });
             
             return container;
@@ -561,13 +430,7 @@ namespace ArtificeToolkit.Editor
         #endregion
         
         #region Filter Methods
-
-        private bool OnSelectedScenesFilter(Artifice_Validator.ValidatorLog log)
-        {
-            return _config.scenesMap.TryGetValue(log.OriginLocationName, out var value) && value
-                || log.OriginLocationName == "";
-        }
-
+        
         private bool OnSelectedValidatorTypesFilter(Artifice_Validator.ValidatorLog log)
         {
             return _config.validatorTypesMap[log.OriginValidatorType.Name];
@@ -578,18 +441,6 @@ namespace ArtificeToolkit.Editor
             return _config.logTypesMap[log.LogType];
         }
 
-        private bool OnSelectedAssetPathFilter(Artifice_Validator.ValidatorLog log)
-        {
-            foreach (var (folderPath, shouldShow) in _config.assetPathsMap)
-                if (log.OriginLocationName.Contains(folderPath) && shouldShow)
-                    return true;
-
-            if (log.OriginLocationName == "")
-                return true;
-
-            return false;
-        }
-        
         #endregion
         
         #region Custom Menu Implementation
@@ -613,33 +464,6 @@ namespace ArtificeToolkit.Editor
             // TODO: [zack] this does not apply the settings now.
             Close();
             OpenWindow();
-        }
-        
-        #endregion
-        
-        #region Utility
-        
-        private void AssetPaths_AddItem(ListView listView, string assetPath)
-        {
-            var logCounters = Artifice_Validator.Instance.Get_LogCounters();
-            logCounters.assetPathsMap[assetPath] = 0;
-            
-            _config.assetPathsMap.TryAdd(assetPath, true);
-            EditorUtility.SetDirty(_config);
-            
-            listView.itemsSource.Add(assetPath);
-            listView.RefreshItems();
-        }
-        private void AssetPaths_RemoveItem(ListView listView, string assetPath)
-        {
-            var logCounters = Artifice_Validator.Instance.Get_LogCounters();
-            logCounters.assetPathsMap[assetPath] = 0;
-            
-            _config.assetPathsMap.Remove(assetPath);
-            EditorUtility.SetDirty(_config);
-            
-            listView.itemsSource.Remove(assetPath);
-            listView.RefreshItems();
         }
         
         #endregion
