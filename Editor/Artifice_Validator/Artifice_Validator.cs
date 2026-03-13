@@ -513,6 +513,10 @@ namespace ArtificeToolkit.Editor
                 .Where(pair => pair.Value == true)
                 .Select(pair => pair.Key)
                 .ToList();
+            
+            // Always narrow down the search assets. 3rd party packages may cause various Validator Modules to misfire.
+            if(assetPathsToInclude.Count == 0)
+                assetPathsToInclude.Add("Assets");
 
             return new Artifice_ValidatorModule.Configuration()
             {
@@ -530,6 +534,10 @@ namespace ArtificeToolkit.Editor
         {
             // Cache this in dictionary upon initialization.
             var moduleConfig = _config.validatorModuleConfigurations.Find(c => c.typeName == module.GetType().Name);
+            
+            if(moduleConfig.assetPathsToInclude.Count == 0)
+                moduleConfig.assetPathsToInclude.Add("Assets");
+            
             return moduleConfig;
         }
         
