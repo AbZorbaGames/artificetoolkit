@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Text;
 using ArtificeToolkit.Attributes;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -18,6 +17,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         /// <summary> Returns button for method button GUI from a serialized object or property. Works with multiselect as well. </summary>
         public VisualElement CreateMethodGUI<T>(T serializedData, MethodInfo methodInfo) where T : class
         {
+            var attribute = (ButtonAttribute)Attribute;
+            
             var button = new Button(() =>
             {
                 var serializedObject = serializedData switch
@@ -44,7 +45,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     }
                  
                     // Get parameter values specific to this target (you may need to refactor GetParameterList to support this)
-                    var parametersList = GetParameterListForTarget(invocationTarget);
+                    var parametersList = GetParameterListForTarget(invocationTarget, attribute.ParameterNames);
                     
                     // Fill in any default parameters that may exist and are not defined in the attribute.
                     var parameterInfo = methodInfo.GetParameters();
@@ -78,15 +79,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         }
 
         /// <summary> Retrieves a list of parameters for the method invocation based on the attribute parameter names. </summary>
-        private List<object> GetParameterListForTarget(object target)
+        public static List<object> GetParameterListForTarget(object target, params string[] parameters)
         {
-            var attribute = (ButtonAttribute)Attribute;
             var parametersList = new List<object>();
-
-            foreach (var parameterName in attribute.ParameterNames)
+            
+            foreach (var parameterName in parameters)
             {
-                var field = target.GetType().GetField(parameterName,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                var field = target.GetType().GetField(parameterName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
                 if (field == null)
                 {
@@ -107,7 +106,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             return parametersList;
         }
 
-        private string AddSpacesBeforeCapitals(string input)
+        public static string AddSpacesBeforeCapitals(string input)
         {
             if (string.IsNullOrEmpty(input))
                 return input;
