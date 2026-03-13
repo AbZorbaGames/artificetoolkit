@@ -1,8 +1,5 @@
 .group-container{
     width: 100%;
-    flex-grow: 1;
-    flex-shrink: 1;
-    
     margin: 2px;
 
     border-width: 1px;
@@ -15,4 +12,8 @@
     padding: 3px;
 
     justify-content: center;
+}
+
+.group-child{
+    width: 100%;
 }
