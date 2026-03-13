@@ -1,6 +1,4 @@
 using System;
-using ArtificeToolkit.Editor;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonAttribute;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -8,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonProxyAttribute
+namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonProxyAttribute
 {
     [Artifice_CustomAttributeDrawer(typeof(ButtonProxyAttribute))]
     public class Artifice_CustomAttributeDrawer_ButtonProxyAttribute : Artifice_CustomAttributeDrawer
@@ -19,8 +17,7 @@ namespace Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonPro
         {
             var attribute = (ButtonProxyAttribute)Attribute;
 
-            var buttonLabel =
-                Artifice_CustomAttributeDrawer_ButtonAttribute.AddSpacesBeforeCapitals(attribute.MethodName);
+            var buttonLabel = Artifice_CustomAttributeDrawer_ButtonAttribute.AddSpacesBeforeCapitals(attribute.MethodName);
             var button = new Artifice_VisualElement_LabeledButton(buttonLabel, () =>
             {
                 // Cover for multiple selection
@@ -71,7 +68,11 @@ namespace Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonPro
                     serializedObject.ApplyModifiedProperties();
                 }
             });
-
+            button.AddToClassList("button");
+            
+            // Reuse the same stylesheet as the ButtonAttribute for consistency.
+            button.styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
+            button.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(Artifice_CustomAttributeDrawer_ButtonAttribute)));
             
             // Find 
             return button;
