@@ -6,16 +6,16 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonProxyAttribute
+namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonPropertyAttribute
 {
-    [Artifice_CustomAttributeDrawer(typeof(ButtonProxyAttribute))]
-    public class Artifice_CustomAttributeDrawer_ButtonProxyAttribute : Artifice_CustomAttributeDrawer
+    [Artifice_CustomAttributeDrawer(typeof(ButtonPropertyAttribute))]
+    public class Artifice_CustomAttributeDrawer_ButtonPropertyAttribute : Artifice_CustomAttributeDrawer
     {
         public override bool IsReplacingPropertyField { get; } = true;
 
         public override VisualElement OnPropertyGUI(SerializedProperty property)
         {
-            var attribute = (ButtonProxyAttribute)Attribute;
+            var attribute = (ButtonPropertyAttribute)Attribute;
 
             var buttonLabel = Artifice_CustomAttributeDrawer_ButtonAttribute.AddSpacesBeforeCapitals(attribute.MethodName);
             var button = new Artifice_VisualElement_LabeledButton(buttonLabel, () =>
