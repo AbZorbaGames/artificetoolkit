@@ -56,12 +56,13 @@ By using custom attributes in your MonoBehaviour scripts you can quickly alter t
 </p>
 
 
-## Top 3 Recommended Attributes
+## Top Recommended Attributes
 Following are the simplest to use attributes which can have a big impact on visuals of the inspector.
 
 - [FoldoutGroup](#foldout-group)
 - [Required](#required)
 - [InlineObject](#inlineobject)
+- [Button](#button)
 
 ## Group Attributes
 Group Attributes can be used to bring together various properties in a form of a group. Such groups can also work in a nested manner as shown in the [BoxGroup](#boxgroup) example.
@@ -94,6 +95,7 @@ These attributes can and should be used frequently. They will at a bare minimum 
 - [EnumToggle](#enumtoggle)
 - [EnableIf](#enableif)
 - [Button](#button)
+- [ButtonProperty](#buttonproperty)
 - [PreviewSprite](#previewsprite)
 - [PreviewScriptable](#previewscriptable)
 - [ReadOnly](#readonly)
@@ -381,6 +383,8 @@ Button allows you to quickly turn any method into a button in the inspector to i
 
 It is worth noting that buttons will always appear last in the rendering order. You can use any of the [GroupAttributes](#BoxGroup) to place the button in ane existing group in the same scope.
 
+**NOTE**: If you want to use a method as a button in a more complex layout, read [ButtonProperty](#buttonproperty)   
+
 ```c#
 [SerializeField] 
 private string parameterTest = "test";
@@ -405,6 +409,45 @@ private void TestMethodWithParameters(string parameter)
 ```
 
 ![button-example](./Documentation/artifice_button.gif)
+
+### ButtonProperty
+ButtonProperty allows you to use all the other attributes and apply them in your Button. But... this cannot be directly applied to a method declaration. You need to create an `ArtificeElement` property and apply to it all your desired attributes.
+
+```c#
+[Serializable]
+public class TestClass
+{
+    [HideInArtifice]
+    public bool shouldShow;
+    
+    // public ArtificeElement element;
+    [ButtonProperty(nameof(ToggleShouldShow)), HorizontalGroup("row"), LayoutPercent(25)]
+    public ArtificeElement methodToggleShouldShow;
+    
+    [ButtonProperty(nameof(Method1)), VerticalGroup("row/col"), EnableIf(nameof(shouldShow))]
+    public ArtificeElement methodNestedMethod;
+    
+    [ButtonProperty(nameof(Method2)), VerticalGroup("row/col"), EnableIf(nameof(shouldShow))]
+    public ArtificeElement methodNestedMethodWithParam;
+    
+    public void ToggleShouldShow()
+    {
+        shouldShow = !shouldShow;
+    }
+    
+    public void Method1()
+    {
+        Debug.Log("This is Method 1");
+    }
+    
+    public void Method2()
+    {
+        Debug.Log("This is Method 2");
+    }
+}
+```
+
+![button-property-example](./Documentation/artifice_buttonproperty.gif)
 
 ### InlineObject
 This is one of the most magical attributes in the Artifice Toolkit. It allows you to dynamically instantiate a `UnityEngine.Object` type (ex. `ScriptableObject`) inspector inside of another inspector. This can even work in a nested manner, previewing scriptable objects inside of other scriptable objects etc.
@@ -664,7 +707,7 @@ public abstract class TraitBase
 
 9. You can create attributes which may or may not need to be evaluated by the validator. The most intuitive example is the EnableIf attribute. When something is not enabled, the validator should not be showing nested validation logs meant for the property and its children. <br><br>To do this for your own custom attributes, use the IArtifice_RequiresCheckForValidationInclusion interface on the attribute and implement IArtifice_ShouldIncludeInValidation in its corresponding custom attribute drawer. You can see a live example of this with EnableIfAttribute and the Artifice_CustomAttributeDrawer_EnableIfAttribute.
 10. ArtificeToolkit introduces SerializedHashSet, a hash set that serializes as a list in the Inspector, combining efficient lookups with full editor visibility. 
-
+11. ArtificeElement is a lightweight, empty structure which renders as an empty VisualElement. This allows you to apply `CustomAttributes` over it to make your layout more complex. Most commonly used with [ButtonProperty](#buttonproperty)
 
 <!-- ARTIFICE VALIDATOR -->
 # Artifice Validator

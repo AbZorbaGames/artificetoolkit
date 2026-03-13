@@ -1,4 +1,9 @@
 # Change Log:
+## 2.2.0
+- Enhancement: Create `ArtificeElement` runtime struct. This is an empty struct memory-wise and visually. Its purpose is to serve as a structural element for various attributes. It's main use is the new `ButtonProxy` attribute. 
+- Fix: In the previous versions, only `Button` and `BoxGroup`-like attributes worked on methods. Even this was done with heavy manual work. The main reason is that artifice is build around `SerializedProperties` which methods just aren't. So make the system more future proof, the runtime struct `ArtificeElement` is introduced, serving as a proxy for everything layout-wise. Learn more on the `ButtonProperty` section of README.
+- Fix: Now `Artifice_Validator`'s asset-related search is always narrowed down through `ValidatorModule.Configuration` under Assets. This was changed due to unpredictable behaviour with 3rd party assets. 
+
 ## 2.1.0
 - Fix: Now validator window fetches all the logs upon opening.
 - Enhancement: Refactored the settings of the validator so that each validation module can have its own overriden configurations. A list of asset folders can be set, and validations which follow the code guidelines will only iterate over these subfolders.

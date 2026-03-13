@@ -1,19 +1,9 @@
 .default-content-container{
     flex-direction: row;
 }
-.default-content-container-columm{
-    flex-direction: column;
-}
 
 .content-container{
     padding: 0;
-}
-
-.group-child{
-    width: 100%;
-    
-    padding: 2px;
-    padding-right: 4px;
 }
 
 .unity-property-field__label{
