@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_ButtonAttribute;
 using ArtificeToolkit.Editor.VisualElements;
 using CustomAttributes;
@@ -38,7 +39,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     var parametersList = Artifice_CustomAttributeDrawer_ButtonAttribute.GetParameterListForTarget(invocationTarget, attribute.ParameterNames);
                     
                     // Get method info
-                    var methodInfo = invocationTarget.GetType().GetMethod(attribute.MethodName);
+                    var methods = Artifice_SerializedPropertyExtensions.GetAllUniqueMethods(invocationTarget.GetType());
+                    var methodInfo = methods.FirstOrDefault(info => info.Name == attribute.MethodName);
                     if (methodInfo == null)
                     {
                         Debug.Log($"Could not find method ({attribute.MethodName}) relating to property [{invocationTarget.ToString()}]");

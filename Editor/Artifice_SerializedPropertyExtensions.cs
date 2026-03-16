@@ -793,6 +793,25 @@ namespace ArtificeToolkit.Editor
             }
         }
      
+        /// <summary> Returns a list of all unique MemberInfo from the whole inheritance chain. </summary>
+        public static List<MethodInfo> GetAllUniqueMethods(Type type)
+        {
+            var methods = new Dictionary<string, MethodInfo>();
+
+            while (type != null)
+            {
+                var declaredMethods = type.GetMethods(BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                foreach (var method in declaredMethods)
+                {
+                    var signature = method.ToString();
+                    methods.TryAdd(signature, method);
+                }
+
+                type = type.BaseType;
+            }
+
+            return new List<MethodInfo>(methods.Values);
+        }
         
         /// <summary> Copies the value of direct value of a serialized property if their SerializedPropertyType match.</summary>
         public static void Copy(this SerializedProperty property, SerializedProperty targetProperty)

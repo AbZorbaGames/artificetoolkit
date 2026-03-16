@@ -185,6 +185,7 @@ namespace ArtificeToolkit.Editor
 
         // Config, Logs and LogCounters
         private Artifice_SCR_ValidatorConfig _config;
+        private readonly List<ValidatorLog> _previousLogs = new();
         private readonly List<ValidatorLog> _logs = new();
         private ValidatorLogCounters _logCounters;
 
@@ -354,7 +355,7 @@ namespace ArtificeToolkit.Editor
                     {
                         // Noop
                     }
-                    allLogs.AddRange(_logs);
+                    allLogs.AddRange(_previousLogs);
                 }
             }
 
@@ -368,7 +369,7 @@ namespace ArtificeToolkit.Editor
 
             var currentBatchCount = 0;
 
-            if (_logs == null)
+            if (_previousLogs == null || _logs == null)
                 throw new ArgumentException($"[{GetType()}] FilteredLogs not initialized properly.");
 
             var defaultModuleConfig = CreateDefaultModuleConfiguration();
@@ -423,12 +424,15 @@ namespace ArtificeToolkit.Editor
                         yield return null;
                     }
                 }
-                
+
                 _logs.AddRange(module.Logs);
             }
             
             // Emit refresh
+            _previousLogs.Clear();
+            _previousLogs.AddRange(_logs);
             OnLogsRefreshEvent.Invoke();
+            
             // Refresh log counters.
             RefreshLogCounters();
             
@@ -443,7 +447,7 @@ namespace ArtificeToolkit.Editor
         private void RefreshLogCounters()
         {
             _logCounters.Reset();
-            foreach (var log in _logs)
+            foreach (var log in _previousLogs)
                 _logCounters.IncreaseCount(log);
 
             OnLogCounterRefreshedEvent.Invoke();
@@ -460,7 +464,7 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns original list of validator logs. </summary>
         public List<ValidatorLog> Get_Logs()
         {
-            return _logs;
+            return _previousLogs;
         }
 
         /// <summary> Returns list of log counters. </summary>
