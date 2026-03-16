@@ -1,6 +1,7 @@
 # Change Log:
 ## 2.2.1
 - Fix: Now `ButtonAttribute` can also fetch from private methods. Now it uses the exact same logic as `Button` for fetching `MethodInfo` based on method name.
+- Fix: Minor change to the way validator stores and caches the validator logs. After the first cycle has completed, the list will not refresh until the next cycle has ended with the updated logs.
 
 ## 2.2.0
 - Enhancement: Create `ArtificeElement` runtime struct. This is an empty struct memory-wise and visually. Its purpose is to serve as a structural element for various attributes. It's main use is the new `ButtonProxy` attribute. 
