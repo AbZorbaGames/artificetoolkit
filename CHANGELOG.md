@@ -1,4 +1,7 @@
 # Change Log:
+## 2.2.1
+- Fix: Now `ButtonAttribute` can also fetch from private methods. Now it uses the exact same logic as `Button` for fetching `MethodInfo` based on method name.
+
 ## 2.2.0
 - Enhancement: Create `ArtificeElement` runtime struct. This is an empty struct memory-wise and visually. Its purpose is to serve as a structural element for various attributes. It's main use is the new `ButtonProxy` attribute. 
 - Fix: In the previous versions, only `Button` and `BoxGroup`-like attributes worked on methods. Even this was done with heavy manual work. The main reason is that artifice is build around `SerializedProperties` which methods just aren't. So make the system more future proof, the runtime struct `ArtificeElement` is introduced, serving as a proxy for everything layout-wise. Learn more on the `ButtonProperty` section of README.
