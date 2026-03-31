@@ -30,7 +30,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         private bool _isProjectModel;
 
         // Logic State
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
         private readonly HashSet<EntityId> _filteredComponentIDs = new();
 #else
         private readonly HashSet<int> _filteredComponentIDs = new();
@@ -143,7 +143,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
         #region Filtering Logic (Separation of Concern)
 
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
         private void ToggleComponentFilter(EntityId instanceID, bool exclusive)
 #else
         private void ToggleComponentFilter(int instanceID, bool exclusive)
@@ -172,7 +172,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             // 1. Identify all components matching this type
             var matchingIDs = _indexToComponentDictionary.Values
                 .Where(c => (targetType == typeof(MonoBehaviour)) ? c is MonoBehaviour : c.GetType() == targetType)
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
                 .Select(c => c.GetEntityId())
 #else
                 .Select(c => c.GetInstanceID())
@@ -307,7 +307,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             {
                 var btn = BuildUI_FilterButton(comp.GetType().Name, comp);
                 btn.RegisterCallback<MouseDownEvent>(
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
                     evt => ToggleComponentFilter(comp.GetEntityId(), evt.button == 1));
 #else
                     evt => ToggleComponentFilter(comp.GetInstanceID(), evt.button == 1));
@@ -365,7 +365,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                 if (_indexToComponentDictionary.TryGetValue(compIndex, out var comp))
                 {
                     var visible = true;
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
                     if (hasFilter && !_filteredComponentIDs.Contains(comp.GetEntityId())) visible = false;
 #else
                     if (hasFilter && !_filteredComponentIDs.Contains(comp.GetInstanceID())) visible = false;
@@ -392,7 +392,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                 var comp = btn.userData as Component;
                 if (comp == null) continue;
                 btn.EnableInClassList("filter-component-button-selected",
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
                     _filteredComponentIDs.Contains(comp.GetEntityId()));
 #else
                     _filteredComponentIDs.Contains(comp.GetInstanceID()));
@@ -418,7 +418,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                     continue;
                 }
 
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
                 var isTypeFiltered = matchingComponents.All(c => _filteredComponentIDs.Contains(c.GetEntityId()));
 #else
                 var isTypeFiltered = matchingComponents.All(c => _filteredComponentIDs.Contains(c.GetInstanceID()));

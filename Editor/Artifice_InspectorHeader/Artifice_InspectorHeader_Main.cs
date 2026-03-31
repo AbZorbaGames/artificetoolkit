@@ -124,7 +124,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         {
             foreach (var dock in Docks)
             {
-#if UNITY_6000_5_OR_NEWER
+#if UNITY_6000_4_OR_NEWER
                 if (dock.InspectorWindow.GetEntityId() == inspector.GetEntityId())
 #else
                 if (dock.InspectorWindow.GetInstanceID() == inspector.GetInstanceID())
