@@ -109,7 +109,7 @@ namespace ArtificeToolkit.Editor
                     // Create log
                     var log = new Artifice_Validator.ValidatorLog(
                         drawer.LogSprite,
-                        drawer.LogMessage,
+                        $"[{property.displayName}] " + drawer.LogMessage,
                         drawer.LogType,
                         validatorType,
                         target,

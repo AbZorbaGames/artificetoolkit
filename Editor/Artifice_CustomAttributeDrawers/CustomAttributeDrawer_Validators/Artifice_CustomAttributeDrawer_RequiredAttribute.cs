@@ -2,7 +2,6 @@ using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawer_Validators
 {
