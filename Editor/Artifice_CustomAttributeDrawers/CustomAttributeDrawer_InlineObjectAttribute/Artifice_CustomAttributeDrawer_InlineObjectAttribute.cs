@@ -141,8 +141,12 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
                     if (_cachedNativeEditor != null && _cachedNativeEditor.target != null)
                     {
-                        // 3. Wrap in Vertical to allow MaterialEditor to reserve its own space safely
-                        GUILayout.BeginVertical();
+                        // Give it a tiny bit of padding on the left and right like a normal inspector
+                        var pumpedMargins = new GUIStyle(EditorStyles.inspectorDefaultMargins);
+                        pumpedMargins.padding.left += 10;
+                        pumpedMargins.padding.right += 10;
+
+                        GUILayout.BeginVertical(pumpedMargins);
             
                         // DrawHeader is risky inside nested UIs, but safe if width > 10
                         _cachedNativeEditor.DrawHeader(); 
