@@ -690,7 +690,11 @@ namespace ArtificeToolkit.Editor
                     TypeCache[typeName] = arrayElementType;
                 }
 
-                return arrayElementType != null && DoChildrenOfTypeUseCustomAttributes(arrayElementType);
+                return arrayElementType != null &&
+                       (
+                           arrayElementType.GetCustomAttributes<CustomAttribute>().Any() ||
+                           DoChildrenOfTypeUseCustomAttributes(arrayElementType)
+                       );
             }
             
             // Otherwise, maybe some method of the object uses custom attributes.
@@ -708,7 +712,7 @@ namespace ArtificeToolkit.Editor
             return false;
         }
         
-        /// <summary> Returns true if any nested field is using any <see cref="CustomAttribute"/> </summary>
+        /// <summary> Returns true if type or any nested field is using any <see cref="CustomAttribute"/> </summary>
         private bool DoChildrenOfTypeUseCustomAttributes(Type type)
         {
             // Create  queue and already-searched structures for BFS
