@@ -393,15 +393,30 @@ namespace ArtificeToolkit.Editor
         public static CustomAttribute[] GetCustomAttributes(this SerializedProperty property, 
             Func<FieldInfo, CustomAttribute[]> function)
         {
-            // Arrays have a sibling "size". Their parent is the actual property we need to search in GetFieldNested.
+            // Arrays have a sibling "size". Their parent is the actual property we need.
             if (property.name == "Array")
                 property = property.FindParentProperty();
 
             var fieldInfo = GetFieldNested(property.serializedObject.targetObject, property.propertyPath);
-            if (fieldInfo == null)
+    
+            // Happy path: FieldInfo found
+            if (fieldInfo != null)
+                return function(fieldInfo);
+
+            // Fallback: Check if the parent is an array/list (often happens with null references in arrays)
+            var parent = property.FindParentProperty();
+            if (parent == null || !parent.IsArray())
                 return Array.Empty<CustomAttribute>();
 
-            return function.Invoke(fieldInfo);
+            var parentType = parent.GetTarget()?.GetType();
+            if (parentType == null)
+                return Array.Empty<CustomAttribute>();
+        
+            var elementType = parentType.IsArray
+                ? parentType.GetElementType()
+                : parentType.GetGenericArguments()[0];
+
+            return elementType?.GetCustomAttributes<CustomAttribute>().ToArray() ?? Array.Empty<CustomAttribute>();
         }
         
         /// <summary>Gets visible children of a <see cref="SerializedProperty"/> at 1 level depth.</summary>
@@ -459,7 +474,7 @@ namespace ArtificeToolkit.Editor
             var fields = path.Split('.');
             var isNextPropertyArrayIndex = false;
 
-            for (int i = 0; i < fields.Length - 1; ++i)
+            for (var i = 0; i < fields.Length - 1; ++i)
             {
                 var propName = fields[i];
                 if (propName == "Array")
@@ -481,7 +496,7 @@ namespace ArtificeToolkit.Editor
             FieldInfo fieldInfo = null;
             if (target != null)
             {
-                Type targetType = target.GetType();
+                var targetType = target.GetType();
                 while (targetType != null)
                 {
                     fieldInfo = targetType.GetField(fields[^1], BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.GetProperty);
@@ -516,7 +531,7 @@ namespace ArtificeToolkit.Editor
             var currentType = rootObject.GetType();
 
 
-            for (int i = 0; i < parts.Length; i++)
+            for (var i = 0; i < parts.Length; i++)
             {
                 var name = parts[i];
 
@@ -532,7 +547,7 @@ namespace ArtificeToolkit.Editor
                             $"Path contains 'Array' but the current object is not a list or array" +
                             $" at path part preceding '{name}' in path '{nestedMember}'");
 
-                    int index = ParseArrayIndex(parts[i + 1]);
+                    var index = ParseArrayIndex(parts[i + 1]);
 
                     if (index < 0 || index >= list.Count)
                         throw new IndexOutOfRangeException(
@@ -550,7 +565,7 @@ namespace ArtificeToolkit.Editor
                 }
 
                 // Walk up the type chain to find the member
-                Type temporaryType = currentType;
+                var temporaryType = currentType;
                 MemberInfo member = null;
                 while (temporaryType != null)
                 {
@@ -740,8 +755,8 @@ namespace ArtificeToolkit.Editor
         {
             if (!property.IsArrayElement())
                 return -1;
-            int startIndex = property.propertyPath.LastIndexOf('[') + 1;
-            int length = property.propertyPath.LastIndexOf(']') - startIndex;
+            var startIndex = property.propertyPath.LastIndexOf('[') + 1;
+            var length = property.propertyPath.LastIndexOf(']') - startIndex;
             return int.Parse(property.propertyPath.Substring(startIndex, length));
         }
 

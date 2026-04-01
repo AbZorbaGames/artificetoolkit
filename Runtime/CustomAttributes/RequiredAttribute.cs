@@ -2,7 +2,7 @@ namespace ArtificeToolkit.Attributes
 {
     public class RequiredAttribute : ValidatorAttribute
     {
-        public string Message = "";
+        public readonly string Message = "";
         
         public RequiredAttribute()
         {

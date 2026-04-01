@@ -1,4 +1,10 @@
 # Change Log:
+## 2.2.4
+- Fix: Added margin for `InlineObject` on materials
+- Fix: Fixed `Required` not triggering on class declaration and arrays.
+- Fix: Added a more clear LogMessage for validator logs, including the name of the property.
+- Fix: Now toggle buttons for validator window are always correctly updated.
+
 ## 2.2.1
 - Fix: Now `ButtonAttribute` can also fetch from private methods. Now it uses the exact same logic as `Button` for fetching `MethodInfo` based on method name.
 - Fix: Minor change to the way validator stores and caches the validator logs. After the first cycle has completed, the list will not refresh until the next cycle has ended with the updated logs.
