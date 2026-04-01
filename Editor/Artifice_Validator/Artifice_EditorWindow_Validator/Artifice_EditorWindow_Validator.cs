@@ -144,6 +144,10 @@ namespace ArtificeToolkit.Editor
         
         // Dynamic VisualElement References
         private ListView _logsListView;
+
+        private Artifice_VisualElement_ToggleButton _infoToggle;
+        private Artifice_VisualElement_ToggleButton _warningToggle;
+        private Artifice_VisualElement_ToggleButton _errorToggle;
         
         // Used for editor prefs
         public const string PrefabStageKey = "PrefabStage";
@@ -210,6 +214,14 @@ namespace ArtificeToolkit.Editor
                     _filteredLogs.Add(log);
             }
             _logsListView?.RefreshItems();
+        }
+
+        private void RefreshLogCounters()
+        {
+            var logCounters = Artifice_Validator.Instance.Get_LogCounters();
+            _infoToggle.Text = logCounters.comments.ToString();
+            _warningToggle.Text = logCounters.warnings.ToString();
+            _errorToggle.Text = logCounters.errors.ToString();
         }
         
         #region Build UI
@@ -281,38 +293,33 @@ namespace ArtificeToolkit.Editor
             container.Add(logFilterToggles);
 
             // Simple Log
-            var infoToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.CommentIcon, _config.logTypesMap[LogType.Log]);
-            infoToggle.OnButtonPressed += value => {
+            _infoToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.CommentIcon, _config.logTypesMap[LogType.Log]);
+            _infoToggle.OnButtonPressed += value => {
                 _config.logTypesMap[LogType.Log] = value;
                 RefreshFilteredLogs();
             };
-            logFilterToggles.Add(infoToggle);
+            logFilterToggles.Add(_infoToggle);
             
             
             // Warning Log
-            var warningToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.WarningIcon, _config.logTypesMap[LogType.Warning]);
-            warningToggle.OnButtonPressed += value => {
+            _warningToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.WarningIcon, _config.logTypesMap[LogType.Warning]);
+            _warningToggle.OnButtonPressed += value => {
                 _config.logTypesMap[LogType.Warning] = value;
                 RefreshFilteredLogs();
             };
-            logFilterToggles.Add(warningToggle);
+            logFilterToggles.Add(_warningToggle);
             
             // Error Log
-            var errorToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon, _config.logTypesMap[LogType.Error]);
-            errorToggle.OnButtonPressed += value => {
+            _errorToggle = new Artifice_VisualElement_ToggleButton("0", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon, _config.logTypesMap[LogType.Error]);
+            _errorToggle.OnButtonPressed += value => {
                 _config.logTypesMap[LogType.Error] = value;
                 RefreshFilteredLogs();
             };
-            logFilterToggles.Add(errorToggle);
+            logFilterToggles.Add(_errorToggle);
             
             // Subscribe on refresh to increase counters
-            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(() =>
-            {
-                var logCounters = Artifice_Validator.Instance.Get_LogCounters();
-                infoToggle.Text = logCounters.comments.ToString();
-                warningToggle.Text = logCounters.warnings.ToString();
-                errorToggle.Text = logCounters.errors.ToString();
-            });
+            RefreshLogCounters();
+            Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(RefreshLogCounters);
             
             return container;
         }
@@ -440,7 +447,7 @@ namespace ArtificeToolkit.Editor
         {
             return _config.logTypesMap[log.LogType];
         }
-
+        
         #endregion
         
         #region Custom Menu Implementation
