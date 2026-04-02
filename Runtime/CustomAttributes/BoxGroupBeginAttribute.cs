@@ -1,5 +1,3 @@
-using ArtificeToolkit.Attributes;
-
 namespace ArtificeToolkit.Attributes
 {
     public class BoxGroupBeginAttribute : BoxGroupAttribute

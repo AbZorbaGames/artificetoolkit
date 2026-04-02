@@ -1,5 +1,3 @@
-using log4net.Appender;
-
 namespace ArtificeToolkit.Attributes
 {
     /// <summary> As <see cref="BoxGroupAttribute"/>, but uses horizontal alignment. </summary>
