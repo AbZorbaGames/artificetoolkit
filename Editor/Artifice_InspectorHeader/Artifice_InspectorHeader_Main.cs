@@ -16,13 +16,13 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             get => EditorPrefs.GetBool("InspectorHeader EnabledState");
             set => EditorPrefs.SetBool("InspectorHeader EnabledState", value);
         }
-        
+
         public static bool CategoryButtonsEnabled
         {
             get => EditorPrefs.GetBool("InspectorHeader CategoryButtonsEnabled");
             set => EditorPrefs.SetBool("InspectorHeader CategoryButtonsEnabled", value);
         }
-        
+
         private static readonly List<Artifice_InspectorHeader_Dock> Docks = new();
 
         private static readonly Type InspectorWindowType =
@@ -40,7 +40,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         {
             if (IsEnabled == false)
                 return;
-            
+
             EditorApplication.delayCall -= OnInit;
             EditorApplication.delayCall += OnInit;
         }
@@ -83,7 +83,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
             EditorApplication.update -= OnEditorUpdate;
             Selection.selectionChanged -= OnSelectionChanged;
         }
-        
+
         private static void RefreshInspectorWindows()
         {
             var inspectorWindows = (IList)AllInspectorsFieldInfo.GetValue(InspectorWindowType);
@@ -124,7 +124,11 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         {
             foreach (var dock in Docks)
             {
+#if UNITY_6000_4_OR_NEWER
+                if (dock.InspectorWindow.GetEntityId() == inspector.GetEntityId())
+#else
                 if (dock.InspectorWindow.GetInstanceID() == inspector.GetInstanceID())
+#endif
                     return true;
             }
 
@@ -136,15 +140,15 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
         public static void Set_IsEnabled(bool enabled)
         {
             IsEnabled = enabled;
-            
-            if(IsEnabled)
+
+            if (IsEnabled)
                 OnInit();
             else
                 DeInit();
-            
+
             Artifice_Utilities.TriggerNextFrameReselection();
         }
-        
+
         #endregion
     }
 }
