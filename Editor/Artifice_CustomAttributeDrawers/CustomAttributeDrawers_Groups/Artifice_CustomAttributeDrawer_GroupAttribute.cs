@@ -8,21 +8,30 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     [Artifice_CustomAttributeDrawer(typeof(GroupAttribute))]
     public abstract class Artifice_CustomAttributeDrawer_GroupAttribute : Artifice_CustomAttributeDrawer
     {
-        protected virtual Type VisualElementType { get; } = null;
+        #region FIELDS
+        
+        protected virtual Type VisualElementType { get; } =null;
+        protected virtual bool IsOpenGroupDrawer { get; } = false;
 
         public Type Get_VisualElementType() => VisualElementType;
+        
+        #endregion
         
         /* Use OnPrePropertyGUI to initialize nested container order and types */
         public override VisualElement OnPrePropertyGUI(SerializedProperty property)
         {
-            CreateOrGetContainer(property);
+            var groupElement = CreateOrGetContainer(property);
+
+            if (IsOpenGroupDrawer)
+                Artifice_CustomAttributeUtility_GroupsHolder.Instance.PushOpenGroup(groupElement.lastElem);
+
             return null;
         }
         
         /* All inherited members should use this method for drawing unless they know their stuff */
         public override VisualElement OnWrapGUI(SerializedProperty property, VisualElement root)
         {
-            var groupContainer = CreateOrGetContainer(property);
+            var groupContainer = CreateOrGetContainer(property).firstElem;
             if (root == groupContainer) // If this is removed, it may cause a GroupContainer to add its self, causing stack overflow.
                 return root;
 
@@ -38,13 +47,13 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         }
 
         /* Inherited methods should override this to return the instance of their own reflected VisualElement type. */
-        protected virtual Artifice_VisualElement_Group CreateOrGetContainer(SerializedProperty property)
+        protected virtual (Artifice_VisualElement_Group firstElem, Artifice_VisualElement_Group lastElem) CreateOrGetContainer(SerializedProperty property)
         {
             var attribute = (GroupAttribute)Attribute;
             var groupTuple = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Get(property, attribute.GroupName, VisualElementType);
             groupTuple.lastElem.LoadPersistedData();
             groupTuple.lastElem.SetGroupColor(attribute.GroupColor);
-            return groupTuple.firstElem;
+            return groupTuple;
         }
     }
-}
+} 

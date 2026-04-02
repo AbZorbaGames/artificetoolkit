@@ -1,5 +1,6 @@
 using System;
 using ArtificeToolkit.Attributes;
+using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
 using UnityEditor;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups
@@ -9,7 +10,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     {
         protected override Type VisualElementType { get; } = typeof(Artifice_VisualElement_TabGroup);
 
-        protected override Artifice_VisualElement_Group CreateOrGetContainer(SerializedProperty property)
+        protected override (Artifice_VisualElement_Group firstElem, Artifice_VisualElement_Group lastElem) CreateOrGetContainer(SerializedProperty property)
         {
             var attribute = (TabGroupAttribute)Attribute;
 
@@ -24,7 +25,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             // Reset to first tab always
             tabGroup.LoadPersistedData();
             
-            return groupTuple.firstElem;
+            return groupTuple;
         }
     }
 }

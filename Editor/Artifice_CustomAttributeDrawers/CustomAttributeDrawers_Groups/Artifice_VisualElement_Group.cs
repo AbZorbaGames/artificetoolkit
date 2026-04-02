@@ -38,7 +38,10 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
         public void SetContentContainer(VisualElement elem)
         {
-            _customContentContainer = elem;
+            if(elem == this)
+                ResetContentContainer();
+            else
+                _customContentContainer = elem;
         }
 
         public void ResetContentContainer()
@@ -77,6 +80,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                     return new Color(0.588f, 0.361f, 0.482f, 1);
                 case GroupColor.Purple:
                     return new Color(0.486f, 0.361f, 0.588f, 1);
+                case GroupColor.Transparent:
+                    return new Color(0f, 0f, 0f, 0f);
                 default:
                     throw new ArgumentException();
             }
