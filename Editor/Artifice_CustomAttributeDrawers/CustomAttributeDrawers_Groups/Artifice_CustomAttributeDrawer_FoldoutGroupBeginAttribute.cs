@@ -1,5 +1,3 @@
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers;
-
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups
 {
     [Artifice_CustomAttributeDrawer(typeof(FoldoutGroupBeginAttribute))]
