@@ -39,7 +39,11 @@ namespace ArtificeToolkit.Editor
                 return base.CreateInspectorGUI();
 
             _drawer = new ArtificeDrawer();
-            return _drawer.CreateInspectorGUI(serializedObject);
+            var inspector = _drawer.CreateInspectorGUI(serializedObject);
+
+            Artifice_CustomAttributeUtility_GroupsHolder.Instance.CloseOpenGroups();
+            
+            return inspector;
         }
 
         /* Mono */

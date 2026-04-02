@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEngine;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups
 {
@@ -12,6 +13,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
         private readonly Dictionary<string, Dictionary<string, Artifice_VisualElement_Group>> _pathElementMap = new Dictionary<string, Dictionary<string, Artifice_VisualElement_Group>>();
 
+        private readonly List<Artifice_VisualElement_Group> _openGroupStack = new();
+        
         #endregion
         
         #region SINGLETON
@@ -128,6 +131,50 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             }
         }
 
+        #region Open Groups API
+        
+        public void PushOpenGroup(Artifice_VisualElement_Group group)
+        {
+            _openGroupStack.Add(group);
+            _openGroupStack.First().SetContentContainer(_openGroupStack.Last());
+        }
+        
+        public void PopOpenGroup()
+        {
+            if (HasOpenGroup())
+            {
+                _openGroupStack.Remove(_openGroupStack.Last());
+                
+                // if there are still elements left
+                if (HasOpenGroup())
+                {
+                    _openGroupStack.First().SetContentContainer(_openGroupStack.Last());
+                }
+            }
+            else
+                Debug.LogWarning("Trying to pop the Open Group Stack but no elements are inside.");
+        }
+        
+        public bool HasOpenGroup()
+        {
+            return _openGroupStack.Count > 0;
+        }
+
+        public void CloseOpenGroups()
+        {
+            while(HasOpenGroup())
+                PopOpenGroup();
+        }
+        
+        public Artifice_VisualElement_Group Get_OpenGroup()
+        {
+            // If correctly structured, First should always have a correct set of content containers.
+            // It is important to return the first instead of the last so that it is correctly returned to the inspector.
+            return _openGroupStack.First(); 
+        }
+        
+        #endregion
+        
         ///<summary> If the elementKey does not exist, it creates it. Then returns the base of the group chain. Lastly it sets the proper content container or resets it. </summary>
         public (Artifice_VisualElement_Group firstElem, Artifice_VisualElement_Group lastElem) Get(SerializedProperty property, string value, Type elementType)
         {

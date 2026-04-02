@@ -130,6 +130,9 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns true if property should be taken into consideration in the validation or not. </summary>
         public static bool ShouldValidateProperty(SerializedProperty property, CustomAttribute[] customAttributes)
         {
+            if (property.name == "size" && property.IsArrayElement())
+                return false;
+            
             foreach (var attribute in customAttributes)
             {
                 if (attribute is not IArtifice_RequiresCheckForValidationInclusion)

@@ -12,7 +12,8 @@ namespace ArtificeToolkit.Attributes
         Yellow,
         Orange,
         Pink,
-        Purple
+        Purple,
+        Transparent
     }
     
     /// <summary> All Group-like attributes should inherit from this class. </summary>

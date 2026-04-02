@@ -1,9 +1,15 @@
 .default-content-container{
     flex-direction: row;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .content-container{
     padding: 0;
+}
+
+.group-child{
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 .unity-property-field__label{

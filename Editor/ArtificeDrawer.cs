@@ -301,10 +301,12 @@ namespace ArtificeToolkit.Editor
                 rootVisualElement.Add(drawer.OnPostPropertyGUI(property));
 
             // WRAP GUI     (Order matters a lot!)
-            // // Reverse order does not break it but not 100% sure why. In correct order it just loops.
             var wrapper = rootVisualElement;
             for (var i = attributeDrawers.Count - 1; i >= 0; i--)
                 wrapper = attributeDrawers[i].OnWrapGUI(property, wrapper);
+            
+            // Always applied Wrap GUI for OPEN GROUPS. Skip if property was the one with the Start attribute.
+            wrapper = HandleWrapForOpenGroups(property, wrapper, customAttributes);
 
             // ON PROPERTY BOUND GUI
             propertyField?.schedule.Execute(() =>
@@ -782,6 +784,20 @@ namespace ArtificeToolkit.Editor
             labelContainer.Add(textLabel);
 
             return container;
+        }
+
+        private VisualElement HandleWrapForOpenGroups(SerializedProperty property, VisualElement propertyField, List<CustomAttribute> customAttributes)
+        {
+            var hadGroupAttribute = customAttributes.Any(a => a is GroupAttribute);
+            if (hadGroupAttribute == false && Artifice_CustomAttributeUtility_GroupsHolder.Instance.HasOpenGroup())
+            {
+                propertyField.AddToClassList("group-child");
+                var wrapper = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Get_OpenGroup();
+                wrapper.Add(propertyField);
+                return wrapper;
+            }
+            else
+                return propertyField;
         }
         
         #endregion

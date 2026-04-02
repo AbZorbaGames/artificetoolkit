@@ -72,6 +72,7 @@ Group Attributes can be used to bring together various properties in a form of a
 - [TabGroup](#tab-group)
 - [HorizontalGroup](#horizontal-group)
 - [VerticalGroup](#vertical-group)
+- [Begin/End Group Attributes](#group-begin-and-group-end-attributes)
 
 Note: BoxGroup and FoldoutGroup can be further enhanced using the GroupColor enum.
 
@@ -244,6 +245,36 @@ private int leftColumnInteger;
 private List<int> rightColumn;
 ```
 ![vertical-group-example](./Documentation/artifice_verticalgroup.jpg)
+
+### Group Begin and Group End attributes
+If you want a plethora of elements to be added in a Group (for example a BoxGroup), it becomes really repetitive and this felt unwanted. For this reason, artifice now supports an alternate way of using groups called the Begin/End paradigm.
+
+This process, makes adding EnableIf and Colors to groups much easier and more intuitive! The only GroupAttribute not supported yet is the TabGroup which will be implemented in the future.
+
+```c#
+[EnableIf(nameof(shouldShowGroup))]
+[BoxGroupBegin("A", GroupColor.Blue)] 
+public int x;
+
+[HorizontalGroupBegin("A/row")]
+public int y;
+public int z;
+[GroupEnd]
+
+[FoldoutGroupBegin("A/Settings", GroupColor.Blue)]
+public int a;
+public int b;
+public int c;
+[GroupEnd]
+
+[GroupEnd]
+
+public bool shouldShowGroup = true;
+```
+
+<div style="display: flex; justify-content: center;">
+    <img src="./Documentation/artifice_groupbeginend.gif" alt="GIF Example"/>
+</div>
 
 ---
 

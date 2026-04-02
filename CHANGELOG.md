@@ -1,4 +1,9 @@
 # Change Log:
+## 2.3.0
+- Enhancement: Added new system to add Group attributes using `Begin` and `End` typology. See section `Group Begin and Group End attributes` of README.
+- Fix: Validator Modules now skip size property of arrays. This was resulting to unwanted validation logs.
+- Fix: Horizontal and Vertical groups are now always transparent.
+
 ## 2.2.4
 - Fix: Added margin for `InlineObject` on materials
 - Fix: Fixed `Required` not triggering on class declaration and arrays.

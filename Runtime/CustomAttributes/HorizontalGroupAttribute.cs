@@ -6,17 +6,13 @@ namespace ArtificeToolkit.Attributes
     {
         public readonly float WidthPercent = -1;
         
-        public HorizontalGroupAttribute() : base("Horizontal Group")
+        public HorizontalGroupAttribute() : base("Horizontal Group", GroupColor.Transparent)
         {
             
         }
-        public HorizontalGroupAttribute(string groupName) : base(groupName)
+        public HorizontalGroupAttribute(string groupName) : base(groupName, GroupColor.Transparent)
         {
             
-        }
-        public HorizontalGroupAttribute(string groupName, float widthPercentPercent = -1) : this(groupName)
-        {
-            WidthPercent = widthPercentPercent;
         }
     }
 }

@@ -1,5 +1,5 @@
 .default-content-container{
-    background-color: #3F3F3F;
+    /* Color is now set through script. */
 }
 
 .title-container{
@@ -7,7 +7,7 @@
     border-color: black;
     border-radius: 3px;
 
-    background-color: #2D2D2D;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .title-label{
