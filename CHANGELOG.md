@@ -1,4 +1,7 @@
 # Change Log:
+## 2.3.1
+- Fix: Corrected namespace of `Artifice_CustomAttributeDrawer_VerticalGroupBeginAttribute`, conflicting with default Editor namespace.
+
 ## 2.3.0
 - Enhancement: Added new system to add Group attributes using `Begin` and `End` typology. See section `Group Begin and Group End attributes` of README.
 - Fix: Validator Modules now skip size property of arrays. This was resulting to unwanted validation logs.
