@@ -1,4 +1,7 @@
 # Change Log:
+## 2.3.2
+- Fix: Added empty custom attribute drawer for `SortAttribute` to skip warning of non-existing drawer.
+
 ## 2.3.1
 - Fix: Corrected namespace of `Artifice_CustomAttributeDrawer_VerticalGroupBeginAttribute`, conflicting with default Editor namespace.
 
