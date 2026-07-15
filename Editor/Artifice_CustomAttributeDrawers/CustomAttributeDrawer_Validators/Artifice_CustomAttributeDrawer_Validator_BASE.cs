@@ -23,7 +23,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             // Check if this is a valid attribute
             if (!IsApplicableToProperty(property))
-                return new Artifice_VisualElement_InfoBox($"Attribute is not applicable for this property [{property.name}]", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon);
+                return new Artifice_VisualElement_InfoBox($"`{GetType().Name}` is not applicable for this property [{property.name}]", Artifice_SCR_CommonResourcesHolder.instance.ErrorIcon);
 
             // Add error on container and hide unless stated otherwise
             IsValid(property); // Invoke is valid once, so the message is updated on the OnPrePropertyGUI as well.

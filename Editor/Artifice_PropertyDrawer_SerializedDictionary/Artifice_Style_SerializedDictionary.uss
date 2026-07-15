@@ -7,9 +7,15 @@
     height: 100%;
     
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     
     margin: 4px;
+}
+
+.serializedPair-content{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
 }
 
 .key-container{
@@ -53,4 +59,25 @@
 
 .add-item-container Artifice_VisualElement_LabeledButton{
     width: 70px;
+}
+
+/* Orange outline for the first occurrence of a duplicate key */
+.key-duplicate-first {
+    border-width: 2px;
+    border-color: #FF9800;
+    border-radius: 3px;
+}
+
+/* Red outline for subsequent duplicate keys (these will be skipped) */
+.key-duplicate-skipped {
+    border-width: 2px;
+    border-color: #F44336;
+    border-radius: 3px;
+}
+
+/* HelpBox warning for duplicate keys */
+.duplicate-warning-helpbox {
+    transition: 0.5s;
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
