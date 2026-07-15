@@ -790,7 +790,7 @@ namespace ArtificeToolkit.Editor
                 case SerializedPropertyType.String:
                     return property.stringValue;
                 case SerializedPropertyType.ObjectReference:
-                    return property.objectReferenceValue != null ? property.objectReferenceValue.ToString() : "null";
+                    return property.objectReferenceValue != null ? property.objectReferenceValue.GetHashCode().ToString() : "null";
                 case SerializedPropertyType.Enum:
                     return property.enumDisplayNames[property.enumValueIndex];
                 case SerializedPropertyType.Vector2:
@@ -803,6 +803,25 @@ namespace ArtificeToolkit.Editor
                     return property.rectValue.ToString();
                 case SerializedPropertyType.Bounds:
                     return property.boundsValue.ToString();
+                case SerializedPropertyType.Generic:
+                {
+                    if (property.isArray)
+                        return "Unsupported Array";
+
+                    var result = "";
+                    var iterator = property.Copy();
+                    var endProperty = iterator.GetEndProperty();
+                    var enterChildren = true;
+                    while (iterator.NextVisible(enterChildren))
+                    {
+                        if (SerializedProperty.EqualContents(iterator, endProperty))
+                            break;
+                            
+                        result += iterator.GetValueString() + "|";
+                        enterChildren = false;
+                    }
+                    return result;
+                }
                 default:
                     return $"Unsupported {property.propertyType.ToString()}";
             }

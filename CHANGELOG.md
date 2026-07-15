@@ -1,4 +1,7 @@
 # Change Log:
+## 2.3.3
+- Enhancement: `SerializedDictionary` now allows duplicate keys in the editor (functioning like a plain list) and provides real-time visual warnings for them. Duplicates are safely skipped during deserialization to maintain dictionary integrity.
+
 ## 2.3.2
 - Fix: Added empty custom attribute drawer for `SortAttribute` to skip warning of non-existing drawer.
 
