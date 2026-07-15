@@ -29,8 +29,8 @@ namespace ArtificeToolkit.Runtime.SerializedDictionary
         }
 
         [SerializeField] private List<SerializedDictionaryPair> list = new();
-
-        public Dictionary<TK, TV> Dict = new();
+        
+        private Dictionary<TK, TV> _dict = new();
 
         #region ISerializationCallbackReceiver Interface
 
@@ -45,7 +45,7 @@ namespace ArtificeToolkit.Runtime.SerializedDictionary
                     existingKeys.Add(pair.Key);
             }
 
-            foreach (var kvp in Dict)
+            foreach (var kvp in _dict)
             {
                 if (!existingKeys.Contains(kvp.Key))
                 {
@@ -56,14 +56,14 @@ namespace ArtificeToolkit.Runtime.SerializedDictionary
 
         public void OnAfterDeserialize()
         {
-            Dict.Clear();
+            _dict.Clear();
             foreach (var entry in list)
             {
                 // First-wins: skip entries with duplicate keys
-                if (Dict.ContainsKey(entry.Key))
+                if (_dict.ContainsKey(entry.Key))
                     continue;
 
-                Dict.Add(entry.Key, entry.Value);
+                _dict.Add(entry.Key, entry.Value);
             }
         }
 
@@ -73,38 +73,38 @@ namespace ArtificeToolkit.Runtime.SerializedDictionary
 
         public TV this[TK key]
         {
-            get => Dict[key];
-            set => Dict[key] = value;
+            get => _dict[key];
+            set => _dict[key] = value;
         }
 
-        public ICollection<TK> Keys => Dict.Keys;
+        public ICollection<TK> Keys => _dict.Keys;
 
-        public ICollection<TV> Values => Dict.Values;
+        public ICollection<TV> Values => _dict.Values;
 
-        public int Count => Dict.Count;
+        public int Count => _dict.Count;
 
-        public bool IsReadOnly => ((IDictionary<TK, TV>)Dict).IsReadOnly;
+        public bool IsReadOnly => ((IDictionary<TK, TV>)_dict).IsReadOnly;
 
-        public void Add(TK key, TV value) => Dict.Add(key, value);
+        public void Add(TK key, TV value) => _dict.Add(key, value);
 
-        public void Add(KeyValuePair<TK, TV> item) => ((IDictionary<TK, TV>)Dict).Add(item);
+        public void Add(KeyValuePair<TK, TV> item) => ((IDictionary<TK, TV>)_dict).Add(item);
 
-        public void Clear() => Dict.Clear();
+        public void Clear() => _dict.Clear();
 
-        public bool Contains(KeyValuePair<TK, TV> item) => ((IDictionary<TK, TV>)Dict).Contains(item);
+        public bool Contains(KeyValuePair<TK, TV> item) => ((IDictionary<TK, TV>)_dict).Contains(item);
 
-        public bool ContainsKey(TK key) => Dict.ContainsKey(key);
+        public bool ContainsKey(TK key) => _dict.ContainsKey(key);
 
         public void CopyTo(KeyValuePair<TK, TV>[] array, int arrayIndex) =>
-            ((IDictionary<TK, TV>)Dict).CopyTo(array, arrayIndex);
+            ((IDictionary<TK, TV>)_dict).CopyTo(array, arrayIndex);
 
-        public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() => Dict.GetEnumerator();
+        public IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() => _dict.GetEnumerator();
 
-        public bool Remove(TK key) => Dict.Remove(key);
+        public bool Remove(TK key) => _dict.Remove(key);
 
-        public bool Remove(KeyValuePair<TK, TV> item) => ((IDictionary<TK, TV>)Dict).Remove(item);
+        public bool Remove(KeyValuePair<TK, TV> item) => ((IDictionary<TK, TV>)_dict).Remove(item);
 
-        public bool TryGetValue(TK key, out TV value) => Dict.TryGetValue(key, out value);
+        public bool TryGetValue(TK key, out TV value) => _dict.TryGetValue(key, out value);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
