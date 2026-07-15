@@ -334,7 +334,9 @@ namespace ArtificeToolkit.Editor
             container.Add(BuildTrackedListTitleUI("Validator Types"));
             
             // Add list view
-            var validatorModules = Artifice_Validator.Instance.Get_ValidatorModules();
+            var validatorModules = Artifice_Validator.Instance.Get_ValidatorModules()
+                .Where(v => v.DisplayOnFiltersList)
+                .ToList();
             
             var listView = new ListView(
                 validatorModules,
@@ -344,11 +346,6 @@ namespace ArtificeToolkit.Editor
                 {
                     var validatorTypeName = validatorModules[i].GetType().Name;
 
-                    // Change display mode based on display on filters.
-                    if (validatorModules[i].DisplayOnFiltersList)
-                        elem.style.display = DisplayStyle.Flex;
-                    else
-                        elem.style.display = DisplayStyle.None;
                     
                     var itemElem = (ToggleListItem)elem;
                     itemElem.Set(
