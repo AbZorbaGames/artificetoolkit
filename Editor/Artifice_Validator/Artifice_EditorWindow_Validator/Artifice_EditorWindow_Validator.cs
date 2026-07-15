@@ -141,6 +141,7 @@ namespace ArtificeToolkit.Editor
         
         // Filter mechanism
         private List<Func<Artifice_Validator.ValidatorLog, bool>> _filters;
+        private readonly List<Type> _selectedValidatorTypes = new();
         
         // Dynamic VisualElement References
         private ListView _logsListView;
@@ -189,6 +190,7 @@ namespace ArtificeToolkit.Editor
             // _filters.Add(log => OnSelectedScenesFilter(log) || OnSelectedAssetPathFilter(log));
             _filters.Add(OnSelectedValidatorTypesFilter);
             _filters.Add(OnLogTypeTogglesFilter);
+            _filters.Add(OnListViewSelectionFilter);
             
             Artifice_Validator.Instance.OnLogsRefreshEvent.AddListener(OnLogsRefresh);
         }
@@ -243,7 +245,7 @@ namespace ArtificeToolkit.Editor
             rootVisualElement.Add(splitPane);
 
             // Build Tracked locations
-            var trackedContainers = new ScrollView();
+            var trackedContainers = new VisualElement();
             trackedContainers.AddToClassList("tracked-containers-container");
             // trackedContainers.Add(BuildTrackedScenesUI()); // Removed for now. It seemed obnoxious and useless. 
             // trackedContainers.Add(BuildTrackedAssetFoldersUI()); // Removed for now. It seems kind of useless with many validations being conflicting from asset space to scene space.
@@ -327,6 +329,7 @@ namespace ArtificeToolkit.Editor
         private VisualElement BuildTrackedValidatorTypesUI()
         {
             var container = new VisualElement();
+            container.style.flexGrow = 1;
             container.AddToClassList("tracked-list-container");
             container.AddToClassList("space-top");
             
@@ -371,6 +374,19 @@ namespace ArtificeToolkit.Editor
                     });
                 }
             );
+
+            listView.style.flexGrow = 1;
+            listView.selectionType = SelectionType.Multiple;
+            listView.selectionChanged += items =>
+            {
+                _selectedValidatorTypes.Clear();
+                foreach (var item in items)
+                {
+                    _selectedValidatorTypes.Add(item.GetType());
+                }
+                RefreshFilteredLogs();
+            };
+
             container.Add(listView);
             
             return container;
@@ -443,6 +459,14 @@ namespace ArtificeToolkit.Editor
         private bool OnLogTypeTogglesFilter(Artifice_Validator.ValidatorLog log)
         {
             return _config.logTypesMap[log.LogType];
+        }
+
+        private bool OnListViewSelectionFilter(Artifice_Validator.ValidatorLog log)
+        {
+            if (_selectedValidatorTypes.Count == 0)
+                return true;
+
+            return _selectedValidatorTypes.Contains(log.OriginValidatorType);
         }
         
         #endregion
