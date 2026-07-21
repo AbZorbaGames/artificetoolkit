@@ -33,7 +33,7 @@
 
 .inline-object-header-enabled{
     transition: 0.5s;
-    background-color: var(--unity-colors-inspector_titlebar-background);
+    background-color: rgba(0, 0, 0, 0.2);
     border-width: 1px;
     border-color: var(--unity-colors-inspector_titlebar-border);
 

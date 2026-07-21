@@ -8,6 +8,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     public abstract class Artifice_VisualElement_Group : VisualElement, IArtifice_Persistence
     {
         #region FIELDS
+
+        private const string ExplicitColorClass = "group-color-explicit";
         
         // Public override for nested groups
         public override VisualElement contentContainer => _customContentContainer;
@@ -57,7 +59,11 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             foreach (GroupColor color in Enum.GetValues(typeof(GroupColor)))
                 RemoveFromClassList(GetGroupColorClass(color));
 
+            RemoveFromClassList(ExplicitColorClass);
             AddToClassList(GetGroupColorClass(groupColor));
+
+            if (groupColor is not GroupColor.Default and not GroupColor.Transparent)
+                AddToClassList(ExplicitColorClass);
         }
 
         private static string GetGroupColorClass(GroupColor groupColor)

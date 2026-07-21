@@ -71,3 +71,24 @@
     --artifice-group-content-color: transparent;
     --artifice-group-title-color: transparent;
 }
+
+/* Explicit group colors remain visible through nested drawers. */
+.group-container.group-color-explicit .artifice-list{
+    background-color: transparent;
+}
+
+.group-container.group-color-explicit .inline-property-children-container{
+    background-color: transparent;
+}
+
+.group-container.group-color-explicit .inline-object-open{
+    background-color: transparent;
+}
+
+.group-container.group-color-explicit .inline-property-header-container{
+    background-color: rgba(0, 0, 0, 0.10);
+}
+
+.group-container.group-color-explicit .inline-object-header-enabled{
+    background-color: rgba(0, 0, 0, 0.10);
+}

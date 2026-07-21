@@ -19,7 +19,8 @@
 }
 
 .tab-title-container{
-    background-color: var(--unity-colors-tab-background);
+    /*background-color: var(--unity-colors-tab-background);*/
+    background-color: rgba(0, 0, 0, 0.4);
     -unity-text-align: middle-center;
     padding: 6px;
     
