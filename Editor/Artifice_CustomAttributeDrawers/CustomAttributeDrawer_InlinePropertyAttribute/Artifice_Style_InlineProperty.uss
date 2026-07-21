@@ -2,15 +2,15 @@
     margin: 2px;
 
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
     border-radius: 3px;
 }
 
 .inline-property-header-container{
     border-bottom-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-inspector_titlebar-border);
     border-radius: 3px;
-    background-color: #2D2D2D;
+    background-color: var(--unity-colors-inspector_titlebar-background);
 }
 
 .inline-property-header{
@@ -19,7 +19,7 @@
 
 .inline-property-children-container{
     padding: 3px;
-    background-color: #3F3F3F;
+    background-color: var(--unity-colors-box-background);
 }
 
 .inline-property-borderless{

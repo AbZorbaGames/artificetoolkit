@@ -1,19 +1,73 @@
 .group-container{
+    --artifice-group-content-color: var(--unity-colors-box-background);
+    --artifice-group-title-color: var(--unity-colors-inspector_titlebar-background);
+
     width: 100%;
     margin: 2px;
 
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
     border-radius: 3px;
 }
 
 .content-container{
     width: 100%;
     padding: 3px;
+    background-color: var(--artifice-group-content-color);
 
     justify-content: center;
 }
 
 .group-child{
     width: 100%;
+}
+
+.group-container.group-color-default{
+    --artifice-group-content-color: var(--unity-colors-box-background);
+    --artifice-group-title-color: var(--unity-colors-inspector_titlebar-background);
+}
+
+.group-container.group-color-black{
+    --artifice-group-content-color: rgba(0, 0, 0, 0.16);
+    --artifice-group-title-color: rgba(0, 0, 0, 0.28);
+}
+
+.group-container.group-color-blue{
+    --artifice-group-content-color: rgba(50, 110, 180, 0.20);
+    --artifice-group-title-color: rgba(50, 110, 180, 0.32);
+}
+
+.group-container.group-color-red{
+    --artifice-group-content-color: rgba(190, 65, 65, 0.18);
+    --artifice-group-title-color: rgba(190, 65, 65, 0.30);
+}
+
+.group-container.group-color-green{
+    --artifice-group-content-color: rgba(45, 145, 80, 0.18);
+    --artifice-group-title-color: rgba(45, 145, 80, 0.30);
+}
+
+.group-container.group-color-yellow{
+    --artifice-group-content-color: rgba(190, 150, 25, 0.18);
+    --artifice-group-title-color: rgba(190, 150, 25, 0.30);
+}
+
+.group-container.group-color-orange{
+    --artifice-group-content-color: rgba(210, 115, 35, 0.18);
+    --artifice-group-title-color: rgba(210, 115, 35, 0.30);
+}
+
+.group-container.group-color-pink{
+    --artifice-group-content-color: rgba(190, 70, 130, 0.18);
+    --artifice-group-title-color: rgba(190, 70, 130, 0.30);
+}
+
+.group-container.group-color-purple{
+    --artifice-group-content-color: rgba(125, 75, 185, 0.18);
+    --artifice-group-title-color: rgba(125, 75, 185, 0.30);
+}
+
+.group-container.group-color-transparent{
+    --artifice-group-content-color: transparent;
+    --artifice-group-title-color: transparent;
 }

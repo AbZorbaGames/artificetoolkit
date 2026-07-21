@@ -38,12 +38,12 @@
 .filter-components-container{
     width: 90%;
     padding: 10px;
-    background-color: #373737;
+    background-color: var(--unity-colors-box-background);
     
     align-self: center;
     margin-bottom: 20px;
     
-    border-color: #000000;
+    border-color: var(--unity-colors-default-border);
     border-width: 1px;
     border-radius: 10px;
 }
@@ -59,7 +59,7 @@
 
 .filter-component-button{
     flex-direction: row;
-    background-color: #444444;
+    background-color: var(--unity-colors-button-background);
     height: 25px;
     width: 100%;
     margin-top: 3px;
@@ -67,16 +67,16 @@
     justify-content: flex-start;
 
     border-width: 1px;
-    border-color: #1e1e1e;
+    border-color: var(--unity-colors-button-border);
 
     border-bottom-width: 2px;
-    border-bottom-color: #000000;
+    border-bottom-color: var(--unity-colors-button-border_accent);
 
     overflow: hidden;
 }
 
 .filter-component-button:hover{
-    background-color: #565252;
+    background-color: var(--unity-colors-button-background-hover);
 }
 
 .filter-component-button Label{
@@ -90,11 +90,11 @@
 }
 
 .filter-component-button-selected{
-    background-color: #386A81;
+    background-color: var(--unity-colors-highlight-background);
 }
 
 .filter-component-button-selected:hover{
-    background-color: #458fb2;
+    background-color: var(--unity-colors-button-background-hover_pressed);
 }
 
 .fast-category-type-list {
@@ -108,17 +108,17 @@
     width: 75px;
     height: 30px;
     
-    background-color: #444444;
+    background-color: var(--unity-colors-button-background);
     margin: 3px;
     
     border-width: 1px;
     border-right-width: 2px;
     border-bottom-width: 2px;
-    border-color: #171717;
+    border-color: var(--unity-colors-button-border);
 }
 
 .fast-category-type-button-selected{
-    background-color: #386A81;
+    background-color: var(--unity-colors-highlight-background);
 }
 
 .fast-category-type-button > Image{

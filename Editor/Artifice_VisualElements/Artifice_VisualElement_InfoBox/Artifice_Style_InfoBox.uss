@@ -6,9 +6,9 @@
     
     width: 100%;
     max-height: 50px;
-    background-color: #404040;
+    background-color: var(--unity-colors-helpbox-background);
     
-    border-color: black;
+    border-color: var(--unity-colors-helpbox-border);
     border-width: 1px;
     border-radius: 3px;
     

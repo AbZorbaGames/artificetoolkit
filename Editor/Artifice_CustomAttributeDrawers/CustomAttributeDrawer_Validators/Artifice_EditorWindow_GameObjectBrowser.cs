@@ -102,6 +102,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
                 var image = new Image();
                 image.sprite = GetRespectiveSprite();
                 image.AddToClassList("image");
+                if (Artifice_SCR_CommonResourcesHolder.instance.IsNeutralIcon(image.sprite))
+                    image.AddToClassList("artifice-icon--neutral");
                 container.Add(image);
                 
                 // Add Label

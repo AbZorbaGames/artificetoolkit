@@ -1,7 +1,7 @@
 .main-container{
     flex-direction: row;
     
-    background-color: #383838;
+    background-color: var(--unity-colors-app_toolbar_button-background);
     border-radius: 2px;
     
     margin-top: 1px;
@@ -12,7 +12,7 @@
 }
 
 .main-container:hover{
-    background-color: #424242;
+    background-color: var(--unity-colors-app_toolbar_button-background-hover);
 }
 
 .log-button{
@@ -36,4 +36,16 @@
     bottom: -3px;
     width: 90%;
     height: 3px;
+}
+
+.intensity-log{
+    background-color: var(--unity-colors-toolbar_button-text);
+}
+
+.intensity-warning{
+    background-color: var(--unity-colors-warning-text);
+}
+
+.intensity-error{
+    background-color: var(--unity-colors-error-text);
 }

@@ -30,17 +30,17 @@
     height: 13px;
     
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
     border-radius: 10px;
 }
 
 .indicator-enabled{
     transition: 0.5s;
-    background-color: green;
+    background-color: rgb(50, 145, 75);
 }
 .indicator-disabled{
     transition: 0.5s;
-    background-color: red;
+    background-color: var(--unity-colors-error-text);
 }
 
 .label-container{
@@ -52,16 +52,16 @@
     flex-direction: row;
     /*align-items: center;*/
     
-    background-color: #404040;
+    background-color: var(--unity-colors-helpbox-background);
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-helpbox-border);
     border-radius: 5px;
 }
 .label-container .flavor-icon{
     align-self: center;
     font-size: 20px;
     margin-right: 5px;
-    color: #FFC107;
+    color: var(--unity-colors-warning-text);
 }
 .label-container .text{
     flex-shrink: 1;
@@ -88,7 +88,7 @@
     
     border-left-width: 1px;
     border-bottom-width: 2px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     

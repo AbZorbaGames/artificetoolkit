@@ -1,8 +1,8 @@
 .group-container{
     /* Override reset BoxGroup USS */
     border-width: 1px;
-    border-color: rgba(0, 0, 0, 0.49);
-    background-color: rgba(0, 0, 0, 0);
+    border-color: var(--unity-colors-default-border);
+    background-color: transparent;
 }
 .default-content-container{
     flex-direction: column;

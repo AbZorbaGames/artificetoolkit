@@ -21,11 +21,11 @@
     min-width: 80px;
     height: 34px;
     overflow: hidden;
-    background-color: #585858;
+    background-color: var(--unity-colors-button-background);
 }
 
 .toggle-button-pressed{
-    background-color: #2f5ea4;
+    background-color: var(--unity-colors-button-background-pressed);
 }
 
 .extra-control-buttons-container{

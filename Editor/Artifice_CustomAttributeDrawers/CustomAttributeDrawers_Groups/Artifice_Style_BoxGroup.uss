@@ -1,13 +1,13 @@
 .default-content-container{
-    /* Color is now set through script. */
+    background-color: var(--artifice-group-content-color);
 }
 
 .title-container{
     border-bottom-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-inspector_titlebar-border);
     border-radius: 3px;
 
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--artifice-group-title-color);
 }
 
 .title-label{

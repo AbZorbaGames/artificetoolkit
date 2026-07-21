@@ -1,5 +1,4 @@
 using ArtificeToolkit.Attributes;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups
@@ -35,17 +34,6 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         public override void SetGroupColor(GroupColor groupColor)
         {
             base.SetGroupColor(groupColor);
-            _titleContainer.style.backgroundColor = DispatchGroupColor_Title(groupColor);
-        }
-
-        private Color DispatchGroupColor_Title(GroupColor groupColor)
-        {
-            var contentColor = DispatchGroupColor_Content(groupColor);
-            contentColor.r *= 0.8f;
-            contentColor.g *= 0.8f;
-            contentColor.b *= 0.8f;
-
-            return contentColor;
         }
     }
 }

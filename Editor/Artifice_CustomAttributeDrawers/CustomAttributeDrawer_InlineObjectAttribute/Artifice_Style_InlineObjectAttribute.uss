@@ -5,7 +5,7 @@
 
 .inline-object-open{
     transition: 0.5s;
-    background-color: #3f3f3f;
+    background-color: var(--unity-colors-box-background);
 
     margin-top: 5px;
     margin-bottom: 5px;
@@ -13,7 +13,7 @@
     padding-right: 5px;
 
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
 }
 .inline-object-close{
     transition: 0.5s;
@@ -28,14 +28,14 @@
     flex-shrink: 0;
     margin-left: 5px;
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-button-border);
 }
 
 .inline-object-header-enabled{
     transition: 0.5s;
-    background-color: #2a2a2a;
+    background-color: var(--unity-colors-inspector_titlebar-background);
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-inspector_titlebar-border);
 
     padding: 5px;
 }
@@ -48,6 +48,7 @@
 }
 
 .null-label{
-    color: rgba(255, 255, 255, 0.43);
+    color: var(--unity-colors-default-text);
+    opacity: 0.43;
     margin-top: 4px;
 }

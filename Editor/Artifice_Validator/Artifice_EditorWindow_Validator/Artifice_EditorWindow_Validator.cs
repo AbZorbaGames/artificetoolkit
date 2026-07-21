@@ -57,6 +57,9 @@ namespace ArtificeToolkit.Editor
             public void Set(Sprite sprite, string text)
             {
                 _image.sprite = sprite;
+                _image.EnableInClassList(
+                    "artifice-icon--neutral",
+                    Artifice_SCR_CommonResourcesHolder.instance.IsNeutralIcon(sprite));
                 _text.text = text;
             }
 

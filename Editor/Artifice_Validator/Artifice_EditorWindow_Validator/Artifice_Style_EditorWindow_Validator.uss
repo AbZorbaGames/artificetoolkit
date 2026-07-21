@@ -4,7 +4,7 @@
     flex-direction: row;
     border-width: 1px;
     border-top-width: 0;
-    border-color: black;
+    border-color: var(--unity-colors-toolbar-border);
     width: 100%;
     height: 25px;
 }
@@ -29,10 +29,10 @@
 }
 
 .list-title-container{
-    background-color: #323232;
+    background-color: var(--unity-colors-inspector_titlebar-background);
     
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-inspector_titlebar-border);
     
     justify-content: center;
     width: 100%;
@@ -59,7 +59,7 @@
     height: 100%;
     
     border-bottom-width: 1px;
-    border-color: #151515;
+    border-color: var(--unity-colors-default-border);
 }
 
 .list-item .icon{
@@ -83,7 +83,7 @@
     overflow: hidden;
     height: 27px;
     border-bottom-width: 1px;
-    border-color: #151515;
+    border-color: var(--unity-colors-default-border);
 }
 
 .list-item .count-label-container{
@@ -92,7 +92,7 @@
     
     width: 20px;
     
-    background-color: #2C2C2C;
+    background-color: var(--unity-colors-box-background);
     border-radius: 20px;
 }
 .list-item .count-label{

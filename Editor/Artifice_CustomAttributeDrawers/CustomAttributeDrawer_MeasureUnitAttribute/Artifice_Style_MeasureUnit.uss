@@ -10,5 +10,5 @@
 .measure-unit-label{
     -unity-text-align: middle-right;
     margin-left: 8px;
-    color: #d0d0d0;
+    color: var(--unity-colors-label-text);
 }

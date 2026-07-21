@@ -1,4 +1,8 @@
 # Change Log:
+## 2.4.0
+- Enhancement: Added native light and dark Unity Editor theme support across Artifice inspectors, custom attributes, editor windows, the Inspector Header, Validator, toolbar integration, and iconography.
+- Enhancement: Group colors now use adaptive semantic surfaces while preserving the existing `GroupColor` API, and parameterless borders follow Unity's active theme without changing explicitly supplied colors.
+
 ## 2.3.3
 - Enhancement: `SerializedDictionary` now allows duplicate keys in the editor (functioning like a plain list) and provides real-time visual warnings for them. Duplicates are safely skipped during deserialization to maintain dictionary integrity.
 - Enhancement: Now selecting a validator type filters additionally for that selected type. "Escape" cancels the selection. 
