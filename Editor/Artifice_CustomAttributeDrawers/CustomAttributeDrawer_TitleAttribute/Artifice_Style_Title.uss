@@ -5,6 +5,6 @@
     border-bottom-width: 1px;
     border-color: grey;
     
-    color: #D9D9D9;
+    color: var(--unity-colors-label-text);
     -unity-font-style: bold;
 }

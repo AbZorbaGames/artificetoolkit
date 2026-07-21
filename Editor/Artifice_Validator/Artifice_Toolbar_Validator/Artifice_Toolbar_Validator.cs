@@ -73,14 +73,14 @@ namespace Artifice.Editor
             Artifice_Validator.Instance.OnLogCounterRefreshedEvent.AddListener(delegate
             {
                 var logCounters = Artifice_Validator.Instance.Get_LogCounters();
-                UpdateLogButton(LogType.Log, logCounters.comments, new Color(0.95f, 0.95f, 0.92f, 1f));
-                UpdateLogButton(LogType.Warning, logCounters.warnings, new Color(0.98f, 0.85f, 0.25f, 1f));
-                UpdateLogButton(LogType.Error, logCounters.errors, new Color(0.85f, 0.2f, 0.2f, 1f));
+                UpdateLogButton(LogType.Log, logCounters.comments);
+                UpdateLogButton(LogType.Warning, logCounters.warnings);
+                UpdateLogButton(LogType.Error, logCounters.errors);
             });
         }
 
         /// <summary> Updates based on LogType the corresponding elements with given values. </summary>
-        private static void UpdateLogButton(LogType type, uint count, Color color)
+        private static void UpdateLogButton(LogType type, uint count)
         {
             // Log Type
             var logLabel = _logLabelsMap[type];
@@ -89,7 +89,7 @@ namespace Artifice.Editor
             // Update Log Intensity
             var logIntensity = _logIntensityElemMap[type];
             var normalizedAlpha = Mathf.Clamp01(count / (float)MaxIntensityCounter); // Normalize to [0,1]
-            logIntensity.style.backgroundColor = new StyleColor(new Color(color.r, color.g, color.b, normalizedAlpha));
+            logIntensity.style.opacity = normalizedAlpha;
         }
 
         #region BUILD UI
@@ -135,6 +135,8 @@ namespace Artifice.Editor
 
             var image = new Image();
             image.sprite = sprite;
+            if (type == LogType.Log)
+                image.AddToClassList("artifice-icon--neutral");
             container.Add(image);
 
             var label = new Label("0");
@@ -146,6 +148,12 @@ namespace Artifice.Editor
             // Add bottom line intensity elem
             var intensityElem = new VisualElement();
             intensityElem.AddToClassList("intensity-bar");
+            intensityElem.AddToClassList(type switch
+            {
+                LogType.Warning => "intensity-warning",
+                LogType.Error => "intensity-error",
+                _ => "intensity-log"
+            });
             container.Add(intensityElem);
 
             _logIntensityElemMap.TryAdd(type, intensityElem);

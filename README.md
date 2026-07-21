@@ -1144,6 +1144,6 @@ Serialized property type Generic does not support value tracking; callback is no
 UnityEditor.RetainedMode:UpdateSchedulers ()
 ```
  
-- The ArtificeToolkit was created with Dark Theme is mind and is currently the only supported color palette.
+- ArtificeToolkit follows Unity's active Personal/Light or Professional/Dark Editor theme automatically in Unity 2022.3 and later.
 
 - `UnityEngine.Tooltip` breaks the rendering of Artifice lists. Use `SafeTooltip` instead.

@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
 
@@ -37,7 +36,7 @@ namespace ArtificeToolkit.Editor.Artifice_ArtificeMenuEditorWindow
 
             if (node.Children.Count > 0 || node.ScriptableObject == null)
             {
-                _collapseImage = new Image { image = EditorGUIUtility.IconContent("d_icon dropdown@2x").image };
+                _collapseImage = new Image();
                 _collapseImage.AddToClassList("menu-item-collapse-button");
                 _collapseImage.RegisterCallback<MouseDownEvent>(evt =>
                 {

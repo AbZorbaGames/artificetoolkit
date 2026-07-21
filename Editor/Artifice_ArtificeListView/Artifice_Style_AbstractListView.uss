@@ -1,7 +1,8 @@
 .artifice-list{
     margin: 3px;
     
-    background-color: #333333;
+    background-color: var(--unity-colors-box-background);
+    
     border-width: 1px;
     border-color: black;
     
@@ -16,7 +17,9 @@
     margin-bottom: 2px;
 
     border-bottom-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
+    
+    background-color: rgba(0, 0, 0, 0.1);
     
     width: 100%;
 }
@@ -32,7 +35,7 @@
 }
 
 .drag-hover{    
-    background-color: #232323;
+    background-color: var(--unity-colors-highlight-background-inactive);
 }
 
 .arrow-symbol-label{
@@ -72,7 +75,7 @@
     flex-shrink: 0;
     
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-input_field-border);
     border-radius: 2px;
     
     max-width: 75px;
@@ -96,7 +99,7 @@
 }
 
 .children-container{
-    background-color: #464646;
+    background-color: transparent;
 }
 
 .element-container{
@@ -105,10 +108,10 @@
     padding-bottom: 2px;
 }
 .element-container-even{
-    background-color: #464646;
+    background-color: transparent;
 }
 .element-container-odd{
-    background-color: #404040;
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 .element-container .property-container{
@@ -155,11 +158,11 @@
 }
 
 .element-container:hover{
-    background-color: #333333;
+    background-color: var(--unity-colors-highlight-background-hover);
 }
 
 .currently-dragged{
-    background-color: #333333;
+    background-color: var(--unity-colors-highlight-background-inactive);
     scale: 1.03 1 1;
     transition: 0.15s;
  }

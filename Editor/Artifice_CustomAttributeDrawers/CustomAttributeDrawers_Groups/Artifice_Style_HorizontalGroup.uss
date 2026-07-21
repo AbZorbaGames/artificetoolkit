@@ -1,6 +1,6 @@
 .default-content-container{
     flex-direction: row;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: transparent;
 }
 
 .content-container{

@@ -10,15 +10,15 @@
     border-width: 1px;
     border-bottom-width: 2px;
     border-left-width: 2px;
-    border-color: #2d2d2d;
+    border-color: var(--unity-colors-button-border);
 
     -unity-text-align: middle-center;
 }
 
 .labeled-button:hover{
-    background-color: #444444;
+    background-color: var(--unity-colors-button-background-hover);
 }
 
 .labeled-button:active{
-    background-color: #4f4f4f;
+    background-color: var(--unity-colors-button-background-pressed);
 }

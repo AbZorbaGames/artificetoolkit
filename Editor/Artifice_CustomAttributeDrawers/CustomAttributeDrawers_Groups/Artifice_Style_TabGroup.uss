@@ -4,7 +4,7 @@
 
 .default-content-container{
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
     
     margin: 0px;
     padding: 3px;
@@ -19,7 +19,8 @@
 }
 
 .tab-title-container{
-    background-color: #2a2a2a;
+    /*background-color: var(--unity-colors-tab-background);*/
+    background-color: rgba(0, 0, 0, 0.4);
     -unity-text-align: middle-center;
     padding: 6px;
     
@@ -27,11 +28,11 @@
     border-bottom-width: 0px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    border-color: black;
+    border-color: var(--unity-colors-default-border);
     
     flex-grow: 1;
 }
 
 .tab-title-container-selected{
-    background-color: #2f5ea4;
+    background-color: var(--unity-colors-highlight-background);
 }

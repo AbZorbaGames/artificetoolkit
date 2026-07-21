@@ -21,11 +21,11 @@
 }
 
 .toggle-section {
-    background-color: rgba(40, 40, 50, 0.4);
+    background-color: var(--unity-colors-box-background);
     border-radius: 8px;
     padding: 16px;
     border-left-width: 4px;
-    border-left-color: rgb(100, 150, 255);
+    border-left-color: var(--unity-colors-link-text);
 }
 
 .toggle-section-title{
@@ -36,7 +36,7 @@
 
 .toggle-help-summary {
     font-size: 12px;
-    color: rgb(180, 180, 190);        /* soft light gray – works in both light/dark skins */
+    color: var(--unity-colors-helpbox-text);
     margin-top: 6px;
     margin-left: 4px;
     margin-bottom: 0px;
@@ -46,10 +46,10 @@
 }
 
 .additional-features-container{
-    background-color: rgba(40, 40, 50, 0.4);
+    background-color: var(--unity-colors-box-background);
         
     border-width: 1px;
-    border-color: rgb(0, 0, 0);
+    border-color: var(--unity-colors-default-border);
     
     padding: 6px;
 }

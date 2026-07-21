@@ -25,6 +25,9 @@ namespace ArtificeToolkit.Editor.VisualElements
             set
             {
                 _image.sprite = value;
+                _image.EnableInClassList(
+                    "artifice-icon--neutral",
+                    ArtificeToolkit.Editor.Resources.Artifice_SCR_CommonResourcesHolder.instance.IsNeutralIcon(value));
                 
                 if(value == null)
                     _image.AddToClassList("hide");
@@ -49,6 +52,7 @@ namespace ArtificeToolkit.Editor.VisualElements
         private Artifice_VisualElement_ToggleButton()
         {
             // Get stylesheet
+            styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
             styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
             // Assign USS to self
             AddToClassList("toggle-button-container");

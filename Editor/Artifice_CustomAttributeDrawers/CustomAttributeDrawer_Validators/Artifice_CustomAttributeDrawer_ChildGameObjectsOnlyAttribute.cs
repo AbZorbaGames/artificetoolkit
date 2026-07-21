@@ -40,6 +40,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             var browserButton = new Image();
             browserButton.sprite = Artifice_SCR_CommonResourcesHolder.instance.MagnifyingGlassIcon;
             browserButton.AddToClassList("browse-button");
+            browserButton.AddToClassList("artifice-icon--neutral");
             wrapper.Add(browserButton);
             
             // Subscribe to button click

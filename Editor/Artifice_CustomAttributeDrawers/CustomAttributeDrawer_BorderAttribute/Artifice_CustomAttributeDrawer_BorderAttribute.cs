@@ -13,10 +13,17 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             
             root.styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
             root.AddToClassList("border");
-            root.style.borderTopColor = attribute.Color;
-            root.style.borderBottomColor = attribute.Color;
-            root.style.borderLeftColor = attribute.Color;
-            root.style.borderRightColor = attribute.Color;
+            if (attribute.UsesThemeDefault)
+            {
+                root.AddToClassList("border--theme-default");
+            }
+            else
+            {
+                root.style.borderTopColor = attribute.Color;
+                root.style.borderBottomColor = attribute.Color;
+                root.style.borderLeftColor = attribute.Color;
+                root.style.borderRightColor = attribute.Color;
+            }
 
             return root;
         }

@@ -13,10 +13,10 @@
 .image{
     padding: 5px;
     
-    background-color: #404040;
+    background-color: var(--unity-colors-preview-background);
     border-radius: 2px;
     border-width: 1px;
-    border-color: black;
+    border-color: var(--unity-colors-preview-border);
 }
 
 .drag-hover{

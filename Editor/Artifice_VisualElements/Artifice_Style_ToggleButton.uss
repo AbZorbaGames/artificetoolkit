@@ -7,19 +7,19 @@
     padding-right: 4px;
     
     border-width: 1px;
-    border-color: #1a1a1a;
+    border-color: var(--unity-colors-button-border);
     
     justify-content: center;
     -unity-text-align: middle-center;
 }
 
 .toggle-button-not-pressed:hover{
-    background-color: #444444;
+    background-color: var(--unity-colors-button-background-hover);
 }
 
 .toggle-button-pressed{
     transition: 0.5s;
-    background-color: #4f4f4f;
+    background-color: var(--unity-colors-button-background-pressed);
 }
 
 .toggle-image{

@@ -12,6 +12,7 @@ namespace ArtificeToolkit.Editor.VisualElements
         private Artifice_VisualElement_InfoBox()
         {
             // Load stylesheet
+            styleSheets.Add(Artifice_Utilities.GetGlobalStyle());
             styleSheets.Add(Artifice_Utilities.GetStyle(GetType()));
             
             // Load container style
@@ -31,17 +32,20 @@ namespace ArtificeToolkit.Editor.VisualElements
         public Artifice_VisualElement_InfoBox(string message) : this()
         {
             _labelMessage.text = message;
-            _image.sprite = Artifice_SCR_CommonResourcesHolder.instance.CommentIcon;
+            Update(Artifice_SCR_CommonResourcesHolder.instance.CommentIcon);
         }
         public Artifice_VisualElement_InfoBox(string message, Sprite sprite) : this()
         {
-            _image.sprite = sprite;
+            Update(sprite);
             _labelMessage.text = message;
         }
 
         public void Update(Sprite sprite)
         {
             _image.sprite = sprite;
+            _image.EnableInClassList(
+                "artifice-icon--neutral",
+                Artifice_SCR_CommonResourcesHolder.instance.IsNeutralIcon(sprite));
         }
         public void Update(string message)
         {

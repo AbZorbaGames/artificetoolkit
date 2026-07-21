@@ -1,4 +1,7 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
+
+[assembly: InternalsVisibleTo("abzorba.artificetoolkit.editor")]
 
 namespace ArtificeToolkit.Attributes
 {
@@ -6,10 +9,12 @@ namespace ArtificeToolkit.Attributes
     public class BorderAttribute : CustomAttribute
     {
         public readonly Color Color;
+        internal bool UsesThemeDefault { get; }
 
         public BorderAttribute()
         {
             Color = Color.black;
+            UsesThemeDefault = true;
         }
 
         public BorderAttribute(string hex)

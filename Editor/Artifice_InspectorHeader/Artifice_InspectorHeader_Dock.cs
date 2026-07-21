@@ -265,7 +265,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
             _filterComponentsButton = new Artifice_VisualElement_LabeledButton("Filter",
                 () => _filterComponentsContainer.ToggleInClassList("visibility-toggle"));
-            _filterComponentsButton.Insert(0, new Image { image = _filterButtonIconTexture });
+            _filterComponentsButton.Insert(0, CreateNeutralImage(_filterButtonIconTexture));
             btnContainer.Add(_filterComponentsButton);
 
             // Search
@@ -295,7 +295,7 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
 
             // "All" Button
             _filterAllButton = BuildUI_FilterButton("All", null);
-            _filterAllButton.Insert(0, new Image { image = _allButtonIconTexture });
+            _filterAllButton.Insert(0, CreateNeutralImage(_allButtonIconTexture));
             _filterAllButton.RegisterCallback<MouseDownEvent>(_ => ClearAllFilters());
             _filterComponentsContainer.Add(_filterAllButton);
 
@@ -464,8 +464,21 @@ namespace ArtificeToolkit.Editor.Artifice_InspectorHeader
                 ? Artifice_SCR_CommonResourcesHolder.instance.ScriptIcon.texture
                 : (Texture2D)EditorGUIUtility.ObjectContent(null, type).image;
 
-            if (icon) btn.Add(new Image { image = icon });
+            if (icon)
+            {
+                var image = new Image { image = icon };
+                if (type == typeof(MonoBehaviour))
+                    image.AddToClassList("artifice-icon--neutral");
+                btn.Add(image);
+            }
             return btn;
+        }
+
+        private static Image CreateNeutralImage(Texture texture)
+        {
+            var image = new Image { image = texture };
+            image.AddToClassList("artifice-icon--neutral");
+            return image;
         }
 
         private void ResetUIState()

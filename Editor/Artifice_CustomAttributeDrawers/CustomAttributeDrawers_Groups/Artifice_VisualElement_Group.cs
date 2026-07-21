@@ -1,6 +1,5 @@
 using System;
 using ArtificeToolkit.Attributes;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups
@@ -9,6 +8,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     public abstract class Artifice_VisualElement_Group : VisualElement, IArtifice_Persistence
     {
         #region FIELDS
+
+        private const string ExplicitColorClass = "group-color-explicit";
         
         // Public override for nested groups
         public override VisualElement contentContainer => _customContentContainer;
@@ -55,35 +56,42 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
 
         public virtual void SetGroupColor(GroupColor groupColor)
         {
-            DefaultContentContainer.style.backgroundColor = DispatchGroupColor_Content(groupColor);
+            foreach (GroupColor color in Enum.GetValues(typeof(GroupColor)))
+                RemoveFromClassList(GetGroupColorClass(color));
+
+            RemoveFromClassList(ExplicitColorClass);
+            AddToClassList(GetGroupColorClass(groupColor));
+
+            if (groupColor is not GroupColor.Default and not GroupColor.Transparent)
+                AddToClassList(ExplicitColorClass);
         }
-        
-        protected Color DispatchGroupColor_Content(GroupColor groupColor)
+
+        private static string GetGroupColorClass(GroupColor groupColor)
         {
             switch (groupColor)
             {
                 case GroupColor.Default:
-                    return new Color(0.25f, 0.25f, 0.25f, 1f);
+                    return "group-color-default";
                 case GroupColor.Black:
-                    return new Color(0.141f, 0.141f, 0.141f, 1);
+                    return "group-color-black";
                 case GroupColor.Blue:
-                    return new Color(0.314f, 0.4f, 0.49f, 1);
+                    return "group-color-blue";
                 case GroupColor.Red:
-                    return new Color(0.49f, 0.314f, 0.314f, 1);
+                    return "group-color-red";
                 case GroupColor.Green:
-                    return new Color(0.333f, 0.49f, 0.314f, 1);
+                    return "group-color-green";
                 case GroupColor.Orange:
-                    return new Color(0.588f, 0.486f, 0.361f, 1);
+                    return "group-color-orange";
                 case GroupColor.Yellow:
-                    return new Color(0.482f, 0.49f, 0.314f, 1);
+                    return "group-color-yellow";
                 case GroupColor.Pink:
-                    return new Color(0.588f, 0.361f, 0.482f, 1);
+                    return "group-color-pink";
                 case GroupColor.Purple:
-                    return new Color(0.486f, 0.361f, 0.588f, 1);
+                    return "group-color-purple";
                 case GroupColor.Transparent:
-                    return new Color(0f, 0f, 0f, 0f);
+                    return "group-color-transparent";
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentOutOfRangeException(nameof(groupColor), groupColor, null);
             }
         }
         

@@ -28,7 +28,7 @@
 }
 
 .browse-menu-container{
-    background-color: #464646;
+    background-color: var(--unity-colors-button-background);
 
     position: absolute;
     right: 0;

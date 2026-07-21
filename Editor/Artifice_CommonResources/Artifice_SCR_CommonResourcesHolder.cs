@@ -63,5 +63,19 @@ namespace ArtificeToolkit.Editor.Resources
             var path = AssetDatabase.GUIDToAssetPath(guid);
             return AssetDatabase.LoadAssetAtPath<Sprite>(path); 
         }
+
+        internal bool IsNeutralIcon(Sprite sprite)
+        {
+            return sprite == CommentIcon ||
+                   sprite == MagnifyingGlassIcon ||
+                   sprite == ScriptIcon ||
+                   sprite == BarsIcon ||
+                   sprite == UnityIcon ||
+                   sprite == FolderIcon ||
+                   sprite == GearIcon ||
+                   sprite == PauseIcon ||
+                   sprite == RefreshIcon ||
+                   sprite == MaximizeIcon;
+        }
     }
 }

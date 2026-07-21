@@ -1,5 +1,5 @@
 .gameobject-browser-container{
-    background-color: #3C3C3C;
+    background-color: var(--unity-colors-window-background);
 }
 
 .search-box-container{
@@ -10,7 +10,7 @@
     padding: 10px;
 
     justify-content: center;
-    background-color: #282828;
+    background-color: var(--unity-colors-input_field-background);
 }
 
 .search-field{
@@ -19,7 +19,7 @@
 }
 
 .browser-element-self-container{
-    background-color: #343434;
+    background-color: var(--unity-colors-button-background);
     flex-direction: row;
     
     padding: 10px;
@@ -29,18 +29,17 @@
     
     border-bottom-width: 2px;
     border-left-width: 2px;
-    border-color: #272727;
+    border-color: var(--unity-colors-button-border);
     
     overflow: hidden;
 }
 
 .browser-element-self-container:hover{
-    background-color: #3a3a3a;
+    background-color: var(--unity-colors-button-background-hover);
     transition: 0.2s;
 }
 
 .raycaster-elem{
-    /*background-color: red;*/
     position: absolute;
     
     top: 0;

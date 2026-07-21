@@ -12,23 +12,27 @@
 }
 
 .red{
-    background-color: rgb(150, 0, 0);
+    background-color: var(--unity-colors-error-text);
 }
 .light-light-grey{
-    background-color: rgb(150, 150, 150);
+    background-color: var(--unity-colors-window-text);
 }
 .light-grey{
-    background-color: rgb(100, 100, 100);
+    background-color: var(--unity-colors-default-text);
 }
 .grey{
-    background-color: rgb(65, 65, 65);
+    background-color: var(--unity-colors-default-background);
 }
 .black{
-    background-color: rgb(25, 25, 25);
+    background-color: var(--unity-colors-window-background);
 }
 .border-black{
     border-radius: 2px;
-    border-color: rgb(25, 25, 25);
+    border-color: var(--unity-colors-default-border);
+}
+
+.artifice-icon--neutral{
+    --unity-image-tint-color: var(--unity-colors-default-text);
 }
 .rounded-border{
     border-radius: 25px;

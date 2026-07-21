@@ -3,3 +3,7 @@
     border-width: 1px;
     border-radius: 2px;
 }
+
+.border--theme-default{
+    border-color: var(--unity-colors-default-border);
+}
