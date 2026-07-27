@@ -1,4 +1,7 @@
 # Change Log:
+## 2.4.1
+- Fix: Optimized abstract list view of artifice for better event subscriptions and overall improvements. Undo-redo was previously causing slow editor times previously.
+
 ## 2.4.0
 - Enhancement: Added native light and dark Unity Editor theme support across Artifice inspectors, custom attributes, editor windows, the Inspector Header, Validator, toolbar integration, and iconography.
 - Enhancement: Group colors now use adaptive semantic surfaces while preserving the existing `GroupColor` API, and parameterless borders follow Unity's active theme without changing explicitly supplied colors.
