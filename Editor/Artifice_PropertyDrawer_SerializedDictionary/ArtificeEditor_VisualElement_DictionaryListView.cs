@@ -49,6 +49,9 @@ namespace ArtificeToolkit.Editor
                 _keyContainer.Clear();
 
                 var keyElement = _artificeDrawer.CreatePropertyGUI(property, useFoldoutForVisibleChildren: false);
+                if (keyElement == null)
+                    return;
+
                 if(keyElement is Foldout foldout)
                     foldout.text = $"Key {_index}";
                 
@@ -58,7 +61,9 @@ namespace ArtificeToolkit.Editor
             public void SetValue(SerializedProperty property)
             {
                 _valueContainer.Clear();
-                _valueContainer.Add(_artificeDrawer.CreatePropertyGUI(property, useFoldoutForVisibleChildren: false));
+                var valueElement = _artificeDrawer.CreatePropertyGUI(property, useFoldoutForVisibleChildren: false);
+                if (valueElement != null)
+                    _valueContainer.Add(valueElement);
             }
         }
         

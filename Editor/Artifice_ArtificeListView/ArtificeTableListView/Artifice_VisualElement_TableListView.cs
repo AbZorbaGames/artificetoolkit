@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
@@ -43,7 +46,8 @@ namespace ArtificeToolkit.Editor
         
         private bool _isClicked;
         private int _selectedLeftColumnIndex;
-        private VisualElement _selectedColumnHandler;
+        private const float MinimumColumnWidthPercent = 5f;
+        private const string ElementValueColumnName = "$value";
         
         #endregion
         
@@ -57,23 +61,42 @@ namespace ArtificeToolkit.Editor
             RegisterCallback<MouseMoveEvent>(OnMouseMoveEventHandler);
             RegisterCallback<MouseUpEvent>(OnMouseUpEventHandler);
         }
-        
-        protected override VisualElement BuildPrePropertyUI(SerializedProperty property)
+
+        protected override void BeforeBuildUIStart()
         {
+            base.BeforeBuildUIStart();
             _fieldColumns.Clear();
             _dragHandlers.Clear();
-            
+            _headerContainer = null;
+            _isClicked = false;
+            _selectedLeftColumnIndex = -1;
+        }
+
+        protected override VisualElement BuildPrePropertyUI(SerializedProperty property)
+        {
             _headerContainer = new VisualElement();
             _headerContainer.AddToClassList("header-container");
 
             var childType = property.GetArrayChildrenType();
             
             // Create field columns and label elements
-            var fields = childType.GetFields();
-            foreach (var field in fields)
+            var fieldNames = childType
+                .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(field =>
+                    !field.IsStatic &&
+                    !field.IsNotSerialized &&
+                    (field.IsPublic || field.GetCustomAttribute<SerializeField>() != null))
+                .Select(field => field.Name)
+                .ToArray();
+
+            // TableList on a primitive or otherwise fieldless type should still render values.
+            if (fieldNames.Length == 0)
+                fieldNames = new[] { ElementValueColumnName };
+
+            foreach (var fieldName in fieldNames)
             {
-                var data = new FieldColumnData(field.Name);
-                data.WidthPercent = 100f / fields.Length; 
+                var data = new FieldColumnData(fieldName);
+                data.WidthPercent = 100f / fieldNames.Length;
                 _fieldColumns.Add(data);
                 
                 var labelContainer = new VisualElement();
@@ -82,7 +105,7 @@ namespace ArtificeToolkit.Editor
                 _headerContainer.Add(labelContainer);
                 data.HeaderElement = labelContainer;
                 
-                var label = new Label(field.Name);
+                var label = new Label(fieldName == ElementValueColumnName ? "Value" : fieldName);
                 labelContainer.Add(label);
             }
             
@@ -127,8 +150,21 @@ namespace ArtificeToolkit.Editor
                 propertyContainer.Add(fieldContainer);
                 
                 // Create sub property field
-                var subProperty = property.FindPropertyRelative(field.Name);
+                var subProperty = field.Name == ElementValueColumnName
+                    ? property
+                    : property.FindPropertyRelative(field.Name);
+                if (subProperty == null)
+                {
+                    fieldContainer.Add(new HelpBox(
+                        $"Serialized field '{field.Name}' was not found.",
+                        HelpBoxMessageType.Error));
+                    continue;
+                }
+
                 var subPropertyField = ArtificeDrawer.CreatePropertyGUI(subProperty, true);
+                if (subPropertyField == null)
+                    continue;
+
                 subPropertyField = ArtificeDrawer.CreateCustomAttributesGUI(subProperty, subPropertyField, ChildrenInjectedCustomAttributes);
                 subPropertyField.AddToClassList("sub-property-field");
                 
@@ -165,13 +201,22 @@ namespace ArtificeToolkit.Editor
             
             // Analogous percent
             var maxSize = _headerContainer.resolvedStyle.width;
+            if (maxSize <= 0)
+                return;
+
             var percentChange = 100f * mouseDelta.x / maxSize;
+            var leftColumn = _fieldColumns[_selectedLeftColumnIndex];
+            var rightColumn = _fieldColumns[_selectedLeftColumnIndex + 1];
+            percentChange = Mathf.Clamp(
+                percentChange,
+                MinimumColumnWidthPercent - leftColumn.WidthPercent,
+                rightColumn.WidthPercent - MinimumColumnWidthPercent);
 
             // Change width percents and refresh
-            _fieldColumns[_selectedLeftColumnIndex].WidthPercent += percentChange;
-            _fieldColumns[_selectedLeftColumnIndex + 1].WidthPercent -= percentChange;
-            _fieldColumns[_selectedLeftColumnIndex].Refresh();
-            _fieldColumns[_selectedLeftColumnIndex + 1].Refresh();
+            leftColumn.WidthPercent += percentChange;
+            rightColumn.WidthPercent -= percentChange;
+            leftColumn.Refresh();
+            rightColumn.Refresh();
             
             // Update drag handler position
             var dragHandler =_dragHandlers[_selectedLeftColumnIndex];

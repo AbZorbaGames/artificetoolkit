@@ -1,5 +1,3 @@
-using System.Linq;
-using ArtificeToolkit.Attributes;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -17,11 +15,11 @@ namespace ArtificeToolkit.Editor
 
         protected override VisualElement BuildPropertyFieldUI(SerializedProperty property, int index)
         {
-            // Should force artifice?
-            var propertyNeedsArtifice = Property.GetCustomAttributes().Any(attribute => attribute is ListElementNameAttribute);
-            
             // Create property's GUI with ArtificeDrawer
-            var propertyField = ArtificeDrawer.CreatePropertyGUI(property, ShouldForceArtifice || propertyNeedsArtifice);
+            var propertyField = ArtificeDrawer.CreatePropertyGUI(property, ShouldForceArtifice || HasListElementNameAttribute);
+            if (propertyField == null)
+                return null;
+
             propertyField = ArtificeDrawer.CreateCustomAttributesGUI(property, propertyField, ChildrenInjectedCustomAttributes);
             propertyField.AddToClassList("property-field");
 

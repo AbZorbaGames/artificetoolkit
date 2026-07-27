@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using ArtificeToolkit.Attributes;
 using ArtificeToolkit.Editor.Resources;
 using ArtificeToolkit.Editor.VisualElements;
 using JetBrains.Annotations;
@@ -13,11 +11,36 @@ namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
 {
     public class ArtificeEditor_VisualElement_HashSetListView : Artifice_VisualElement_AbstractListView
     {
+        private sealed class ComparerAdapter : IEqualityComparer<object>
+        {
+            private readonly IEqualityComparer _comparer;
+
+            public ComparerAdapter(IEqualityComparer comparer)
+            {
+                _comparer = comparer;
+            }
+
+            public new bool Equals(object x, object y)
+            {
+                return _comparer.Equals(x, y);
+            }
+
+            public int GetHashCode(object obj)
+            {
+                return obj == null ? 0 : _comparer.GetHashCode(obj);
+            }
+        }
+
         #region FIELDS
 
         private readonly List<Artifice_VisualElement_InfoBox> _infoBoxes = new();
         
         #endregion
+
+        public ArtificeEditor_VisualElement_HashSetListView()
+        {
+            styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeEditor_VisualElement_HashSetListView)));
+        }
         
         protected override void BeforeBuildUIStart()
         {
@@ -27,9 +50,6 @@ namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
         
         protected override VisualElement BuildPropertyFieldUI(SerializedProperty property, int index)
         {
-            // Should force artifice?
-            var propertyNeedsArtifice = Property.GetCustomAttributes().Any(attribute => attribute is ListElementNameAttribute);
-
             var container = new VisualElement();
             container.AddToClassList("hash-set-entry");
             
@@ -40,7 +60,10 @@ namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
             _infoBoxes.Add(infoBox);
             
             // Create property's GUI with ArtificeDrawer
-            var propertyField = ArtificeDrawer.CreatePropertyGUI(property, ShouldForceArtifice || propertyNeedsArtifice);
+            var propertyField = ArtificeDrawer.CreatePropertyGUI(property, ShouldForceArtifice || HasListElementNameAttribute);
+            if (propertyField == null)
+                return container;
+
             propertyField = ArtificeDrawer.CreateCustomAttributesGUI(property, propertyField, ChildrenInjectedCustomAttributes);
             propertyField.AddToClassList("property-field");
             container.Add(propertyField);
@@ -52,22 +75,19 @@ namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
         {
             base.OnBuildUICompleted();
             
-            contentContainer.styleSheets.Add(Artifice_Utilities.GetStyle(typeof(ArtificeEditor_VisualElement_HashSetListView)));
-            contentContainer.AddToClassList("");
-            
             PerformHashSetCompareCheck();
             
-            contentContainer.TrackPropertyValue(Property, _ => PerformHashSetCompareCheck());
+            // The children container is replaced on every rebuild, so its tracker is detached
+            // with the old UI instead of accumulating on this long-lived root element.
+            ChildrenContainer.TrackPropertyValue(Property, _ => PerformHashSetCompareCheck());
         }
 
         private void PerformHashSetCompareCheck()
         {
-            if (Property.arraySize == 0)
+            if (Property.arraySize == 0 || _infoBoxes.Count != Property.arraySize)
                 return;
             
-            var elementType = Property.GetArrayElementAtIndex(0)
-                .GetTarget<object>()
-                ?.GetType();
+            var elementType = Property.GetArrayChildrenType();
 
             if (elementType == null)
                 return;
@@ -77,23 +97,25 @@ namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
             var comparer = (IEqualityComparer)
                 comparerType.GetProperty("Default").GetValue(null);
 
-            var accepted = new List<object>();
+            var accepted = new Dictionary<object, int>(new ComparerAdapter(comparer));
+            var firstNullIndex = -1;
 
             for (var i = 0; i < Property.arraySize; i++)
             {
                 var property = Property.GetArrayElementAtIndex(i);
                 var target = property.GetTarget<object>();
+                int conflictIndex;
 
-                var conflictIndex = -1;
-
-                // Check for each already inserted element, if it conflicts.
-                for (var j = 0; j < accepted.Count; j++)
+                if (target == null)
                 {
-                    if (comparer.Equals(target, accepted[j]))
-                    {
-                        conflictIndex = j;
-                        break;
-                    }
+                    conflictIndex = firstNullIndex;
+                    if (firstNullIndex < 0)
+                        firstNullIndex = i;
+                }
+                else if (!accepted.TryGetValue(target, out conflictIndex))
+                {
+                    accepted.Add(target, i);
+                    conflictIndex = -1;
                 }
 
                 if (conflictIndex >= 0)
@@ -102,7 +124,6 @@ namespace ArtificeToolkit.Editor.Artifice_PropertyDrawer_SerializedHashSet
                 }
                 else
                 {
-                    accepted.Add(target);
                     Set_InfoBox(_infoBoxes[i], null);
                 }
             }

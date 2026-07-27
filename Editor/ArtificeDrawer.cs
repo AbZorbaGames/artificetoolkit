@@ -804,6 +804,19 @@ namespace ArtificeToolkit.Editor
 
         #region Dispose Pattern
 
+        /// <summary>
+        /// Releases the disposable UI resources created by this drawer without disposing the
+        /// drawer itself. This is used by rebuildable controls which keep one drawer instance
+        /// but replace all of the visual elements it created.
+        /// </summary>
+        internal void ReleaseVisualElementResources()
+        {
+            while (_disposableStack.Count > 0)
+                _disposableStack.Pop().Dispose();
+
+            _doesRequireVisualElementsCache.Clear();
+        }
+
         ~ArtificeDrawer()
         {
             Dispose(false);
@@ -822,12 +835,7 @@ namespace ArtificeToolkit.Editor
 
             // Dispose managed resources
             if (disposing)
-            {
-                while (_disposableStack.Count > 0)
-                    _disposableStack.Pop().Dispose();
-
-                _doesRequireVisualElementsCache.Clear();
-            }
+                ReleaseVisualElementResources();
 
             _disposed = true;
         }

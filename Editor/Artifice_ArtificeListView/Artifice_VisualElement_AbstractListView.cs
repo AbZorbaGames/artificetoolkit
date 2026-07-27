@@ -40,10 +40,6 @@ namespace ArtificeToolkit.Editor
                 Y = y;
             }
 
-            public override int GetHashCode()
-            {
-                return X * 13 + Y * 17;
-            }
         }
         
         // private class 
@@ -59,6 +55,8 @@ namespace ArtificeToolkit.Editor
         protected SerializedProperty Property;
         protected List<CustomAttribute> ChildrenInjectedCustomAttributes = new();
         protected readonly ArtificeDrawer ArtificeDrawer = new();
+        protected bool HasListElementNameAttribute => _listElementNameAttribute != null;
+        protected VisualElement ChildrenContainer => _childrenContainer;
         
         private readonly UIBuilder _uiBuilder = new();
         private readonly List<ChildElement> _children = new();
@@ -66,6 +64,15 @@ namespace ArtificeToolkit.Editor
 
         private static SerializedPropertyCopier _serializedPropertyCopier;
         private bool _disposed;
+        private bool _isAttachedToPanel;
+        private bool _wasAttachedToPanel;
+        private bool _isBuildingListUI;
+        private bool _isRebuildScheduled;
+        private bool _scheduledRebuildRequiresFullBuild;
+        private bool _rebuildAfterCurrentBuild;
+        private IVisualElementScheduledItem _scheduledRebuild;
+        private int _renderedArraySize = -1;
+        private ListElementNameAttribute _listElementNameAttribute;
         
         /* Fields used for dragging elements for reposition */
         private bool _isDraggingElement;
@@ -74,7 +81,7 @@ namespace ArtificeToolkit.Editor
         private float _draggedElementHeight = -1;
         private Vector2 _mouseStartPos = Vector2.zero;
         private readonly int _animationDuration = 300; // In ms
-        private readonly HashSet<ArrayElementSwapRecord> _lateSwapRecord = new();
+        private readonly List<ArrayElementSwapRecord> _lateSwapRecord = new();
         private readonly HashSet<VisualElement> _isBeingAnimated = new();
         
         #endregion
@@ -91,85 +98,168 @@ namespace ArtificeToolkit.Editor
             // Handler move event
             RegisterCallback<MouseMoveEvent>(OnMouseMove, TrickleDown.TrickleDown);
             RegisterCallback<MouseUpEvent>(OnMouseUp);
-            
-            // Register to undo for rebuild
-            Undo.undoRedoPerformed -= BuildListUI;
-            Undo.undoRedoPerformed += BuildListUI;
+            RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+            RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
         }
         
         #region BUILD UI
         
         protected void BuildListUI()
         {
-            if (Property.Verify() == false)
+            if (_disposed || Property.Verify() == false)
                 return;
-            
-            Debug.Assert(Property.isArray, "ArtificeListView only works with Array properties.");
-            _uiBuilder.Create<VisualElement>(
-                "list",
-                elem =>
-                {
-                    Add(elem);
-                },
-                elem =>
-                {
-                    BeforeBuildUIStart();
-                    Property.serializedObject.Update();
-                    
-                    // Refresh lists
-                    _children.Clear();
-                    elem.Clear();
 
-                    // Build Prefab Override Indicator
-                    elem.Add(BuildPrefabOverrideIndicatorUI());
-                    
-                    // Build List Header
-                    elem.Add(BuildListHeaderUI());
-                    
-                    // PreChildren Build
-                    var prePropertyElem = BuildPrePropertyUI(Property);
-                    elem.Add(prePropertyElem);
-                    
-                    // Add children
-                    var index = 0;
-                    _childrenContainer = new VisualElement();
-                    _childrenContainer.AddToClassList("children-container");
-                    _childrenContainer.SetEnabled(_isEditable);
+            if (_isBuildingListUI)
+            {
+                _rebuildAfterCurrentBuild = true;
+                return;
+            }
 
-                    var childrenProperties = Property.GetVisibleChildren();
-                    if (childrenProperties.Count == 1) // childProperty for list size will always exist, so Count == 1 means the list is empty
+            _isBuildingListUI = true;
+            try
+            {
+                Debug.Assert(Property.isArray, "ArtificeListView only works with Array properties.");
+                Property.serializedObject.UpdateIfRequiredOrScript();
+
+                _uiBuilder.Create<VisualElement>(
+                    "list",
+                    elem =>
                     {
-                        var emptyListLabel = new Label("List is empty.");
-                        emptyListLabel.AddToClassList("empty-list-label");
-                        _childrenContainer.Add(emptyListLabel);
-                    }
-                    else
+                        Add(elem);
+                    },
+                    elem =>
                     {
-                        foreach (var childProperty in childrenProperties)
+                        BeforeBuildUIStart();
+
+                        _children.Clear();
+                        _renderedArraySize = Property.arraySize;
+
+                        // Build Prefab Override Indicator
+                        elem.Add(BuildPrefabOverrideIndicatorUI());
+
+                        // Build List Header
+                        elem.Add(BuildListHeaderUI());
+
+                        _childrenContainer = new VisualElement();
+                        _childrenContainer.AddToClassList("children-container");
+                        _childrenContainer.SetEnabled(_isEditable);
+
+                        // Collapsed lists do not need to construct their potentially expensive
+                        // child property trees. Expanding the header performs a full rebuild.
+                        if (Property.isExpanded)
                         {
-                            if (childProperty.propertyType == SerializedPropertyType.ArraySize)
-                                continue;
+                            var prePropertyElem = BuildPrePropertyUI(Property);
+                            if (prePropertyElem != null)
+                                elem.Add(prePropertyElem);
 
-                            var childElem = BuildListElementUI(childProperty, index);
-                            _children.Add(new ChildElement(childElem, childProperty, index++));
-                            _childrenContainer.Add(childElem);
+                            if (_renderedArraySize == 0)
+                            {
+                                var emptyListLabel = new Label("List is empty.");
+                                emptyListLabel.AddToClassList("empty-list-label");
+                                _childrenContainer.Add(emptyListLabel);
+                            }
+                            else
+                            {
+                                for (var index = 0; index < _renderedArraySize; index++)
+                                {
+                                    var childProperty = Property.GetArrayElementAtIndex(index);
+                                    var childElem = BuildListElementUI(childProperty, index);
+                                    _children.Add(new ChildElement(childElem, childProperty, index));
+                                    _childrenContainer.Add(childElem);
+                                }
+                            }
+
+                            elem.Add(_childrenContainer);
                         }
-                    }
-                    elem.Add(_childrenContainer);
 
-                    // Set children container hide state based on isExpanded
-                    if (Property.isExpanded == false)
-                    {
-                        prePropertyElem?.AddToClassList("hide");
-                        _childrenContainer.AddToClassList("hide");
+                        OnBuildUICompleted();
                     }
-                    
-                    Property.serializedObject.ApplyModifiedProperties();
-                    OnBuildUICompleted();
-                }
-            );
-            
-            LoadPersistedData();
+                );
+
+                LoadPersistedData();
+            }
+            finally
+            {
+                _isBuildingListUI = false;
+            }
+
+            if (_rebuildAfterCurrentBuild)
+            {
+                _rebuildAfterCurrentBuild = false;
+                RequestRebuild();
+            }
+        }
+
+        private void RequestRebuild(bool onlyIfStructureChanged = false)
+        {
+            if (_disposed || Property.Verify() == false)
+                return;
+
+            if (_isRebuildScheduled)
+            {
+                if (!onlyIfStructureChanged)
+                    _scheduledRebuildRequiresFullBuild = true;
+                return;
+            }
+
+            if (_isBuildingListUI)
+            {
+                _rebuildAfterCurrentBuild = true;
+                return;
+            }
+
+            if (!_isAttachedToPanel)
+                return;
+
+            _isRebuildScheduled = true;
+            _scheduledRebuildRequiresFullBuild = !onlyIfStructureChanged;
+            _scheduledRebuild = schedule.Execute(() =>
+            {
+                _isRebuildScheduled = false;
+                _scheduledRebuild = null;
+                var requiresFullBuild = _scheduledRebuildRequiresFullBuild;
+                _scheduledRebuildRequiresFullBuild = false;
+
+                if (!_isAttachedToPanel || _disposed || Property.Verify() == false)
+                    return;
+
+                Property.serializedObject.UpdateIfRequiredOrScript();
+                if (requiresFullBuild || Property.arraySize != _renderedArraySize)
+                    BuildListUI();
+            });
+        }
+
+        private void OnAttachToPanel(AttachToPanelEvent evt)
+        {
+            if (_disposed)
+                return;
+
+            _isAttachedToPanel = true;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
+
+            // A reused visual element may have missed changes while it was detached.
+            if (_wasAttachedToPanel)
+                RequestRebuild();
+
+            _wasAttachedToPanel = true;
+        }
+
+        private void OnDetachFromPanel(DetachFromPanelEvent evt)
+        {
+            _isAttachedToPanel = false;
+            _isRebuildScheduled = false;
+            _scheduledRebuildRequiresFullBuild = false;
+            _scheduledRebuild?.Pause();
+            _scheduledRebuild = null;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+        }
+
+        private void OnUndoRedoPerformed()
+        {
+            // Property bindings refresh values themselves. A costly full rebuild is only needed
+            // when Undo changed the array structure (normally its size).
+            RequestRebuild(onlyIfStructureChanged: true);
         }
 
         private VisualElement BuildPrefabOverrideIndicatorUI()
@@ -184,9 +274,9 @@ namespace ArtificeToolkit.Editor
             prefabOverrideIndicator.TrackPropertyValue(Property, trackedProperty =>
             {
                 // Check for difference in size.
-                prefabOverrideIndicator.style.display = Property.prefabOverride ? DisplayStyle.Flex : DisplayStyle.None;                            
-                if(trackedProperty.arraySize != _children.Count)
-                    BuildListUI();
+                prefabOverrideIndicator.style.display = trackedProperty.prefabOverride ? DisplayStyle.Flex : DisplayStyle.None;
+                if(trackedProperty.arraySize != _renderedArraySize)
+                    RequestRebuild();
             });
 
             return prefabOverrideIndicator;
@@ -222,35 +312,42 @@ namespace ArtificeToolkit.Editor
 
             var sizeValueField = new IntegerField();
             sizeValueField.value = sizeProperty.intValue;   
-            sizeValueField.Children().ToList()[0].AddToClassList("size-text");
+            sizeValueField.Q(className: TextInputBaseField<int>.inputUssClassName)?.AddToClassList("size-text");
             sizeValueField.AddToClassList("size-value-field");
             sizeField.Add(sizeValueField);
+
+            var sizeChangeCommitted = false;
+            void CommitSizeChange()
+            {
+                if (sizeChangeCommitted)
+                    return;
+
+                var newSize = Mathf.Max(0, sizeValueField.value);
+                if (newSize == Property.arraySize)
+                    return;
+
+                sizeChangeCommitted = true;
+                sizeProperty.intValue = newSize;
+                Property.serializedObject.ApplyModifiedProperties();
+                RequestRebuild();
+            }
 
             sizeValueField.RegisterCallback<KeyDownEvent>(evt =>
             {
                 // Revert any changes on Escape
                 if (evt.keyCode == KeyCode.Escape)
                 {
-                    sizeProperty.intValue = _children.Count;
+                    sizeValueField.SetValueWithoutNotify(Property.arraySize);
+                    evt.StopPropagation();
                 }
                 // Apply changes on Enter
-                if (evt.keyCode == KeyCode.KeypadEnter && sizeValueField.value != _children.Count)
+                else if (evt.keyCode is KeyCode.Return or KeyCode.KeypadEnter)
                 {
-                    sizeProperty.intValue = sizeValueField.value;
-                    Property.serializedObject.ApplyModifiedProperties();
-                    BuildListUI();
+                    CommitSizeChange();
+                    evt.StopPropagation();
                 }
             });
-            sizeValueField.RegisterCallback<FocusOutEvent>(evt =>
-            {
-                if (sizeValueField.value == _children.Count)
-                    return;
-                
-                // Apply changes on focus lose (click out of value)
-                sizeProperty.intValue = sizeValueField.value;
-                Property.serializedObject.ApplyModifiedProperties();
-                BuildListUI();
-            });
+            sizeValueField.RegisterCallback<FocusOutEvent>(_ => CommitSizeChange());
             
             // Add button for new elements
             var addButton = new Artifice_VisualElement_LabeledButton("+", OnAddItem);
@@ -261,7 +358,8 @@ namespace ArtificeToolkit.Editor
             // Change isExpanded on click
             listHeader.RegisterCallback<MouseDownEvent>(evt =>
             {
-                if (evt.button != 0)
+                if (evt.button != 0 ||
+                    (evt.target != listHeader && evt.target != arrowSymbolLabel && evt.target != _listViewLabel))
                     return;
                 
                 Property.isExpanded = !Property.isExpanded;
@@ -279,7 +377,8 @@ namespace ArtificeToolkit.Editor
                     arrowSymbolLabel.AddToClassList("rotate-0");
                 }
                 
-                BuildListUI();
+                RequestRebuild();
+                evt.StopPropagation();
             });
 
             // Register right-click context menu
@@ -339,7 +438,8 @@ namespace ArtificeToolkit.Editor
             dragControl.RegisterCallback<DetachFromPanelEvent>(_ => dragControl.UnregisterCallback<MouseDownEvent>(OnMouseDown));
 
             // Inherited Implementation of BuildPropertyFieldUI
-            var propertyField = BuildPropertyFieldUI(property, index);
+            var propertyField = BuildPropertyFieldUI(property, index) ?? new VisualElement();
+            propertyField.AddToClassList("property-field");
             // Set dynamic name based on first string and ListElementName
             SetDynamicElementLabelName(property, index, propertyField);
             
@@ -361,7 +461,16 @@ namespace ArtificeToolkit.Editor
 
         protected virtual void BeforeBuildUIStart()
         {
-            // Noop
+            // A rebuild replaces every child created by this drawer. Dispose nested lists and
+            // attribute drawers now instead of retaining them until the parent inspector closes.
+            ArtificeDrawer.ReleaseVisualElementResources();
+            _listElementNameAttribute = Property.GetCustomAttributes()
+                .OfType<ListElementNameAttribute>()
+                .FirstOrDefault();
+            _isDraggingElement = false;
+            _draggedChild = null;
+            _lateSwapRecord.Clear();
+            _isBeingAnimated.Clear();
         }
         
         protected virtual void OnBuildUICompleted()
@@ -382,15 +491,21 @@ namespace ArtificeToolkit.Editor
         {
             Property.arraySize++;
             Property.serializedObject.ApplyModifiedProperties();
-            Property.serializedObject.Update();
-            BuildListUI();
+            RequestRebuild();
         }
 
         protected virtual void OnRemoveItem(int index)
         {
+            var previousSize = Property.arraySize;
             Property.DeleteArrayElementAtIndex(index);
+
+            // Object-reference arrays clear the reference on the first delete and remove the
+            // slot on the second in affected Unity versions.
+            if (Property.arraySize == previousSize)
+                Property.DeleteArrayElementAtIndex(index);
+
             Property.serializedObject.ApplyModifiedProperties();
-            BuildListUI();
+            RequestRebuild();
         }
         
         #endregion
@@ -399,7 +514,9 @@ namespace ArtificeToolkit.Editor
 
         private void OnDragEnterEvent(DragEnterEvent evt)
         {
-            DragAndDrop.visualMode = DragAndDropVisualMode.Link;
+            DragAndDrop.visualMode = CanAcceptObjectDrag()
+                ? DragAndDropVisualMode.Link
+                : DragAndDropVisualMode.Rejected;
             var elem = (VisualElement)evt.target; 
             elem.AddToClassList("drag-hover");
         }
@@ -407,56 +524,56 @@ namespace ArtificeToolkit.Editor
         {
             // This needs to be set every update frame otherwise it is reseted.
             // If reseted, it never calls the DragPerform event 
-            DragAndDrop.visualMode = DragAndDropVisualMode.Generic;
+            DragAndDrop.visualMode = CanAcceptObjectDrag()
+                ? DragAndDropVisualMode.Generic
+                : DragAndDropVisualMode.Rejected;
         }
         private void OnDragPerformEvent(DragPerformEvent evt)
         {
-            DragAndDrop.AcceptDrag();
-            
-            // Check if types match exactly
+            var elem = (VisualElement)evt.target;
             var arrayChildrenType = Property.GetArrayChildrenType();
-            
+            if (!typeof(UnityEngine.Object).IsAssignableFrom(arrayChildrenType))
+            {
+                elem.RemoveFromClassList("drag-hover");
+                return;
+            }
+
+            DragAndDrop.AcceptDrag();
+
             var data = DragAndDrop.objectReferences;
+            var didAddElement = false;
             foreach (var datum in data)
             {
-                // Add element to last position
-                Property.InsertArrayElementAtIndex(Property.arraySize > 0 ? Property.arraySize - 1 : 0);
-                
-                // Get the last element
-                var newProperty = Property.GetArrayElementAtIndex(Property.arraySize -1);
-                var wasNewElementAdded = false;
-                
-                // If array children type is same with datum, simply assign it.
-                if (arrayChildrenType == datum.GetType())
-                {
-                    newProperty.objectReferenceValue = datum;
-                    wasNewElementAdded = true;
-                }
-                else if(datum is GameObject)  // Otherwise, if datum is a GameObject, search components for match
-                {
-                    var component = (datum as GameObject).GetComponent(arrayChildrenType);
-                    if (component != null)
-                    {
-                        newProperty.objectReferenceValue = component;
-                        wasNewElementAdded = true;
-                    }
-                }
-                
-                // In case nothing was added, remove newly added item and maybe console some error?
-                if(!wasNewElementAdded)
-                    Property.DeleteArrayElementAtIndex(Property.arraySize - 1);
-                
-                // Apply/Update
+                UnityEngine.Object valueToAdd = null;
+                if (datum != null && arrayChildrenType.IsAssignableFrom(datum.GetType()))
+                    valueToAdd = datum;
+                else if (datum is GameObject gameObject &&
+                         typeof(Component).IsAssignableFrom(arrayChildrenType))
+                    valueToAdd = gameObject.GetComponent(arrayChildrenType);
+
+                if (valueToAdd == null)
+                    continue;
+
+                Property.arraySize++;
+                Property.GetArrayElementAtIndex(Property.arraySize - 1).objectReferenceValue = valueToAdd;
+                didAddElement = true;
+            }
+
+            if (didAddElement)
+            {
                 Property.serializedObject.ApplyModifiedProperties();
-                Property.serializedObject.Update();
+                RequestRebuild();
             }
             
-            // Rebuild list after loop
-            BuildListUI();
-            
             // Remove darkened container
-            var elem = (VisualElement)evt.target;
             elem.RemoveFromClassList("drag-hover");
+        }
+
+        private bool CanAcceptObjectDrag()
+        {
+            var arrayChildrenType = Property.GetArrayChildrenType();
+            return arrayChildrenType != null &&
+                   typeof(UnityEngine.Object).IsAssignableFrom(arrayChildrenType);
         }
         private void OnDragLeaveEvent(DragLeaveEvent evt)
         {
@@ -546,7 +663,7 @@ namespace ArtificeToolkit.Editor
                 child.VisualElement.style.position = Position.Relative;
             }
             
-            BuildListUI();
+            RequestRebuild();
         }
         private void OnMouseMove(MouseMoveEvent evt)
         {
@@ -689,6 +806,9 @@ namespace ArtificeToolkit.Editor
 
         private void SetDynamicElementLabelName(SerializedProperty property, int index, VisualElement propertyField)
         {
+            if (propertyField == null)
+                return;
+
             // Get the first label if it exists, and apply naming.
             var label = propertyField.Query<Label>().First();
             if (label != null && label.text == property.displayName)
@@ -726,10 +846,9 @@ namespace ArtificeToolkit.Editor
                 }   
                 
                 // Append custom list name after wards.
-                var listElementName = (ListElementNameAttribute)(Property.GetCustomAttributes().FirstOrDefault(attribute => attribute is ListElementNameAttribute));
-                if (listElementName != null)
+                if (_listElementNameAttribute != null)
                 {
-                    var fieldPropertyName = listElementName.FieldName;
+                    var fieldPropertyName = _listElementNameAttribute.FieldName;
                     var fieldProperty = property.FindPropertyRelative(fieldPropertyName);
                     if (fieldProperty != null)
                     {
@@ -758,6 +877,8 @@ namespace ArtificeToolkit.Editor
         private static List<GameObject> GetPrefabVariantLevels(GameObject instance)
         {
             var prefabLevels = new List<GameObject>();
+            if (instance == null)
+                return prefabLevels;
 
             var current = instance;
             while (true)
@@ -779,7 +900,7 @@ namespace ArtificeToolkit.Editor
             // Apply changes to the prefab
             PrefabUtility.ApplyPropertyOverride(property, PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(prefabRoot), InteractionMode.UserAction);
             Property.serializedObject.ApplyModifiedProperties();
-            BuildListUI();
+            RequestRebuild();
         }
 
         private void RevertToPrefab(SerializedProperty property)
@@ -787,7 +908,7 @@ namespace ArtificeToolkit.Editor
             // Revert changes to match the prefab
             PrefabUtility.RevertPropertyOverride(property, InteractionMode.UserAction);
             Property.serializedObject.Update();
-            BuildListUI();
+            RequestRebuild();
         }
         
         /// <summary> Deep copies the list of a serialized property. </summary>
@@ -805,6 +926,7 @@ namespace ArtificeToolkit.Editor
                 _serializedPropertyCopier = new SerializedPropertyCopier();
             
             _serializedPropertyCopier.Paste(destination);
+            RequestRebuild();
         }
         
         #endregion
@@ -826,9 +948,12 @@ namespace ArtificeToolkit.Editor
                 // Handler move event
                 UnregisterCallback<MouseMoveEvent>(OnMouseMove, TrickleDown.TrickleDown);
                 UnregisterCallback<MouseUpEvent>(OnMouseUp);
+                UnregisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+                UnregisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
                 
                 // Unregister to undo for rebuild
-                Undo.undoRedoPerformed -= BuildListUI;
+                Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+                ArtificeDrawer.ReleaseVisualElementResources();
                 _lateSwapRecord.Clear();
                 _isBeingAnimated.Clear();
             }
