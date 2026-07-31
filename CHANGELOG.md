@@ -1,4 +1,8 @@
 # Change Log:
+## 2.5.0
+- Fix: Box groups are now owned by each `ArtificeDrawer`, preventing locked or parallel Inspectors from clearing or reparenting each other's group hierarchies.
+- Breaking: Removed `Artifice_CustomAttributeUtility_GroupsHolder.Instance` and `ClearSerializedObject`. Custom group drawers should use the inherited protected `GroupsHolder` property.
+
 ## 2.4.1
 - Fix: Optimized abstract list view of artifice for better event subscriptions and overall improvements. Undo-redo was previously causing slow editor times previously.
 

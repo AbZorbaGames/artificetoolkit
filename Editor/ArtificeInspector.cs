@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using ArtificeToolkit.Attributes;
-using ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups;
 using UnityEditor;
 using UnityEngine.UIElements;
 
@@ -38,10 +37,9 @@ namespace ArtificeToolkit.Editor
             if (shouldUseDefaultInspector)
                 return base.CreateInspectorGUI();
 
+            _drawer?.Dispose();
             _drawer = new ArtificeDrawer();
             var inspector = _drawer.CreateInspectorGUI(serializedObject);
-
-            Artifice_CustomAttributeUtility_GroupsHolder.Instance.CloseOpenGroups();
             
             return inspector;
         }
@@ -52,8 +50,7 @@ namespace ArtificeToolkit.Editor
             if (_drawer != null) // Folder inspectors would errors otherwise
             {
                 _drawer.Dispose();
-                // Clear Box Group Holder data
-                Artifice_CustomAttributeUtility_GroupsHolder.Instance.ClearSerializedObject(serializedObject);
+                _drawer = null;
             }
         }
 

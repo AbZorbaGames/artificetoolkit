@@ -12,10 +12,16 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         
         protected virtual Type VisualElementType { get; } =null;
         protected virtual bool IsOpenGroupDrawer { get; } = false;
+        protected Artifice_CustomAttributeUtility_GroupsHolder GroupsHolder { get; private set; }
 
         public Type Get_VisualElementType() => VisualElementType;
         
         #endregion
+
+        internal void SetGroupsHolder(Artifice_CustomAttributeUtility_GroupsHolder groupsHolder)
+        {
+            GroupsHolder = groupsHolder ?? throw new ArgumentNullException(nameof(groupsHolder));
+        }
         
         /* Use OnPrePropertyGUI to initialize nested container order and types */
         public override VisualElement OnPrePropertyGUI(SerializedProperty property)
@@ -23,7 +29,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             var groupElement = CreateOrGetContainer(property);
 
             if (IsOpenGroupDrawer)
-                Artifice_CustomAttributeUtility_GroupsHolder.Instance.PushOpenGroup(groupElement.lastElem);
+                GroupsHolder.PushOpenGroup(groupElement.lastElem);
 
             return null;
         }
@@ -50,10 +56,10 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         protected virtual (Artifice_VisualElement_Group firstElem, Artifice_VisualElement_Group lastElem) CreateOrGetContainer(SerializedProperty property)
         {
             var attribute = (GroupAttribute)Attribute;
-            var groupTuple = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Get(property, attribute.GroupName, VisualElementType);
+            var groupTuple = GroupsHolder.Get(property, attribute.GroupName, VisualElementType);
             groupTuple.lastElem.LoadPersistedData();
             groupTuple.lastElem.SetGroupColor(attribute.GroupColor);
             return groupTuple;
         }
     }
-} 
+}

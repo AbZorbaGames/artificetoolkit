@@ -13,7 +13,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
         {
             var attribute = (TabGroupAttribute)Attribute;
 
-            var groupTuple = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Get(property, attribute.GroupName, VisualElementType);
+            var groupTuple = GroupsHolder.Get(property, attribute.GroupName, VisualElementType);
             
             var tabGroup = (Artifice_VisualElement_TabGroup)groupTuple.lastElem;
             tabGroup.SetGroupColor(attribute.GroupColor);

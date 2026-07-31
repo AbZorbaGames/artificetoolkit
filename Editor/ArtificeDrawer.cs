@@ -26,6 +26,7 @@ namespace ArtificeToolkit.Editor
         #region FIELDS
 
         private readonly Stack<IDisposable> _disposableStack = new();
+        private readonly Artifice_CustomAttributeUtility_GroupsHolder _groupsHolder = new();
         private bool _disposed;
 
         // Cached results for custom attribute usage
@@ -73,51 +74,59 @@ namespace ArtificeToolkit.Editor
         /// <summary> Returns the ArtificeInspector of a SerializedObject. </summary>
         public VisualElement CreateInspectorGUI(SerializedObject serializedObject)
         {
-            // Do nothing while compiling.
-            if (EditorApplication.isCompiling)
-                return new VisualElement();
-            
-            // Make sure serialized object is updated
-            serializedObject.Update(); 
-            
-            // Create initialized artifice inspector container
-            var artificeInspector = CreateArtificeInspectorContainerGUI(serializedObject);
-            
-            // Check whether target object is missing
-            if (serializedObject.targetObject == null)
+            _groupsHolder.Reset();
+            try
             {
-                artificeInspector.Add(CreateScriptMissingUI(serializedObject));
+                // Do nothing while compiling.
+                if (EditorApplication.isCompiling)
+                    return new VisualElement();
+            
+                // Make sure serialized object is updated
+                serializedObject.Update();
+            
+                // Create initialized artifice inspector container
+                var artificeInspector = CreateArtificeInspectorContainerGUI(serializedObject);
+            
+                // Check whether target object is missing
+                if (serializedObject.targetObject == null)
+                {
+                    artificeInspector.Add(CreateScriptMissingUI(serializedObject));
+                    return artificeInspector;
+                }
+            
+                // Fully render out its visible children properties
+                foreach (var property in serializedObject.GetIterator().GetVisibleChildren().SortProperties())
+                {
+                    if (PropertyIgnoreSet.Contains(property.displayName))
+                        continue;
+                
+                    if (Artifice_Utilities.MScriptShouldHide && property.name == "m_Script")
+                        continue;
+                
+                    artificeInspector.Add(CreatePropertyGUI(property.Copy()));
+                }
+
+                // Create optional method buttons Foldout Group for serializedObject
+                artificeInspector.Add(CreateMethodsGUI(serializedObject));
+            
+                // Add artifice indicator if artifice has been used.
+                var targetObject = serializedObject.targetObject;
+                if (targetObject != null && !targetObject.GetType().IsSubclassOf(typeof(EditorWindow)) &&
+                    _doesRequireVisualElementsCache.Any(pair => pair.Value))
+                {
+                    _artificeInspectorIndicator = CreateArtificeIndicatorGUI(serializedObject);
+                    artificeInspector.Add(_artificeInspectorIndicator);
+                }
+            
+                // Apply any modified property
+                serializedObject.ApplyModifiedProperties();
+
                 return artificeInspector;
             }
-            
-            // Fully render out its visible children properties
-            foreach (var property in serializedObject.GetIterator().GetVisibleChildren().SortProperties())
+            finally
             {
-                if (PropertyIgnoreSet.Contains(property.displayName))
-                    continue;
-                
-                if (Artifice_Utilities.MScriptShouldHide && property.name == "m_Script")
-                    continue; 
-                
-                artificeInspector.Add(CreatePropertyGUI(property.Copy()));
+                _groupsHolder.CloseOpenGroups();
             }
-
-            // Create optional method buttons Foldout Group for serializedObject
-            artificeInspector.Add(CreateMethodsGUI(serializedObject));
-            
-            // Add artifice indicator if artifice has been used.
-            var targetObject = serializedObject.targetObject;
-            if (targetObject != null && !targetObject.GetType().IsSubclassOf(typeof(EditorWindow)) &&
-                _doesRequireVisualElementsCache.Any(pair => pair.Value))
-            {
-                _artificeInspectorIndicator = CreateArtificeIndicatorGUI(serializedObject);
-                artificeInspector.Add(_artificeInspectorIndicator);
-            }
-            
-            // Apply any modified property
-            serializedObject.ApplyModifiedProperties();
-
-            return artificeInspector;
         }
 
         /// <summary> Returns an initialized VisualElement container to be used for the Artifice inspector </summary>
@@ -276,6 +285,9 @@ namespace ArtificeToolkit.Editor
                 
                 // Create instance of drawer
                 var attributeDrawer = (Artifice_CustomAttributeDrawer)Activator.CreateInstance(drawerMap[customAttribute.GetType()]);
+                if (attributeDrawer is Artifice_CustomAttributeDrawer_GroupAttribute groupAttributeDrawer)
+                    groupAttributeDrawer.SetGroupsHolder(_groupsHolder);
+
                 attributeDrawer.Attribute = customAttribute;
                 attributeDrawers.Add(attributeDrawer);
                 _disposableStack.Push(attributeDrawer); // Add to disposable stack
@@ -551,6 +563,7 @@ namespace ArtificeToolkit.Editor
                         Artifice_CustomAttributeDrawer_GroupAttribute;
                     Debug.Assert(groupAttributeDrawer != null, "GroupAttribute drawer cannot be null here.");
                     
+                    groupAttributeDrawer.SetGroupsHolder(_groupsHolder);
                     groupAttributeDrawer.Attribute = groupAttribute;
                     _disposableStack.Push(groupAttributeDrawer);
                     
@@ -789,10 +802,10 @@ namespace ArtificeToolkit.Editor
         private VisualElement HandleWrapForOpenGroups(SerializedProperty property, VisualElement propertyField, List<CustomAttribute> customAttributes)
         {
             var hadGroupAttribute = customAttributes.Any(a => a is GroupAttribute);
-            if (hadGroupAttribute == false && Artifice_CustomAttributeUtility_GroupsHolder.Instance.HasOpenGroup())
+            if (hadGroupAttribute == false && _groupsHolder.HasOpenGroup())
             {
                 propertyField.AddToClassList("group-child");
-                var wrapper = Artifice_CustomAttributeUtility_GroupsHolder.Instance.Get_OpenGroup();
+                var wrapper = _groupsHolder.Get_OpenGroup();
                 wrapper.Add(propertyField);
                 return wrapper;
             }
@@ -815,6 +828,7 @@ namespace ArtificeToolkit.Editor
                 _disposableStack.Pop().Dispose();
 
             _doesRequireVisualElementsCache.Clear();
+            _groupsHolder.Reset();
         }
 
         ~ArtificeDrawer()

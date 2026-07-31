@@ -9,8 +9,8 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
     {
         #region FIELDS
 
-        private readonly Dictionary<string, VisualElement> _tabMapHeaders = new Dictionary<string, VisualElement>();
-        private readonly Dictionary<string, VisualElement> _tabMapContainers = new Dictionary<string, VisualElement>();
+        private readonly Dictionary<string, VisualElement> _tabMapHeaders = new();
+        private readonly Dictionary<string, VisualElement> _tabMapContainers = new();
         private readonly VisualElement _headersContainer;
 
         private string _selectedTabKey;

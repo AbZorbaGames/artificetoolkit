@@ -6,39 +6,23 @@ using UnityEngine;
 
 namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttributeDrawers_Groups
 {
-    /// <summary> Singleton class to store shared <see cref="Artifice_VisualElement_Group"/> between properties </summary>
+    /// <summary>
+    /// Stores the <see cref="Artifice_VisualElement_Group"/> instances shared by properties rendered
+    /// by a single <see cref="ArtificeDrawer"/>.
+    /// </summary>
     public class Artifice_CustomAttributeUtility_GroupsHolder
     {
         #region FIELDS
 
-        private readonly Dictionary<string, Dictionary<string, Artifice_VisualElement_Group>> _pathElementMap = new Dictionary<string, Dictionary<string, Artifice_VisualElement_Group>>();
+        private readonly Dictionary<string, Dictionary<string, Artifice_VisualElement_Group>> _pathElementMap = new();
 
         private readonly List<Artifice_VisualElement_Group> _openGroupStack = new();
         
         #endregion
         
-        #region SINGLETON
-
-        private Artifice_CustomAttributeUtility_GroupsHolder()
+        internal Artifice_CustomAttributeUtility_GroupsHolder()
         {
         }
-
-        private static Artifice_CustomAttributeUtility_GroupsHolder _instance;
-
-        public static Artifice_CustomAttributeUtility_GroupsHolder Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new Artifice_CustomAttributeUtility_GroupsHolder();
-                }
-
-                return _instance;
-            }
-        }
-
-        #endregion
 
         /* Uses serializedObject and serializedProperty to generate a unique key based on parent's path */
         private string GetKeyPath(SerializedProperty property)
@@ -111,24 +95,14 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             }
         }
         
-        /* Clears all data regarding the serializedObject parameter*/
-        public void ClearSerializedObject(SerializedObject serializedObject)
+        /// <summary>
+        /// Releases this render owner's group references without mutating any visual tree that may
+        /// still be displayed by Unity.
+        /// </summary>
+        internal void Reset()
         {
-            var hash = serializedObject.GetHashCode();
-
-            var keys = _pathElementMap.Keys.Where(key => key.Contains(hash.ToString())).ToList();
-            foreach (var key in keys)
-            {
-                var elementMap = _pathElementMap[key];
-                var elementMapKeys = elementMap.Keys.ToList();
-                foreach(var elementKey in elementMapKeys)
-                {
-                    elementMap[elementKey].Clear();
-                    elementMap.Remove(elementKey);
-                }
-
-                _pathElementMap.Remove(key);
-            }
+            CloseOpenGroups();
+            _pathElementMap.Clear();
         }
 
         #region Open Groups API
