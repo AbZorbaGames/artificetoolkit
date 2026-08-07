@@ -284,7 +284,8 @@ namespace ArtificeToolkit.Editor
         }
         
         #region Ignored Types | Proxies IArtifice_Persistency
-        
+       
+        public const string DictionarySerializedTypeName = "SerializedKeyValue`2";
         private const string ViewPersistenceKey = "ArtificeIgnoreList";
 
         private void LoadIgnoredTypes()

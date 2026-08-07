@@ -643,8 +643,16 @@ namespace ArtificeToolkit.Editor
             if (_doesRequireVisualElementsCache.TryGetValue(property, out var cachedResult))
                 return cachedResult;
          
-            // Check Ignore List
             var typeName = property.type;
+            
+            // This has been added to cover for Unity's new serialized dictionaries. Will be updated for correctness later in the future.
+            if (typeName == Artifice_Utilities.DictionarySerializedTypeName)
+            {
+                _doesRequireVisualElementsCache[property] = false;
+                return false; 
+            }
+            
+            // Check Ignore List.
             if (property.isArray == false && Artifice_Utilities.ShouldIgnoreTypeName(typeName))
             {
                 _doesRequireVisualElementsCache[property] = false;
