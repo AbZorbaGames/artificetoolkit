@@ -70,7 +70,7 @@ namespace ArtificeToolkit.Editor.Artifice_CustomAttributeDrawers.CustomAttribute
             container.AddToClassList("inline-property-children-container");
             
             // Create content
-            foreach (var childProperty in property.GetVisibleChildren())
+            foreach (var childProperty in property.GetVisibleChildren().SortProperties())
                 container.Add(_artificeDrawer.CreatePropertyGUI(childProperty));
             
             // Create methods
