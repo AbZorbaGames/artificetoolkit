@@ -41,7 +41,11 @@ namespace ArtificeToolkit.Editor
         
         public void ClearData(string viewPersistenceKey)
         {
+            if (!persistedData.ContainsKey(viewPersistenceKey))
+                return;
+
             persistedData[viewPersistenceKey].Clear();
+            Save(true);
         }
     }
 }
